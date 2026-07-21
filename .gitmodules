@@ -1,0 +1,57 @@
+[submodule "base-libraries"]
+	path = base-libraries
+	url = https://github.com/SpineEventEngine/base-libraries.git
+[submodule "core-jvm"]
+	path = core-jvm
+	url = https://github.com/SpineEventEngine/core-jvm.git
+[submodule "validation"]
+	path = validation
+	url = https://github.com/SpineEventEngine/validation.git
+[submodule "tool-base"]
+	path = tool-base
+	url = https://github.com/SpineEventEngine/tool-base.git
+[submodule "delivery-server"]
+	path = delivery-server
+	url = https://github.com/SpineEventEngine/delivery-server.git
+[submodule "config"]
+	path = config
+	url = https://github.com/SpineEventEngine/config.git
+[submodule "compiler"]
+	path = compiler
+	url = https://github.com/SpineEventEngine/compiler.git
+[submodule "time"]
+	path = time
+	url = https://github.com/SpineEventEngine/time.git
+[submodule "logging"]
+	path = logging
+	url = https://github.com/SpineEventEngine/logging.git
+[submodule "jdbc-storage"]
+	path = jdbc-storage
+	url = https://github.com/SpineEventEngine/jdbc-storage.git
+[submodule "core-jvm-compiler"]
+	path = core-jvm-compiler
+	url = https://github.com/SpineEventEngine/core-jvm-compiler.git
+[submodule "ProtoTap"]
+	path = ProtoTap
+	url = https://github.com/SpineEventEngine/ProtoTap.git
+[submodule "base-types"]
+	path = base-types
+	url = https://github.com/SpineEventEngine/base-types.git
+[submodule "testlib"]
+	path = testlib
+	url = https://github.com/SpineEventEngine/testlib.git
+[submodule "change"]
+	path = change
+	url = https://github.com/SpineEventEngine/change.git
+[submodule "reflect"]
+	path = reflect
+	url = https://github.com/SpineEventEngine/reflect.git
+[submodule "money"]
+	path = money
+	url = https://github.com/SpineEventEngine/money.git
+[submodule ".agents/shared"]
+	path = .agents/shared
+	url = https://github.com/SpineEventEngine/agents.git
+	branch = master
+	update = merge
+	ignore = all
