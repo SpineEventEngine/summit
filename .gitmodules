@@ -10,9 +10,6 @@
 [submodule "tool-base"]
 	path = tool-base
 	url = https://github.com/SpineEventEngine/tool-base.git
-[submodule "delivery-server"]
-	path = delivery-server
-	url = https://github.com/SpineEventEngine/delivery-server.git
 [submodule "config"]
 	path = config
 	url = https://github.com/SpineEventEngine/config.git
@@ -49,6 +46,9 @@
 [submodule "money"]
 	path = money
 	url = https://github.com/SpineEventEngine/money.git
+[submodule "gcloud-jvm"]
+	path = gcloud-jvm
+	url = https://github.com/SpineEventEngine/gcloud-jvm.git
 [submodule ".agents/shared"]
 	path = .agents/shared
 	url = https://github.com/SpineEventEngine/agents.git
