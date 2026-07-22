@@ -50,8 +50,10 @@ chunk. Each reads `.agents/guidelines/english-style.md` (present after step 1) a
 edits **prose only** — comments in source, body in Markdown — never identifiers,
 string literals, doc-link targets (`[Type]`), or machine-read directives. Bias:
 *a missed error is cheaper than a wrong fix*; skip ambiguous cases. See
-[`proofread-fanout.workflow.js`](proofread-fanout.workflow.js) for a sketch of this
-step as a saved Workflow — the fan-out as one deterministic call.
+[`proofread-fanout.workflow.js`](proofread-fanout.workflow.js) for this step as a saved
+Workflow — the fan-out as one deterministic, opt-in call that reports any failed chunks
+(`failedFiles`) instead of dropping them. Validated on `base-types`; invoked on demand,
+never auto-run from `proofread-repo`.
 
 **Audit before committing — do NOT rely on `git diff --ignore-all-space`.** A
 `PostToolUse` formatter hook (`sanitize-source-code.sh`) strips trailing whitespace
