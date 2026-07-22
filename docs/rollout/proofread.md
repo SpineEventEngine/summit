@@ -60,9 +60,12 @@ never auto-run from `proofread-repo`.
 file-wide after each edit. That is house style everywhere *except* inside
 whitespace-sensitive **test string literals**, where it silently corrupts fixtures
 (this broke a `StringsSpec` trim test on the first run, caught only by the build +
-reviewers). So: inspect `git diff` **with** whitespace, and restore any stripped
-trailing whitespace inside string literals with `sed` via Bash — the hook fires on
-`Edit`/`Write`/`MultiEdit` only, so a Bash edit is not re-stripped. Then commit.
+reviewers). If you ran the fan-out Workflow, start from its `verification.suspectFiles` —
+its Verify stage inspects every changed file's diff for `whitespace-in-string-literal`
+and non-prose edits; otherwise inspect `git diff` **with** whitespace yourself. Either
+way, restore any stripped trailing whitespace inside string literals with `sed` via Bash
+— the hook fires on `Edit`/`Write`/`MultiEdit` only, so a Bash edit is not re-stripped.
+Then commit.
 
 ## 3. Pre-PR (agent) — run the `pre-pr` skill
 
