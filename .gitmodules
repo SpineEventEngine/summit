@@ -55,3 +55,6 @@
 	branch = master
 	update = merge
 	ignore = all
+[submodule "agents"]
+	path = agents
+	url = https://github.com/SpineEventEngine/agents.git
