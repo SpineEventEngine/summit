@@ -1,5 +1,5 @@
 // proofread-fanout.workflow.js — DRAFT sketch of step 2 (the proofread sweep) as a
-// deterministic fan-out.  *** Not wired up; the Workflow tool requires opt-in. ***
+// deterministic fan-out. *** Not wired up; the Workflow tool requires opt-in. ***
 //
 // Invoke from the calling session:
 //   Workflow({ scriptPath: "docs/rollout/proofread-fanout.workflow.js",
@@ -10,12 +10,12 @@
 //
 // The CALLER pre-scopes `files` (ABSOLUTE paths) and passes the catalog's ABSOLUTE
 // path, because the Workflow runtime has NO filesystem access — it can neither list
-// files nor resolve repo-relative paths.  Scope = `git ls-files` of
+// files nor resolve repo-relative paths. Scope = `git ls-files` of
 // *.kt/*.kts/*.java/*.proto/*.md minus build/, buildSrc/, .idea/, .claude/, .junie/,
 // .github/, .agents/, the config-distributed Markdown, and the generated
-// docs/dependencies/ reports.  This script only chunks and fans out.  After it
+// docs/dependencies/ reports. This script only chunks and fans out. After it
 // returns, the caller AUDITS with whitespace visible (docs/rollout/proofread.md
-// step 2) and commits.  Agents edit DISJOINT files — no worktree isolation needed.
+// step 2) and commits. Agents edit DISJOINT files — no worktree isolation needed.
 
 export const meta = {
   name: 'proofread-fanout',

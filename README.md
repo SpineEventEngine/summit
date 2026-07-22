@@ -20,7 +20,10 @@ SDK. They are grouped below by function, not by strict dependency order.
 
 The shared agent tooling — skills, scripts, and guidelines — lives in the
 [`agents`][agents] repository, mounted at `.agents/shared`. Unlike the submodules
-listed here, it floats to the tip of `master` rather than a pinned commit.
+listed here, that mount floats to the tip of `master` rather than a pinned commit.
+The same repository is also wired in as a pinned top-level submodule at `agents/`,
+so cross-repository automation can run against the tooling repo itself, just as it
+does against the SDK repositories above.
 
 ### Foundation & utilities
 

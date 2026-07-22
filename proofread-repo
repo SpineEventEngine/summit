@@ -5,9 +5,9 @@
 #
 # Owns only the parts that must NOT be re-interpreted each run (the environmental
 # fixes that bit us on the first run: JAVA_HOME, config/pull ordering, and
-# generating authoritative dependency reports via a clean build).  The two
+# generating authoritative dependency reports via a clean build). The two
 # judgement steps — the proofread sweep and the pre-PR review — are agent-driven
-# and run BETWEEN `prep` and `ship`.  See docs/rollout/proofread.md.
+# and run BETWEEN `prep` and `ship`. See docs/rollout/proofread.md.
 #
 # Re-runnable: every step is idempotent, so a run interrupted midway — e.g. when
 # `prep` bails to the bump-version skill for an edge case — resumes cleanly on a
@@ -30,8 +30,8 @@ BRANCH="proofread-sweep"
 
 [ -d "$DIR/.git" ] || { echo "!! no initialised submodule at $DIR"; exit 1; }
 
-# --- Fix #1: JAVA_HOME.  Without it the Gradle Doctor plugin hard-fails every
-# build.  Agent-run skill builds (bump-version, pre-pr) need it too, so a durable
+# --- Fix #1: JAVA_HOME. Without it the Gradle Doctor plugin hard-fails every
+# build. Agent-run skill builds (bump-version, pre-pr) need it too, so a durable
 # `export JAVA_HOME=...` in your shell profile is the real cross-cutting fix; this
 # line only covers the script's own builds.
 export JAVA_HOME="${JAVA_HOME:-$(/usr/libexec/java_home -v 21 2>/dev/null || true)}"
@@ -55,7 +55,7 @@ ensure_branch() {
 pull_shared() {
   # Fix #2: float shared tooling FIRST (brings the current english-style catalog
   # + proofread skill) plus any config-distributed updates; commit as its own
-  # change.  Skip if this branch already carries that commit (re-run safety).
+  # change. Skip if this branch already carries that commit (re-run safety).
   git log --format=%s "origin/$BASE..HEAD" | grep -q '^Update shared agent tooling' \
     && { echo "-- shared tooling already pulled on this branch — skipping"; return 0; }
   ./config/pull
@@ -72,7 +72,7 @@ bump_version() {
 
   # Defer edge cases to the `bump-version` skill (agent): a deprecated
   # `by extra(...)` delegate needing migration, or a non-snapshot/release version
-  # whose increment is not a simple +1.  The skill also builds and commits the
+  # whose increment is not a simple +1. The skill also builds and commits the
   # reports, so a re-run of `prep` afterwards no-ops through the rest.
   if grep -qE 'versionToPublish.*by[[:space:]]+extra\(' "$f"; then
     echo "!! $f uses 'by extra(...)' — run the bump-version skill, then: ./proofread-repo prep $REPO"; exit 3

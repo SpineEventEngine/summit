@@ -5,7 +5,7 @@
 `summit` is a Git superproject (a meta-repository) that assembles the Spine SDK
 repositories as submodules in a single working tree. It exists to automate
 cross-repository work across the SDK: coordinated agent sessions and the shared
-`config`/CI machinery act over many repositories at once. `summit` ships no code and
+`config`/CI machinery act across many repositories at once. `summit` ships no code and
 has no build of its own — its content is the pinned commits of the submodules it
 aggregates, plus the shared agent tooling under `.agents/`.
 
@@ -29,12 +29,12 @@ Gradle plugin, or application.
   govern this repository. The aggregated repositories are JVM (Kotlin/Java) projects
   and are each subject to that guideline in their own right.
 
-<!-- summit has no build of its own; the jvm-project.md link the template offers is
+<!-- `summit` has no build of its own; the jvm-project.md link the template offers is
      intentionally left commented out. -->
 
 ## Cross-repository workflows
 
-Repeatable, parameterised procedures for acting across the SDK repos live under
+Repeatable, parameterised procedures for acting across the SDK repositories live under
 [`docs/rollout/`](rollout/). Each pairs a repo-owned script (the deterministic
 mechanics) with an agent-driven playbook (the judgement steps):
 

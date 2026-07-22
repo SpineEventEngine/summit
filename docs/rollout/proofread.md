@@ -17,7 +17,7 @@ agent-driven and described below. Run the four steps in order for a given `<repo
 ## 0. Prerequisites (once per machine)
 
 - `JAVA_HOME`: `proofread-repo` exports it for its own builds, but the **agent-run**
-  builds (step 1's edge-case bump and step 3's pre-pr) run in separate shells that do
+  builds (step 1's edge-case bump and step 3's `pre-pr`) run in separate shells that do
   **not** inherit it — so a durable `export JAVA_HOME="$(/usr/libexec/java_home -v 21)"`
   in your shell profile is the real fix. Without it the Gradle Doctor plugin
   hard-fails every build.
@@ -41,9 +41,9 @@ and asks you to run the `bump-version` skill first, then re-run `./proofread-rep
 
 **Scope.** `git ls-files` of project-owned prose — `*.kt`, `*.kts`, `*.java`,
 `*.proto`, `*.md`. **Exclude** (not project-owned, or not prose): `build/`,
-`.gradle/`, `buildSrc/`, `.idea/`, `.claude/`, `.junie/`, `.github/`, `.agents/`, `AGENTS.md`,
-`CLAUDE.md`, `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, and the **generated**
-`docs/dependencies/` reports.
+`.gradle/`, `buildSrc/`, `.idea/`, `.claude/`, `.junie/`, `.github/`, `.agents/`,
+`AGENTS.md`, `CLAUDE.md`, `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, and the
+**generated** `docs/dependencies/` reports.
 
 **Fan out.** Split the file list into ~40-file chunks and run one proofreader per
 chunk. Each reads `.agents/guidelines/english-style.md` (present after step 1) and
@@ -72,8 +72,7 @@ it writes the `.git/pre-pr.ok` sentinel that gates PR creation.
 ## 4. Ship (mechanical) — `./proofread-repo ship <repo>`
 
 Verifies the sentinel matches HEAD, discards any post-build report noise, pushes
-`proofread-sweep`, and opens the PR from
-[`proofread-pr-body.md`](proofread-pr-body.md).
+`proofread-sweep`, and opens the PR from [`proofread-pr-body.md`](proofread-pr-body.md).
 
 ## Cost & caveats
 
