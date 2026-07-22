@@ -41,7 +41,7 @@ and asks you to run the `bump-version` skill first, then re-run `./proofread-rep
 
 **Scope.** `git ls-files` of project-owned prose — `*.kt`, `*.kts`, `*.java`,
 `*.proto`, `*.md`. **Exclude** (not project-owned, or not prose): `build/`,
-`.gradle/`, `buildSrc/`, `.idea/`, `.claude/`, `.junie/`, `.github/`, `AGENTS.md`,
+`.gradle/`, `buildSrc/`, `.idea/`, `.claude/`, `.junie/`, `.github/`, `.agents/`, `AGENTS.md`,
 `CLAUDE.md`, `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, and the **generated**
 `docs/dependencies/` reports.
 

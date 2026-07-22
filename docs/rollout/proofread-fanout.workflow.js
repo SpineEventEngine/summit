@@ -3,21 +3,24 @@
 //
 // Invoke from the calling session:
 //   Workflow({ scriptPath: "docs/rollout/proofread-fanout.workflow.js",
-//              args: { repo: "base-libraries", files: [ ...repo-relative prose paths... ] } })
-// (Or move it to .claude/workflows/proofread-fanout.js to invoke it by name — if that
-//  directory is confirmed summit-local and not distributed by ./config/pull.)
+//              args: { repo: "base-types",
+//                      catalog: "/abs/.agents/guidelines/english-style.md",
+//                      files: [ ...ABSOLUTE prose file paths... ],
+//                      chunkSize: 40 } })
 //
-// The CALLER pre-scopes `files` — `git ls-files` of *.kt/*.kts/*.java/*.proto/*.md minus
-// build/, buildSrc/, .idea/, .claude/, .junie/, .github/, the config-distributed Markdown,
-// and the generated docs/dependencies/ reports — because the Workflow runtime has NO
-// filesystem access.  This script only chunks and fans out.  After it returns, the caller
-// AUDITS with whitespace visible (docs/rollout/proofread.md step 2) and commits.  Agents
-// edit DISJOINT files, so no worktree isolation is needed.
+// The CALLER pre-scopes `files` (ABSOLUTE paths) and passes the catalog's ABSOLUTE
+// path, because the Workflow runtime has NO filesystem access — it can neither list
+// files nor resolve repo-relative paths.  Scope = `git ls-files` of
+// *.kt/*.kts/*.java/*.proto/*.md minus build/, buildSrc/, .idea/, .claude/, .junie/,
+// .github/, .agents/, the config-distributed Markdown, and the generated
+// docs/dependencies/ reports.  This script only chunks and fans out.  After it
+// returns, the caller AUDITS with whitespace visible (docs/rollout/proofread.md
+// step 2) and commits.  Agents edit DISJOINT files — no worktree isolation needed.
 
 export const meta = {
   name: 'proofread-fanout',
   description: 'Fan the proofread sweep across a repo\'s prose files, one agent per chunk',
-  phases: [{ title: 'Proofread', detail: 'one proofreader per ~40-file chunk' }],
+  phases: [{ title: 'Proofread', detail: 'one proofreader per file chunk' }],
 }
 
 // Structured report each proofreader returns (validated at the tool-call layer).
@@ -49,13 +52,17 @@ const REPORT = {
   required: ['filesChanged', 'changes', 'skipped'],
 }
 
-const repo = args.repo
-const files = args.files || []
-const CHUNK = 40
+// The Workflow harness may hand `args` in as a JSON string rather than an object;
+// accept either so `args.files` can't silently read as undefined (0 files, 0 agents).
+const A = typeof args === 'string' ? JSON.parse(args) : (args || {})
+const repo = A.repo
+const catalog = A.catalog
+const files = A.files || []
+const CHUNK = A.chunkSize || 40
 const chunks = []
 for (let i = 0; i < files.length; i += CHUNK) chunks.push(files.slice(i, i + CHUNK))
 
-log(`proofread ${files.length} files in ${repo} across ${chunks.length} chunks`)
+log(`proofread ${files.length} files in ${repo} across ${chunks.length} chunk(s)`)
 phase('Proofread')
 
 // One proofreader per chunk, all concurrent (runtime caps at ~cores-2 at a time).
@@ -63,10 +70,10 @@ phase('Proofread')
 const results = await parallel(chunks.map((chunk, i) => () =>
   agent(
     [
-      `Proofread ONLY the files listed below in the repo at ${repo} (paths are repo-relative).`,
-      `First read the catalog .agents/guidelines/english-style.md IN FULL — it is the sole`,
-      `authority on what counts as an error and when to leave text alone. Bias: a missed error`,
-      `is cheaper than a wrong fix — skip anything not clearly correct and record it in "skipped".`,
+      `Proofread ONLY the files listed below (ABSOLUTE paths); they belong to ${repo}.`,
+      `First read the catalog at ${catalog} IN FULL — it is the sole authority on what`,
+      `counts as an error and when to leave text alone. Bias: a missed error is cheaper`,
+      `than a wrong fix — skip anything not clearly correct and record it in "skipped".`,
       ``,
       `Edit PROSE ONLY: comments in .kt/.kts/.java/.proto (KDoc/Javadoc/line/block) and body`,
       `text in .md. NEVER touch identifiers, keywords, string literals, annotations, doc-link`,
