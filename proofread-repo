@@ -28,7 +28,13 @@ DIR="$SUMMIT/$REPO"
 BASE="master"
 BRANCH="proofread-sweep"
 
-[ -d "$DIR/.git" ] || { echo "!! no initialised submodule at $DIR"; exit 1; }
+# A submodule initialised the normal way (`git submodule update --init` / clone
+# --recursive) has `.git` as a gitfile — a file pointing into the superproject's
+# .git/modules — NOT a directory, so `[ -d .git ]` would reject every valid submodule.
+# Probe with git instead: it accepts the gitfile, directory, and worktree forms and
+# still rejects an empty, uninitialised directory.
+git -C "$DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1 \
+  || { echo "!! no initialised submodule at $DIR (try: git submodule update --init $REPO)"; exit 1; }
 
 # --- Fix #1: JAVA_HOME. Without it the Gradle Doctor plugin hard-fails every
 # build. Agent-run skill builds (bump-version, pre-pr) need it too, so a durable
