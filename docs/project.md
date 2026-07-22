@@ -31,3 +31,14 @@ Gradle plugin, or application.
 
 <!-- summit has no build of its own; the jvm-project.md link the template offers is
      intentionally left commented out. -->
+
+## Cross-repository workflows
+
+Repeatable, parameterised procedures for acting across the SDK repos live under
+[`docs/rollout/`](rollout/). Each pairs a repo-owned script (the deterministic
+mechanics) with an agent-driven playbook (the judgement steps):
+
+- [`rollout/proofread.md`](rollout/proofread.md) — run the `proofread` skill across a
+  repo end-to-end (bump → build → sweep → pre-PR → PR), driven by the
+  [`proofread-repo`](../proofread-repo) script, with an optional
+  [`proofread-fanout.workflow.js`](rollout/proofread-fanout.workflow.js) for the sweep.
