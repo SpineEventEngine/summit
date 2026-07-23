@@ -1,0 +1,162 @@
+#!/usr/bin/env bash
+#
+# proofread-repo — deterministic mechanics for the summit repo-by-repo proofread
+# workflow.  *** DRAFT — not wired into any hook. ***
+#
+# Owns only the parts that must NOT be re-interpreted each run (the environmental
+# fixes that bit us on the first run: JAVA_HOME, config/pull ordering, and
+# generating authoritative dependency reports via a clean build). The two
+# judgement steps — the proofread sweep and the pre-PR review — are agent-driven
+# and run BETWEEN `prep` and `ship`. See docs/rollout/proofread.md.
+#
+# Re-runnable: every step is idempotent, so a run interrupted midway — e.g. when
+# `prep` bails to the bump-version skill for an edge case — resumes cleanly on a
+# second `./proofread-repo prep <repo>`.
+#
+# Usage:
+#   ./proofread-repo prep <repo>    # config/pull, branch, bump, regenerate reports
+#   ./proofread-repo ship <repo>    # verify pre-pr sentinel, push, open the PR
+#
+# Note: uses macOS `sed -i ''`; adjust for Linux runners.
+#
+set -euo pipefail
+
+MODE="${1:?usage: proofread-repo <prep|ship> <repo>}"
+REPO="${2:?usage: proofread-repo <prep|ship> <repo>}"
+SUMMIT="$(cd "$(dirname "$0")" && pwd)"
+DIR="$SUMMIT/$REPO"
+BASE="master"
+BRANCH="proofread-sweep"
+
+# A submodule initialised the normal way (`git submodule update --init` / clone
+# --recursive) has `.git` as a gitfile — a file pointing into the superproject's
+# .git/modules — NOT a directory, so `[ -d .git ]` would reject every valid submodule.
+# Probe with git instead: it accepts the gitfile, directory, and worktree forms and
+# still rejects an empty, uninitialised directory.
+git -C "$DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1 \
+  || { echo "!! no initialised submodule at $DIR (try: git submodule update --init $REPO)"; exit 1; }
+
+# --- Fix #1: JAVA_HOME. Without it the Gradle Doctor plugin hard-fails every
+# build. Agent-run skill builds (bump-version, pre-pr) need it too, so a durable
+# `export JAVA_HOME=...` in your shell profile is the real cross-cutting fix; this
+# line only covers the script's own builds.
+export JAVA_HOME="${JAVA_HOME:-$(/usr/libexec/java_home -v 21 2>/dev/null || true)}"
+[ -n "${JAVA_HOME:-}" ] || { echo "!! JAVA_HOME unset and no JDK 21 found"; exit 1; }
+
+cd "$DIR"
+
+version_of() { sed -nE 's/.*versionToPublish"?,?[[:space:]]*"?([0-9A-Za-z.-]+)".*/\1/p' | head -1; }
+
+# True when the branch already carries a change to <path> relative to base.
+branch_touched() { ! git diff --quiet "origin/$BASE...HEAD" -- "$1" 2>/dev/null; }
+
+ensure_branch() {
+  [ "$(git rev-parse --abbrev-ref HEAD)" = "$BRANCH" ] && return 0   # already here (re-run)
+  git fetch --quiet origin "$BASE"
+  git checkout -q "$BASE"
+  git pull --ff-only --quiet origin "$BASE"
+  git switch -q -c "$BRANCH" 2>/dev/null || git switch -q "$BRANCH"
+}
+
+pull_shared() {
+  # Fix #2: float shared tooling FIRST (brings the current english-style catalog
+  # + proofread skill) plus any config-distributed updates; commit as its own
+  # change. Skip if this branch already carries that commit (re-run safety).
+  git log --format=%s "origin/$BASE..HEAD" | grep -q '^Update shared agent tooling' \
+    && { echo "-- shared tooling already pulled on this branch — skipping"; return 0; }
+  # Guard: the tree must be clean before ./config/pull so the `git add -A` below
+  # stages ONLY config/pull's output — never pre-existing local edits or stray
+  # untracked files. `ensure_branch` normally leaves it clean; bail loudly if not.
+  [ -z "$(git status --porcelain)" ] \
+    || { echo "!! working tree not clean before ./config/pull at $DIR — commit or stash first"; exit 1; }
+  ./config/pull
+  if [ -n "$(git status --porcelain)" ]; then
+    git add -A                                   # safe now: only config/pull's output is dirty
+    git commit -q -m "Update shared agent tooling and config (./config/pull)"
+  fi
+}
+
+bump_version() {
+  local f="version.gradle.kts"
+  [ -f "$f" ] || { echo "-- no $f — bump N/A"; return 0; }
+  branch_touched "$f" && { echo "-- already bumped on this branch — skipping"; return 0; }
+
+  # Defer edge cases to the `bump-version` skill (agent): a deprecated
+  # `by extra(...)` delegate needing migration, or a non-snapshot/release version
+  # whose increment is not a simple +1. The skill also builds and commits the
+  # reports, so a re-run of `prep` afterwards no-ops through the rest.
+  if grep -qE 'versionToPublish.*by[[:space:]]+extra\(' "$f"; then
+    echo "!! $f uses 'by extra(...)' — run the bump-version skill, then: ./proofread-repo prep $REPO"; exit 3
+  fi
+  local cur; cur="$(version_of < "$f")"
+  if ! printf '%s' "$cur" | grep -qE 'SNAPSHOT\.[0-9]+$'; then
+    echo "!! '$cur' is not a snapshot line — run the bump-version skill, then: ./proofread-repo prep $REPO"; exit 3
+  fi
+
+  # Common case: snapshot +1, preserving zero-padding.
+  local pre suf w next
+  pre="${cur%.*}"; suf="${cur##*.}"; w="${#suf}"
+  next="$pre.$(printf "%0${w}d" "$((10#$suf + 1))")"
+  # Escape the current version for use as a sed BRE — its dots are metacharacters —
+  # so the substitution matches the literal version, not a `2X0X0-...` variant.
+  local cur_re="${cur//./\\.}"
+  sed -i '' "s/${cur_re}/${next}/" "$f"
+  git commit -q -m "Bump version -> \`${next}\`" -- "$f"
+  echo "-- bumped $cur -> $next"
+}
+
+generate_reports() {
+  [ -d docs/dependencies ] || return 0
+  branch_touched docs/dependencies && { echo "-- reports already updated on this branch — skipping build"; return 0; }
+  # Fix #3: regenerate for real (reflects config/pull dep-pin updates AND the bump);
+  # a *clean* build is authoritative — a warm build can emit stale cached values.
+  # This build also verifies the bump compiles.
+  ./gradlew clean build dokkaGenerate --console=plain
+  if [ -n "$(git status --porcelain docs/dependencies/)" ]; then
+    git add docs/dependencies/
+    git commit -q -m "Update dependency reports"
+  fi
+}
+
+prep() {
+  ensure_branch
+  pull_shared
+  bump_version
+  generate_reports
+  cat <<EOF
+prep done: $REPO on '$BRANCH'.
+Next — agent steps (docs/rollout/proofread.md):
+  2. Proofread sweep       -> commit the prose fixes
+  3. Run the pre-pr skill  -> reviewers + writes .git/pre-pr.ok
+Then: ./proofread-repo ship $REPO
+EOF
+}
+
+ship() {
+  local gitdir head s_head s_status
+  gitdir="$(git rev-parse --absolute-git-dir)"
+  head="$(git rev-parse HEAD)"
+  s_head="$(sed -n 's/^head=//p'    "$gitdir/pre-pr.ok" 2>/dev/null || true)"
+  s_status="$(sed -n 's/^status=//p' "$gitdir/pre-pr.ok" 2>/dev/null || true)"
+  [ "$s_status" = "PASS" ] && [ "$s_head" = "$head" ] \
+    || { echo "!! no PASS pre-pr sentinel for HEAD $head — run the pre-pr skill first"; exit 1; }
+
+  git checkout -- docs/dependencies/ 2>/dev/null || true   # drop any post-build report noise
+
+  # Re-run safety: if a PR already exists, just push any new commits to it.
+  if gh pr view "$BRANCH" --json url >/dev/null 2>&1; then
+    git push -q origin "$BRANCH"
+    echo "-- PR already open: $(gh pr view "$BRANCH" --json url --jq .url)"
+    return 0
+  fi
+  git push -u origin "$BRANCH"
+  gh pr create --base "$BASE" --head "$BRANCH" \
+    --title "Proofread comments and documentation" \
+    --body-file "$SUMMIT/docs/rollout/proofread-pr-body.md"
+}
+
+case "$MODE" in
+  prep) prep ;;
+  ship) ship ;;
+  *) echo "usage: proofread-repo <prep|ship> <repo>"; exit 2 ;;
+esac
