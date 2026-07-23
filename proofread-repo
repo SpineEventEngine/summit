@@ -64,9 +64,14 @@ pull_shared() {
   # change. Skip if this branch already carries that commit (re-run safety).
   git log --format=%s "origin/$BASE..HEAD" | grep -q '^Update shared agent tooling' \
     && { echo "-- shared tooling already pulled on this branch — skipping"; return 0; }
+  # Guard: the tree must be clean before ./config/pull so the `git add -A` below
+  # stages ONLY config/pull's output — never pre-existing local edits or stray
+  # untracked files. `ensure_branch` normally leaves it clean; bail loudly if not.
+  [ -z "$(git status --porcelain)" ] \
+    || { echo "!! working tree not clean before ./config/pull at $DIR — commit or stash first"; exit 1; }
   ./config/pull
   if [ -n "$(git status --porcelain)" ]; then
-    git add -A                                   # config/pull output is trusted; secret-scan hook is the backstop
+    git add -A                                   # safe now: only config/pull's output is dirty
     git commit -q -m "Update shared agent tooling and config (./config/pull)"
   fi
 }
@@ -92,7 +97,10 @@ bump_version() {
   local pre suf w next
   pre="${cur%.*}"; suf="${cur##*.}"; w="${#suf}"
   next="$pre.$(printf "%0${w}d" "$((10#$suf + 1))")"
-  sed -i '' "s/${cur}/${next}/" "$f"
+  # Escape the current version for use as a sed BRE — its dots are metacharacters —
+  # so the substitution matches the literal version, not a `2X0X0-...` variant.
+  local cur_re="${cur//./\\.}"
+  sed -i '' "s/${cur_re}/${next}/" "$f"
   git commit -q -m "Bump version -> \`${next}\`" -- "$f"
   echo "-- bumped $cur -> $next"
 }
