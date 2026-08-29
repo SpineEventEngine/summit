@@ -37,7 +37,12 @@
       "Bash(./config/pull)",
       "Bash(./config/migrate)",
       "Skill(pre-pr)",
-      "Skill(pre-pr:*)"
+      "Skill(pre-pr:*)",
+      "Bash(git commit:*)",
+      "Bash(./cascade:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh run list:*)"
     ],
     "deny": [
       "Bash(git reset --hard:*)",
@@ -48,7 +53,6 @@
       "Bash(gh release create:*)"
     ],
     "ask": [
-      "Bash(git commit:*)",
       "Bash(git rebase:*)",
       "Bash(git merge:*)",
       "Bash(git cherry-pick:*)",
