@@ -197,8 +197,16 @@ require_submodule() {
 }
 
 require_java() {
-    export JAVA_HOME="${JAVA_HOME:-$(/usr/libexec/java_home -v 17 2>/dev/null || true)}"
-    [ -n "${JAVA_HOME:-}" ] || die "JAVA_HOME unset and no JDK 17 found"
+    # Validate, never trust: a jenv/profile JAVA_HOME may point at an old JDK
+    # (observed: corretto 11 while the SDK builds on 17 — Gradle refuses).
+    local want=17 ver
+    ver="$("${JAVA_HOME:-/nonexistent}/bin/java" -version 2>&1 \
+           | sed -nE 's/.*version "([0-9]+).*/\1/p' | head -1)"
+    if ! [ "${ver:-0}" -ge "$want" ] 2>/dev/null; then
+        JAVA_HOME="$(/usr/libexec/java_home -v "$want" 2>/dev/null || true)"
+    fi
+    export JAVA_HOME
+    [ -n "${JAVA_HOME:-}" ] || die "no JDK $want found (JAVA_HOME was unset or pointed at an older JVM)"
 }
 
 # Version literal fed to the given extra property, both spellings:
