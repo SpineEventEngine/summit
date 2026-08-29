@@ -54,3 +54,10 @@ Machine state: [`cascade-refresh-2cd0e3b.json`](cascade-refresh-2cd0e3b.json). P
   accessors (`ToolBase.lib` -> `tool-base:` artifact gone;
   `CoreJvmCompiler.pluginLib` removed but still referenced by base-types,
   change, time); (4) `Coroutines.modules` lacks `slf4j`.
+
+- 2026-08-29 — Owner's decision on the Kotlin/Gradle tension: **keep forcing
+  Kotlin 2.4.10** over the Gradle-9.7.1-embedded 2.4.0 `strictly` pin.
+  Config follow-up (5): implement the force centrally in the distributed
+  build logic, adjacent to wherever the strictly constraint is emitted, so
+  every classic `buildscript {}` consumer of refresh-era plugin jars gets it
+  without local edits (compiler's local force then retires).
