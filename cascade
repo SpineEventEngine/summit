@@ -1,0 +1,1440 @@
+#!/usr/bin/env bash
+#
+# cascade — deterministic mechanics for cross-repository waves across the
+# Spine SDK submodules of this superproject.
+#
+# A *wave* propagates a change through the repos in dependency order: per repo —
+# `./config/pull`, refresh local dependency pins, bump/assign the version, build,
+# publish to mavenLocal, and open a PR once every pinned upstream version is
+# provably published in the public registry. Three wave kinds:
+#
+#   refresh   — `config` master advanced; every repo rebuilds on the new baseline.
+#   ripple    — one upstream repo published a new version; its downstream
+#               transitive closure rebuilds.
+#   retarget  — a coordinated version assignment (e.g. `2.0.0-M1`) across all repos.
+#
+# Owns only what must NOT be re-interpreted each run (branching, pin edits, the
+# version fast path, builds, gates, PR mechanics, state derivation). Judgement
+# steps — fixing build breakage (`cascade-adapt` skill), the pre-PR review
+# (`pre-pr` skill), and the bump edge cases (`bump-version` skill) — are
+# agent-driven and requested via exit code 3. See docs/rollout/rebuild.md.
+#
+# Exit codes (uniform):
+#   0  success or idempotent no-op
+#   1  hard environment/usage-independent error
+#   2  usage
+#   3  agent required — the message names the skill and the resume command
+#   4  waiting on an external event (upstream unpublished, await timeout)
+#   5  wave halt — registry throttling detected; do NOT retry builds
+#
+# Re-runnable: state is derived from git, GitHub, the registry, and ~/.m2 —
+# never from memory — so any interrupted step resumes cleanly when re-invoked.
+#
+set -euo pipefail
+
+SUMMIT="$(cd "$(dirname "$0")" && pwd)"
+BASE="master"
+ORG="SpineEventEngine"
+TASKS_DIR="$SUMMIT/.agents/tasks"
+GRAPH_FILE="$SUMMIT/docs/dependency-graph.md"
+REGISTRY="https://europe-maven.pkg.dev/spine-event-engine"
+M2="${HOME}/.m2/repository"
+ADAPT_BUDGET=3
+
+note() { echo "-- $*"; }
+warn() { echo "!! $*" >&2; }
+die()  { warn "$*"; exit 1; }
+
+command -v jq >/dev/null 2>&1 || die "jq is required"
+command -v gh >/dev/null 2>&1 || die "gh is required"
+
+# BSD (macOS) and GNU sed disagree on -i; wrap once so Linux runners need no fork.
+sed_inplace() {
+    if sed --version >/dev/null 2>&1; then sed -i "$@"; else sed -i '' "$@"; fi
+}
+
+# ---------------------------------------------------------------------------
+# Static knowledge. Everything here is verified at `plan` time (probe markers
+# against the registry; graph vs fresh derivation), so a wrong entry fails
+# loudly on the first run instead of silently mis-ordering a wave.
+# ---------------------------------------------------------------------------
+
+# Candidate repos in CANONICAL WAVE ORDER. The raw dependency graph is cyclic —
+# the SDK is self-hosting (base-libraries consumes logging and the compiler,
+# which consume base-libraries) — so a plain toposort cannot order a wave.
+# This recorded order is the decision that cuts the cycles: within a wave a repo
+# re-pins the wave versions of upstreams EARLIER in this order (forward edges);
+# anything later stays at its last-published (floor) version and catches up in
+# the next wave — exactly the generation-lag pattern the repos already live by.
+# Changing this order is a reviewed change to docs/dependency-graph.md.
+repos_all() {
+    echo "base-libraries reflect logging testlib base-types change tool-base \
+ProtoTap time compiler validation money core-jvm-compiler core-jvm \
+jdbc-storage gcloud-jvm delivery-server BuildSpeed"
+}
+
+# Position of a repo in the canonical order (1-based; 0 = unknown).
+order_pos() {
+    local i=1 r
+    for r in $(repos_all); do
+        [ "$r" = "$1" ] && { echo "$i"; return; }
+        i=$((i + 1))
+    done
+    echo 0
+}
+
+# Manual edges the file-grep cannot see (dependencies wired through
+# config-distributed convention scripts rather than repo-owned build files).
+extra_edges() {
+    echo "core-jvm-compiler core-jvm"
+}
+
+# Default exclusions, with reasons surfaced by `plan`.
+excluded_reason() {
+    case "$1" in
+        documentation) echo "Spine 1.x; not part of the SDK build line" ;;
+        reflect|money|testlib)
+            echo "straggler: config submodule generations behind — first pull is a migration (opt in via --include)" ;;
+        *) echo "" ;;
+    esac
+}
+
+# io.spine.dependency.local object -> owning repo. `Spine` carries only group
+# constants and maps to nothing.
+obj_to_repo() {
+    case "$1" in
+        Base) echo base-libraries ;;
+        BaseTypes) echo base-types ;;
+        Change) echo change ;;
+        Compiler) echo compiler ;;
+        CoreJvm) echo core-jvm ;;
+        CoreJvmCompiler) echo core-jvm-compiler ;;
+        Logging) echo logging ;;
+        ProtoTap) echo ProtoTap ;;
+        Reflect) echo reflect ;;
+        TestLib) echo testlib ;;
+        Time) echo time ;;
+        ToolBase) echo tool-base ;;
+        Validation) echo validation ;;
+        *) echo "" ;;
+    esac
+}
+
+# repo -> pin file (relative to a consumer's buildSrc local/ dir).
+repo_pin_file() {
+    case "$1" in
+        base-libraries) echo Base.kt ;;
+        base-types) echo BaseTypes.kt ;;
+        change) echo Change.kt ;;
+        compiler) echo Compiler.kt ;;
+        core-jvm) echo CoreJvm.kt ;;
+        core-jvm-compiler) echo CoreJvmCompiler.kt ;;
+        logging) echo Logging.kt ;;
+        ProtoTap) echo ProtoTap.kt ;;
+        reflect) echo Reflect.kt ;;
+        testlib) echo TestLib.kt ;;
+        time) echo Time.kt ;;
+        tool-base) echo ToolBase.kt ;;
+        validation) echo Validation.kt ;;
+        *) echo "" ;;
+    esac
+}
+
+# Constants that TRACK the wave (advance to the upstream's wave version).
+# Everything not listed here stays put during a wave; the published-floor
+# constants (versionForBuildScript, dogfoodingVersion, fallbackDfVersion) feed
+# buildscript/pluginManagement classpaths that cannot see mavenLocal and are
+# advanced only by `close`, when the wave's versions are provably published.
+repo_track_constants() {
+    case "$1" in
+        compiler) echo "fallbackVersion" ;;
+        *) echo "version" ;;
+    esac
+}
+
+# repo -> "group-path|marker-artifact|version-property|class|registry"
+# marker-artifact: one definitely-published artifact used for registry probes.
+# class: library (full pipeline) | verify-only (no version/publishing steps).
+# registry: gcar (public europe-maven.pkg.dev) | github (GitHub Packages —
+# delivery-server is proprietary and publishes only there; probes authenticate
+# with `gh auth token`).
+repo_meta() {
+    case "$1" in
+        base-libraries)    echo "io/spine|spine-base|versionToPublish|library|gcar" ;;
+        base-types)        echo "io/spine|spine-base-types|versionToPublish|library|gcar" ;;
+        change)            echo "io/spine|spine-change|versionToPublish|library|gcar" ;;
+        time)              echo "io/spine|spine-time|versionToPublish|library|gcar" ;;
+        money)             echo "io/spine|spine-money|versionToPublish|library|gcar" ;;
+        reflect)           echo "io/spine|spine-reflect|versionToPublish|library|gcar" ;;
+        logging)           echo "io/spine|spine-logging|versionToPublish|library|gcar" ;;
+        testlib)           echo "io/spine/tools|spine-testlib|versionToPublish|library|gcar" ;;
+        tool-base)         echo "io/spine/tools|spine-tool-base|versionToPublish|library|gcar" ;;
+        ProtoTap)          echo "io/spine/tools|prototap-gradle-plugin|versionToPublish|library|gcar" ;;
+        compiler)          echo "io/spine/tools|compiler-jvm|compilerVersion|library|gcar" ;;
+        validation)        echo "io/spine/tools|spine-validation-java|validationVersion|library|gcar" ;;
+        core-jvm-compiler) echo "io/spine/tools|core-jvm-gradle-plugin|coreJvmCompilerVersion|library|gcar" ;;
+        core-jvm)          echo "io/spine|spine-core|versionToPublish|library|gcar" ;;
+        jdbc-storage)      echo "io/spine|spine-rdbms|versionToPublish|library|gcar" ;;
+        gcloud-jvm)        echo "io/spine/gcloud|spine-datastore|versionToPublish|library|gcar" ;;
+        delivery-server)   echo "io/spine/delivery|spine-delivery-server|versionToPublish|library|github" ;;
+        BuildSpeed)        echo "|||verify-only|" ;;
+        *) echo "" ;;
+    esac
+}
+meta_group()  { repo_meta "$1" | cut -d'|' -f1; }
+meta_marker() { repo_meta "$1" | cut -d'|' -f2; }
+meta_vprop()  { repo_meta "$1" | cut -d'|' -f3; }
+meta_class()  { repo_meta "$1" | cut -d'|' -f4; }
+meta_reg()    { repo_meta "$1" | cut -d'|' -f5; }
+
+# ---------------------------------------------------------------------------
+# Shared helpers
+# ---------------------------------------------------------------------------
+
+require_submodule() {
+    git -C "$SUMMIT/$1" rev-parse --is-inside-work-tree >/dev/null 2>&1 \
+        || die "no initialised submodule at $1 (try: git submodule update --init $1)"
+}
+
+require_java() {
+    export JAVA_HOME="${JAVA_HOME:-$(/usr/libexec/java_home -v 17 2>/dev/null || true)}"
+    [ -n "${JAVA_HOME:-}" ] || die "JAVA_HOME unset and no JDK 17 found"
+}
+
+# Version literal fed to the given extra property, both spellings:
+#   extra.set("prop", "X")   |   val prop ... by extra("X")
+version_of() { # <repo> [<ref>]  -> current version literal (empty if none)
+    local dir="$SUMMIT/$1" prop; prop="$(meta_vprop "$1")"
+    local content
+    if [ -n "${2:-}" ]; then
+        content="$(git -C "$dir" show "$2:version.gradle.kts" 2>/dev/null || true)"
+    else
+        content="$(cat "$dir/version.gradle.kts" 2>/dev/null || true)"
+    fi
+    printf '%s\n' "$content" \
+      | sed -nE "s/.*${prop}\"?,?[[:space:]]*\"?([0-9A-Za-z.-]+)\".*/\1/p; s/.*by[[:space:]]+extra\(\"([0-9A-Za-z.-]+)\"\).*/\1/p" \
+      | head -1
+}
+
+# All metadata XML the repo's registry serves for its marker artifact.
+marker_metadata() { # <repo>
+    local gp mk r
+    gp="$(meta_group "$1")"; mk="$(meta_marker "$1")"
+    [ -n "$gp" ] || return 0
+    case "$(meta_reg "$1")" in
+        github)
+            # Requires a token with read:packages; a 401 is an auth gap, not a
+            # missing artifact — surfaced separately by gh_packages_code().
+            curl -sf --max-time 20 -u "x:$(gh auth token)" \
+                "https://maven.pkg.github.com/$ORG/$1/$gp/$mk/maven-metadata.xml" 2>/dev/null || true ;;
+        *)
+            for r in snapshots releases; do
+                curl -sf --max-time 20 "$REGISTRY/$r/$gp/$mk/maven-metadata.xml" 2>/dev/null || true
+            done ;;
+    esac
+}
+
+# Does the repo's registry serve <version> of its marker artifact?
+registry_has() { # <repo> <version>
+    marker_metadata "$1" | grep -q "<version>$2</version>"
+}
+
+# HTTP code GitHub Packages returns for the repo's marker (github registry only).
+gh_packages_code() { # <repo>
+    curl -s -o /dev/null -w '%{http_code}' --max-time 20 -u "x:$(gh auth token)" \
+        "https://maven.pkg.github.com/$ORG/$1/$(meta_group "$1")/$(meta_marker "$1")/maven-metadata.xml" 2>/dev/null
+}
+
+# Marker validation for `plan`: 0 = ok, 1 = marker wrong, 2 = auth gap (github
+# registry, token without read:packages — probes will work once the scope is
+# added; ship/close hard-require it).
+registry_marker_ok() { # <repo>
+    [ -n "$(meta_group "$1")" ] || return 0   # verify-only repos carry no marker
+    [ -n "$(marker_metadata "$1")" ] && return 0
+    if [ "$(meta_reg "$1")" = github ] && [ "$(gh_packages_code "$1")" = 401 ]; then
+        return 2
+    fi
+    return 1
+}
+
+# ---------------------------------------------------------------------------
+# graph — derive/verify docs/dependency-graph.md
+# ---------------------------------------------------------------------------
+
+# Emit "upstream downstream scope" triples derived from consumer-owned build
+# files. An edge requires an actual USAGE of the dependency object (a bare
+# import proves nothing and stale imports do occur). Scope classes:
+#   main  — declared dependency or applied plugin (api/implementation/...)
+#   test  — test-only declarations (testImplementation/testFixtures*/...)
+# References inside version-management constructs (force/constraints/exclude)
+# create no edge at all — see the classifier below.
+# Every repo's buildSrc *contains* all local objects post-pull, so only files
+# the repo itself owns are scanned.
+derive_scoped() {
+    local repo files f objs o up usages subpaths sp skip
+    for repo in $(repos_all); do
+        [ -d "$SUMMIT/$repo" ] || continue
+        # The repo's own nested submodules are other repositories' content
+        # (validation/docs/_time is the vendored `time` repo) — never scan them.
+        subpaths="$(git config -f "$SUMMIT/$repo/.gitmodules" --get-regexp '\.path$' 2>/dev/null | awk '{print $2}')"
+        files=""
+        for f in "$SUMMIT/$repo"/build.gradle.kts \
+                 "$SUMMIT/$repo"/*/build.gradle.kts \
+                 "$SUMMIT/$repo"/*/*/build.gradle.kts \
+                 "$SUMMIT/$repo"/settings.gradle.kts \
+                 "$SUMMIT/$repo"/buildSrc/src/main/kotlin/module.gradle.kts; do
+            case "$f" in
+                */config/*|*/buildSrc/*/build.gradle.kts) continue ;;
+            esac
+            [ -f "$f" ] || continue
+            skip=0
+            for sp in $subpaths; do
+                case "$f" in "$SUMMIT/$repo/$sp"/*) skip=1 ;; esac
+            done
+            [ "$skip" = 1 ] || files="$files $f"
+        done
+        [ -n "$files" ] || continue
+        # shellcheck disable=SC2086
+        objs="$(grep -hoE 'io\.spine\.dependency\.local\.[A-Z][A-Za-z]+' $files 2>/dev/null \
+                | sed 's/.*\.//' | sort -u)"
+        # Block-aware classification: a reference creates an edge only where
+        # it is a declared dependency. References inside version-management
+        # constructs — force(...), constraints {...}, exclude(...) — create NO
+        # edge: those lists are routinely copy-pasted between repositories and
+        # pin versions of artifacts that may not occur in this project at all
+        # (proven by ProtoTap, whose force list names the Compiler while its
+        # dependencies blocks never do). Bare `Obj.member,` lines inside a
+        # `dependencies { listOf(...) }` are real declarations (see
+        # compiler/api) and default to main scope.
+        for o in $objs; do
+            up="$(obj_to_repo "$o")"
+            [ -n "$up" ] && [ "$up" != "$repo" ] || continue
+            # shellcheck disable=SC2086
+            scopes="$(awk -v obj="$o" '
+                function push(tag) { sp++; tags[sp] = tag; depths[sp] = depth }
+                {
+                    line = $0
+                    if (line ~ /^[[:space:]]*(import|\/\/|\*)/) { updepth(); next }
+                    use = match(line, "(^|[^.A-Za-z])" obj "\\.[A-Za-z]")
+                    if (use) {
+                        if (line ~ /(^|[^A-Za-z])test[A-Za-z]*\(/)        print "test"
+                        else if (line ~ /(^|[^A-Za-z])(api|implementation|compileOnly|compileOnlyApi|runtimeOnly|annotationProcessor|classpath|kapt|ksp)\(/) print "main"
+                        else if (line ~ /(^|[^A-Za-z])(force|exclude|constraints|forceArtifacts)[[:space:]]*[({]/) { }
+                        else if (sp > 0 && tags[sp] == "vm") { }
+                        else if (sp > 0 && tags[sp] == "deps") print "main"
+                        # any other context (dokka config, interpolation, ...) -> no edge
+                    }
+                    # context openers seen on this line, at current depth
+                    if (line ~ /(^|[^A-Za-z])(force|constraints|forceArtifacts|exclude)[[:space:]]*[({]/) push("vm")
+                    else if (line ~ /(^|[^A-Za-z])dependencies[[:space:]]*\{/) push("deps")
+                    updepth()
+                }
+                function updepth(   i, c) {
+                    for (i = 1; i <= length($0); i++) {
+                        c = substr($0, i, 1)
+                        if (c == "{" || c == "(") depth++
+                        if (c == "}" || c == ")") {
+                            depth--
+                            while (sp > 0 && depth <= depths[sp]) sp--
+                        }
+                    }
+                }' $files 2>/dev/null | sort -u)"
+            case "$scopes" in
+                *main*) echo "$up $repo main" ;;
+                *test*) echo "$up $repo test" ;;
+            esac
+        done
+        # Plugin applications: bare convention accessors (`prototap` alone in a
+        # plugins block) and plugin-id strings — dependencies the object-deref
+        # grep above cannot see. Provider mapping:
+        #   prototap / io.spine.prototap                  -> ProtoTap
+        #   spineCompiler / io.spine.compiler             -> compiler
+        #   coreJvmCompiler / io.spine.core-jvm           -> core-jvm-compiler
+        #   io.spine.{artifact-meta,descriptor-set-file,
+        #             generated-sources}                  -> tool-base
+        # shellcheck disable=SC2086
+        {
+            grep -hE '^[[:space:]]*(prototap|spineCompiler|coreJvmCompiler)[[:space:]]*$' $files 2>/dev/null \
+                | sed 's/[[:space:]]//g' | sort -u \
+                | sed 's/^prototap$/ProtoTap/; s/^spineCompiler$/compiler/; s/^coreJvmCompiler$/core-jvm-compiler/'
+            grep -hoE '"io\.spine\.(prototap|compiler|core-jvm|artifact-meta|descriptor-set-file|generated-sources)"' $files 2>/dev/null \
+                | tr -d '"' | sort -u \
+                | sed 's/^io\.spine\.prototap$/ProtoTap/; s/^io\.spine\.compiler$/compiler/; s/^io\.spine\.core-jvm$/core-jvm-compiler/; s/^io\.spine\..*$/tool-base/'
+        } | sort -u | while read -r up; do
+            [ -n "$up" ] && [ "$up" != "$repo" ] && echo "$up $repo main"
+        done
+        # shellcheck disable=SC2086
+        if [ "$repo" != testlib ]; then
+            { grep -qE '^[[:space:]]*`module-testing`[[:space:]]*$' $files 2>/dev/null \
+                && echo "testlib $repo test"; } || true
+            { grep -qE '^[[:space:]]*`kmp-module`[[:space:]]*$' $files 2>/dev/null \
+                && echo "testlib $repo main"; } || true
+        fi
+    done | { cat; extra_edges | sed 's/$/ main/'; } | apply_scope_rules
+}
+
+# Owner-decided scope overrides, then collapse duplicate (up, down) pairs to
+# their strongest scope (main > test > other) so each edge renders exactly once.
+# ProtoTap is test-only BY DECISION: it taps `protoc` output in tests and is
+# never a production dependency of any repository.
+apply_scope_rules() {
+    awk '
+    $1 == "ProtoTap" { $3 = "test" }
+    {
+        rank = ($3 == "main") ? 3 : ($3 == "test") ? 2 : 1
+        key = $1 " " $2
+        if (rank > best[key]) { best[key] = rank; scope[key] = $3 }
+    }
+    END { for (k in best) print k " " scope[k] }' | sort
+}
+
+# The plain relation (all scopes) — what the machine list stores and waves use.
+derive_edges() { derive_scoped | awk '{print $1 " " $2}' | sort -u; }
+
+# Split "up down" pairs on stdin into build-ordering (forward) or
+# previously-published (floor) edges against the canonical order.
+forward_edges() { while read -r a b; do [ "$(order_pos "$a")" -lt "$(order_pos "$b")" ] && echo "$a $b"; done || true; }
+floor_edges()   { while read -r a b; do [ "$(order_pos "$a")" -ge "$(order_pos "$b")" ] && echo "$a $b"; done || true; }
+
+# Transitive reduction of the forward-edge DAG on stdin ("a b" lines):
+# drop every edge implied by a longer path. Rendering-only — the FULL edge set
+# stays canonical (each edge is a direct pin the wave must advance).
+reduce_edges() {
+    awk '
+    { e[$1 SUBSEP $2] = 1; seen[$1] = 1; seen[$2] = 1; lines[NR] = $0 }
+    END {
+        for (x in seen) nodes[++N] = x
+        for (i = 1; i <= N; i++) for (j = 1; j <= N; j++)
+            r[nodes[i] SUBSEP nodes[j]] = e[nodes[i] SUBSEP nodes[j]]
+        for (k = 1; k <= N; k++) for (i = 1; i <= N; i++) for (j = 1; j <= N; j++)
+            if (r[nodes[i] SUBSEP nodes[k]] && r[nodes[k] SUBSEP nodes[j]])
+                r[nodes[i] SUBSEP nodes[j]] = 1
+        for (l = 1; l <= NR; l++) {
+            split(lines[l], p, " "); a = p[1]; b = p[2]; red = 0
+            for (k = 1; k <= N; k++) {
+                m = nodes[k]
+                if (m != a && m != b && e[a SUBSEP m] && r[m SUBSEP b]) { red = 1; break }
+            }
+            if (!red) print a " " b
+        }
+    }'
+}
+
+# stdin lines filtered to members of the space-separated set in $1.
+# (Kept out of command substitutions: bash 3.2 cannot parse `case` inside $().)
+filter_in_set() {
+    local set=" $1 " x
+    while read -r x; do
+        [ -n "$x" ] || continue
+        printf '%s' "$set" | grep -qF " $x " && echo "$x"
+    done
+    return 0
+}
+floor_edges()   { while read -r a b; do [ "$(order_pos "$a")" -ge "$(order_pos "$b")" ] && echo "$a $b"; done || true; }
+
+# Edge pairs currently stored in the graph doc — the canonical machine list in
+# the ```edges fenced block (the mermaid diagram is its transitive reduction,
+# rendering only).
+stored_edges() {
+    [ -f "$GRAPH_FILE" ] || return 0
+    sed -n '/^```edges$/,/^```$/p' "$GRAPH_FILE" | grep -E '^[A-Za-z0-9-]+ [A-Za-z0-9-]+$' \
+        | awk '{print $2 " " $1}' | sort -u || true
+}
+
+write_graph() {
+    local scoped tmp="$GRAPH_FILE.tmp" repo cls line i
+    scoped="$(derive_scoped)"
+    mkdir -p "$(dirname "$GRAPH_FILE")"
+    {
+        cat <<'EOF'
+# Spine SDK dependency graph
+
+How the Spine SDK repositories depend on each other, which of them must be
+built before which, and the artifact coordinates each one publishes. In the
+dependency diagrams arrows point **at the dependency**: `compiler --> tool-base`
+reads "`compiler` depends on artifacts published by `tool-base`". The
+mutual-pair section reverses the direction — its arrows show already-published
+artifacts flowing into their consumers — and says so in place.
+
+## Mutual dependencies and how the SDK stays buildable
+
+The raw dependency relation is **cyclic**, because the SDK is self-hosting:
+`logging` depends on `base-libraries` (its API uses `spine-base` types), while
+`base-libraries` also depends on `logging` (its code writes logs); the same
+holds for `ProtoTap` and the `compiler`. Taken literally, neither member of
+such a pair could ever be built first.
+
+The cycles resolve because the two directions of a mutual pair are satisfied
+by **different generations of artifacts**. One direction — from the repository
+*later* in the canonical order below to the one *earlier* — behaves as a
+normal build-order dependency on current artifacts. The reverse direction is
+satisfied by a version **already published** to the registry, built against an
+older generation, so it never constrains what must be built before what. On
+each successive release the two sides catch up alternately, staying about one
+generation apart.
+
+## Canonical build order
+
+One-way dependencies constrain this order absolutely, and regeneration audits
+that (a repository is never placed before one it depends on unless the pair is
+genuinely mutual). Which member of a **mutual** pair counts as "earlier" is a
+convention, not a derivable fact — so the order is recorded here, as reviewed
+documentation:
+
+EOF
+        i=1
+        for repo in $(repos_all); do echo "$i. \`$repo\`"; i=$((i + 1)); done
+        cat <<'EOF'
+
+## Production dependencies (transitive reduction)
+
+Declared production-scope dependencies between the repositories — the
+structure of the published artifacts. For readability the diagram omits edges
+implied by longer paths: `c --> b --> a` means `c` also depends on `a`
+directly. Arrows point at the dependency. The complete relation (production
+and test scope) is the machine-readable list at the bottom of this file.
+References that merely manage versions — `force(...)`, `constraints`,
+`exclude` — are not dependencies and create no edge.
+
+```mermaid
+flowchart BT
+EOF
+        printf '%s\n' "$scoped" | awk '$3 == "main" {print $1 " " $2}' \
+            | forward_edges | reduce_edges | sort | while read -r line; do
+            [ -n "$line" ] && echo "    ${line#* } --> ${line% *}"
+        done
+        cat <<'EOF'
+```
+
+<details>
+<summary>Test-only dependencies (used by the repository's tests, not by its
+published artifacts). `ProtoTap` is test-only by design — it taps `protoc`
+output in tests — so every edge pointing at it lives here or among the mutual
+pairs, never in the production diagram.</summary>
+
+```mermaid
+flowchart BT
+EOF
+        printf '%s\n' "$scoped" | awk '$3 == "test" {print $1 " " $2}' \
+            | forward_edges | sort | while read -r line; do
+            [ -n "$line" ] && echo "    ${line#* } --> ${line% *}"
+        done
+        cat <<'EOF'
+```
+
+</details>
+
+<details>
+<summary>Reverse directions of the mutual dependencies — satisfied by
+previously published versions, so they impose no build order. The arrow leads
+from the already-published artifact to the repository consuming it.</summary>
+
+```mermaid
+flowchart BT
+EOF
+        printf '%s\n' "$scoped" | awk '{print $1 " " $2}' | sort -u \
+            | floor_edges | sort | while read -r line; do
+            [ -n "$line" ] && echo "    ${line% *} -.-> ${line#* }"
+        done
+        cat <<'EOF'
+```
+
+</details>
+
+## Repository metadata
+
+Class `library` publishes Maven artifacts; `verify-only` builds but publishes
+nothing. The marker is one published artifact whose registry metadata answers
+"is version X of this repository published?"; the version property is the name
+of the literal in the repository's `version.gradle.kts`.
+
+| Repository | Class | Registry : marker | Version property |
+|---|---|---|---|
+EOF
+        for repo in $(repos_all); do
+            cls="$(meta_class "$repo")"
+            if [ "$cls" = "verify-only" ]; then
+                echo "| \`$repo\` | $cls | — | — |"
+            else
+                echo "| \`$repo\` | $cls | $(meta_reg "$repo") : \`$(meta_group "$repo" | tr '/' '.'):$(meta_marker "$repo")\` | \`$(meta_vprop "$repo")\` |"
+            fi
+        done
+        cat <<'EOF'
+
+`documentation` is not on the graph: it is a Spine 1.x site project, not part
+of the SDK build line.
+
+## Maintenance
+
+The relation is derived from `import io.spine.dependency.local.*` usages in
+each repository's own build files (never the config-distributed `buildSrc/`,
+whose files exist in every repository regardless of use), plus the manual
+edges kept in `extra_edges()` in [`../cascade`](../cascade) for dependencies
+wired through convention scripts. Regenerate after a topology change with:
+
+```bash
+./cascade graph
+```
+
+Cross-repository automation ([`rollout/rebuild.md`](rollout/rebuild.md))
+consumes this file as its ordering contract and verifies it against a fresh
+derivation before acting, so changes — including changes to the canonical
+order — must land here, reviewed, first.
+
+## Complete dependency list (machine-readable)
+
+Every direct **declared** dependency (production and test scope), one
+`dependent dependency` pair per line — the left repository depends on
+artifacts published by the right one. Both directions of the mutual pairs are
+included; version-management references are excluded; the diagrams above are
+renderings of this list.
+
+```edges
+EOF
+        printf '%s\n' "$scoped" | awk '{print $2 " " $1}' | sort -u
+        echo '```'
+    } > "$tmp"
+    mv "$tmp" "$GRAPH_FILE"
+}
+
+# Warn about floor edges that do NOT close a cycle: when consumer C depends on
+# provider P, P is later in the canonical order, and P has no (transitive)
+# dependency back on C, the pair is a plain one-way dependency and the order
+# itself should change — C belongs after P. (This audit is what catches a
+# mis-seeded canonical order; it found ProtoTap being placed before tool-base.)
+audit_order() { # $1: full "up down" relation
+    local rel="$1"
+    {
+        printf '%s\n' "$rel" | sed 's/^/R /'
+        printf '%s\n' "$rel" | floor_edges | sed 's/^/F /'
+    } | awk '
+    $1 == "R" { dep[$3 SUBSEP $2] = 1; seen[$2] = 1; seen[$3] = 1; next }
+    $1 == "F" { M++; fp[M] = $2; fc[M] = $3 }
+    END {
+        for (x in seen) nodes[++N] = x
+        for (i = 1; i <= N; i++) for (j = 1; j <= N; j++)
+            r[nodes[i] SUBSEP nodes[j]] = dep[nodes[i] SUBSEP nodes[j]]
+        for (k = 1; k <= N; k++) for (i = 1; i <= N; i++) for (j = 1; j <= N; j++)
+            if (r[nodes[i] SUBSEP nodes[k]] && r[nodes[k] SUBSEP nodes[j]])
+                r[nodes[i] SUBSEP nodes[j]] = 1
+        for (m = 1; m <= M; m++)
+            if (!r[fp[m] SUBSEP fc[m]])
+                printf "!! order: %s depends on %s one-way — consider moving %s after %s\n", fc[m], fp[m], fc[m], fp[m]
+    }' >&2
+}
+
+cmd_graph() {
+    local check=0
+    [ "${1:-}" = "--check" ] && check=1
+    local fresh stored
+    fresh="$(derive_edges)"
+    stored="$(stored_edges)"
+    if [ "$check" = 1 ]; then
+        [ -f "$GRAPH_FILE" ] || { warn "no $GRAPH_FILE — run: ./cascade graph"; exit 3; }
+        if [ "$fresh" != "$stored" ]; then
+            warn "dependency graph drift — stored file disagrees with fresh derivation:"
+            diff <(printf '%s\n' "$stored") <(printf '%s\n' "$fresh") | sed 's/^/   /' >&2 || true
+            warn "review + commit the update: ./cascade graph  (then re-run your command)"
+            exit 3
+        fi
+        note "dependency graph is current ($(printf '%s\n' "$fresh" | grep -c . ) edges)"
+        audit_order "$fresh"
+        return 0
+    fi
+    write_graph
+    note "wrote $GRAPH_FILE ($(printf '%s\n' "$fresh" | grep -c .) edges) — review, then commit via the normal docs process"
+    audit_order "$fresh"
+}
+
+# ---------------------------------------------------------------------------
+# Manifest access
+# ---------------------------------------------------------------------------
+
+manifest_path() { echo "$TASKS_DIR/$1.json"; }
+
+# Resolve the active wave: explicit $CASCADE_WAVE / --wave beats a lone manifest.
+active_wave() {
+    if [ -n "${CASCADE_WAVE:-}" ]; then echo "$CASCADE_WAVE"; return 0; fi
+    local m n
+    m="$(ls "$TASKS_DIR"/cascade-*.json 2>/dev/null || true)"
+    n="$(printf '%s\n' "$m" | grep -c . || true)"
+    [ "$n" = 1 ] || die "cannot infer the wave: found $n manifests — pass --wave <slug> or set CASCADE_WAVE"
+    basename "$m" .json
+}
+
+# mget <wave> [jq-args...] <program> — the program is always the LAST argument.
+mget() {
+    local wave="$1"; shift
+    local args=("$@") n prog
+    n=${#args[@]}
+    prog="${args[$((n - 1))]}"
+    unset "args[$((n - 1))]"
+    jq -r ${args[@]+"${args[@]}"} "$prog" "$(manifest_path "$wave")"
+}
+mset() { # <wave> <jq-program> [--arg k v ...]
+    local wave="$1" prog="$2"; shift 2
+    local p tmp; p="$(manifest_path "$wave")"; tmp="$p.tmp"
+    jq "$@" "$prog" "$p" > "$tmp" && mv "$tmp" "$p"
+}
+
+wave_repos() { mget "$1" '.repos | keys[]'; }
+
+upstreams_of() { # <wave> <repo> -> in-wave upstreams (space list)
+    mget "$1" --arg r "$2" '.repos[$r].upstreams[]?' 2>/dev/null | tr '\n' ' ' | sed 's/ $//'
+}
+
+# ---------------------------------------------------------------------------
+# plan — freeze a wave
+# ---------------------------------------------------------------------------
+
+usage_plan() {
+    cat <<EOF
+usage: cascade plan --kind refresh|ripple|retarget
+                    [--seed <repo>[@<version>]]   (ripple)
+                    [--target <version>]          (retarget)
+                    [--include <repo>]... [--exclude <repo>]...
+EOF
+    exit 2
+}
+
+cmd_plan() {
+    local kind="" seed="" seed_ver="" target="" includes="" excludes=""
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --kind) kind="$2"; shift 2 ;;
+            --seed) seed="${2%%@*}"; case "$2" in *@*) seed_ver="${2#*@}" ;; esac; shift 2 ;;
+            --target) target="$2"; shift 2 ;;
+            --include) includes="$includes $2"; shift 2 ;;
+            --exclude) excludes="$excludes $2"; shift 2 ;;
+            *) usage_plan ;;
+        esac
+    done
+    case "$kind" in refresh|ripple|retarget) ;; *) usage_plan ;; esac
+    [ "$kind" = ripple ] && [ -z "$seed" ] && usage_plan
+    [ "$kind" = retarget ] && [ -z "$target" ] && usage_plan
+
+    "$0" graph --check
+
+    # Trigger + slug.
+    local cfg_sha slug
+    git -C "$SUMMIT/config" fetch --quiet origin "$BASE" 2>/dev/null || true
+    cfg_sha="$(git -C "$SUMMIT/config" rev-parse "origin/$BASE" 2>/dev/null \
+               || git -C "$SUMMIT/config" rev-parse HEAD)"
+    case "$kind" in
+        refresh)  slug="cascade-refresh-$(echo "$cfg_sha" | cut -c1-7)" ;;
+        ripple)   slug="cascade-ripple-$seed-${seed_ver##*.}" ;;
+        retarget) slug="cascade-retarget-$target" ;;
+    esac
+
+    # Scope. Only forward (wave-ordering) edges scope and order a wave; floor
+    # edges are consumed at last-published versions and impose nothing.
+    local edges fwd scope repo
+    edges="$(stored_edges)"
+    fwd="$(printf '%s\n' "$edges" | forward_edges)"
+    case "$kind" in
+        ripple)
+            # Downstream transitive closure of the seed (seed included).
+            scope="$(printf '%s\n' "$fwd" | awk -v s="$seed" '
+                { down[$1] = down[$1] " " $2 }
+                END {
+                    q = s; seen[s] = 1
+                    while (q != "") {
+                        n = split(q, a, " "); q = ""
+                        for (i = 1; i <= n; i++) {
+                            m = split(down[a[i]], b, " ")
+                            for (j = 1; j <= m; j++)
+                                if (b[j] != "" && !seen[b[j]]) { seen[b[j]] = 1; q = q " " b[j] }
+                        }
+                    }
+                    for (r in seen) print r
+                }')"
+            ;;
+        *) scope="$(repos_all | tr ' ' '\n')" ;;
+    esac
+
+    # Exclusions: defaults minus --include, plus --exclude.
+    local final="" excluded_json="{}" reason
+    for repo in $scope; do
+        reason="$(excluded_reason "$repo")"
+        case " $includes " in *" $repo "*) reason="" ;; esac
+        case " $excludes " in *" $repo "*) reason="excluded by --exclude" ;; esac
+        if [ -n "$reason" ]; then
+            excluded_json="$(printf '%s' "$excluded_json" | jq --arg r "$repo" --arg why "$reason" '. + {($r): $why}')"
+        else
+            final="$final $repo"
+        fi
+    done
+
+    # Validate probe markers once, loudly. Auth gaps (GitHub Packages without
+    # read:packages) warn instead of dying — the scope must exist before ship.
+    local bad="" noauth="" rc
+    for repo in $final; do
+        rc=0; registry_marker_ok "$repo" || rc=$?
+        case "$rc" in
+            1) bad="$bad $repo" ;;
+            2) noauth="$noauth $repo" ;;
+        esac
+    done
+    [ -z "$bad" ] || die "probe marker not found in the registry for:$bad — fix repo_meta() in this script first"
+    [ -z "$noauth" ] || warn "GitHub Packages probe unauthorized for:$noauth — before shipping those repos run: gh auth refresh -h github.com -s read:packages"
+
+    # Carryover: an open cascade-* PR from an earlier wave keeps the repo out.
+    local carry=""
+    for repo in $final; do
+        [ "$(meta_class "$repo")" = "verify-only" ] && continue
+        if gh pr list -R "$ORG/$repo" --state open --json headRefName \
+             --jq '.[].headRefName' 2>/dev/null | grep -q '^cascade-'; then
+            carry="$carry $repo"
+        fi
+    done
+    if [ -n "$carry" ]; then
+        warn "open cascade PRs already exist in:$carry"
+        warn "close or merge them first, or exclude those repos (--exclude); superseding a reviewed PR is a human decision."
+        exit 1
+    fi
+
+    # Wave order = the canonical order (which is what makes the forward-edge
+    # set acyclic by construction). Sanity-check that invariant anyway.
+    local order
+    order="$(repos_all | tr ' ' '\n')"
+    printf '%s\n' "$fwd" | tsort >/dev/null 2>&1 \
+        || { warn "forward edges are not acyclic — canonical order and derivation disagree; fix docs/dependency-graph.md first"; exit 3; }
+
+    # Manifest.
+    mkdir -p "$TASKS_DIR"
+    local repos_json="{}" ups gp mk vp cls tv
+    for repo in $final; do
+        ups="$(printf '%s\n' "$fwd" | awk -v r="$repo" '$2==r{print $1}' \
+               | filter_in_set "$final" | jq -R . | jq -s 'map(select(length > 0))')"
+        gp="$(meta_group "$repo")"; mk="$(meta_marker "$repo")"
+        vp="$(meta_vprop "$repo")"; cls="$(meta_class "$repo")"
+        tv="null"
+        [ "$kind" = retarget ] && [ "$cls" = library ] && tv="\"$target\""
+        repos_json="$(printf '%s' "$repos_json" | jq \
+            --arg r "$repo" --argjson ups "$ups" --arg gp "$gp" --arg mk "$mk" \
+            --arg vp "$vp" --arg cls "$cls" --argjson tv "$tv" \
+            '. + {($r): {upstreams: $ups, class: $cls, version_property: $vp,
+                         probe: {group_path: $gp, artifact: $mk},
+                         state: "pending", target_version: $tv, pin_vector: {},
+                         adapt_rounds: 0, built: null, pr: null, parked: null}}')"
+    done
+    jq -n \
+        --arg wave "$slug" --arg kind "$kind" --arg base "$BASE" \
+        --arg cfg "$cfg_sha" --arg seed "$seed" --arg seed_ver "$seed_ver" \
+        --arg target "$target" --arg created "$(date -u +%FT%TZ)" \
+        --argjson repos "$repos_json" --argjson excluded "$excluded_json" \
+        --argjson order "$(printf '%s\n' "$order" | jq -R . | jq -s .)" \
+        '{schema: 1, wave: $wave, kind: $kind, created: $created, base: $base,
+          config_sha: $cfg,
+          seed: (if $seed == "" then null else {repo: $seed, version: $seed_ver} end),
+          target: (if $target == "" then null else $target end),
+          branch: $wave, halted: null, order: $order,
+          repos: $repos, excluded: $excluded, closing_pr: null}' \
+        > "$(manifest_path "$slug")"
+
+    # Companion task file for humans/agents.
+    local md="$TASKS_DIR/$slug.md"
+    if [ ! -f "$md" ]; then
+        {
+            printf -- '---\nslug: %s\nbranch: %s\nowner: cascade\nstatus: in-progress\nstarted: %s\n---\n\n' \
+                "$slug" "$slug" "$(date +%F)"
+            printf '# Wave `%s` (%s)\n\nMachine state: [`%s.json`](%s.json). Park reasons and decisions land here.\n\n## Repos\n\n' \
+                "$slug" "$kind" "$slug" "$slug"
+            for repo in $final; do printf -- '- [ ] %s\n' "$repo"; done
+            printf '\n## Log\n\n- %s — wave planned.\n' "$(date +%F)"
+        } > "$md"
+    fi
+
+    echo "Wave $slug ($kind) planned — $(printf '%s' "$final" | wc -w | tr -d ' ') repos."
+    echo "Build order (graph toposort, wave repos only):"
+    for repo in $order; do
+        case " $final " in *" $repo "*) echo "   $repo  <- $(upstreams_of "$slug" "$repo" || true)";; esac
+    done
+    [ "$excluded_json" != "{}" ] && { echo "Excluded:"; printf '%s' "$excluded_json" | jq -r 'to_entries[] | "   \(.key): \(.value)"'; }
+    echo "Review the order, then: ./cascade next"
+}
+
+# ---------------------------------------------------------------------------
+# status — re-derive every repo's state from its sources of truth
+# ---------------------------------------------------------------------------
+
+# Highest provable state for one repo. Never trusts the cached value.
+derive_state() { # <wave> <repo> -> prints state
+    local wave="$1" repo="$2" dir="$SUMMIT/$repo" branch cls
+    branch="$(mget "$wave" .branch)"; cls="$(meta_class "$repo")"
+
+    local parked; parked="$(mget "$wave" --arg r "$repo" '.repos[$r].parked // empty')"
+    [ -n "$parked" ] && { echo parked; return; }
+
+    git -C "$dir" rev-parse --verify -q "$branch" >/dev/null 2>&1 || { echo pending; return; }
+
+    local subjects
+    subjects="$(git -C "$dir" log --format=%s "origin/$BASE..$branch" 2>/dev/null || true)"
+
+    # pulled: the pull commit exists, or config was already current (nothing staged).
+    local pulled=0
+    printf '%s' "$subjects" | grep -q '^Update shared agent tooling' && pulled=1
+    [ "$pulled" = 1 ] || { printf '%s' "$subjects" | grep -q '.' && pulled=1; }  # branch has work => prep ran
+    [ "$pulled" = 1 ] || { echo pending; return; }
+
+    # pinned: by CONTENT — every recorded pin still present in the pin files.
+    local ok=1 up pf pv have
+    for up in $(upstreams_of "$wave" "$repo"); do
+        pv="$(mget "$wave" --arg r "$repo" --arg u "$up" '.repos[$r].pin_vector[$u] // empty')"
+        [ -n "$pv" ] || { ok=0; break; }
+        pf="$SUMMIT/$repo/buildSrc/src/main/kotlin/io/spine/dependency/local/$(repo_pin_file "$up")"
+        for c in $(repo_track_constants "$up"); do
+            have="$(git -C "$dir" show "$branch:buildSrc/src/main/kotlin/io/spine/dependency/local/$(repo_pin_file "$up")" 2>/dev/null \
+                    | grep -E "val $c(: String)? = \"" | head -1 | sed -E 's/.*"([^"]+)".*/\1/')"
+            [ "$have" = "$pv" ] || { ok=0; break 2; }
+        done
+    done
+    [ "$ok" = 1 ] || { echo pulled; return; }
+
+    # bumped (library repos): the wave branch's version differs from base and
+    # matches the recorded target.
+    if [ "$cls" = library ]; then
+        local tv cur basev
+        tv="$(mget "$wave" --arg r "$repo" '.repos[$r].target_version // empty')"
+        cur="$(version_of "$repo" "$branch")"
+        basev="$(version_of "$repo" "origin/$BASE")"
+        { [ -n "$cur" ] && [ "$cur" != "$basev" ] && { [ -z "$tv" ] || [ "$cur" = "$tv" ]; }; } \
+            || { echo pinned; return; }
+    fi
+
+    # built: recorded success still anchored to the branch head.
+    local bsha head
+    bsha="$(mget "$wave" --arg r "$repo" '.repos[$r].built.head // empty')"
+    head="$(git -C "$dir" rev-parse "$branch")"
+    [ -n "$bsha" ] && [ "$bsha" = "$head" ] || { echo bumped; return; }
+
+    # published-local (library): the target version sits in ~/.m2.
+    if [ "$cls" = library ]; then
+        local tv gp mk
+        tv="$(mget "$wave" --arg r "$repo" '.repos[$r].target_version')"
+        gp="$(meta_group "$repo")"; mk="$(meta_marker "$repo")"
+        [ -d "$M2/$gp/$mk/$tv" ] || { echo built; return; }
+    fi
+
+    # pr-ready: PASS sentinel at HEAD.
+    local gitdir s_head s_status
+    gitdir="$(git -C "$dir" rev-parse --absolute-git-dir)"
+    s_head="$(sed -n 's/^head=//p' "$gitdir/pre-pr.ok" 2>/dev/null || true)"
+    s_status="$(sed -n 's/^status=//p' "$gitdir/pre-pr.ok" 2>/dev/null || true)"
+    { [ "$s_status" = PASS ] && [ "$s_head" = "$head" ]; } || { echo published-local; return; }
+
+    # pr-open / merged.
+    local prstate
+    prstate="$(gh pr view "$branch" -R "$ORG/$repo" --json state --jq .state 2>/dev/null || true)"
+    case "$prstate" in
+        MERGED) ;;
+        OPEN)   echo pr-open; return ;;
+        *)      echo pr-ready; return ;;
+    esac
+
+    # published-remote (library): registry serves the target.
+    if [ "$cls" = library ]; then
+        local tv; tv="$(mget "$wave" --arg r "$repo" '.repos[$r].target_version')"
+        registry_has "$repo" "$tv" || { echo merged; return; }
+        echo published-remote; return
+    fi
+    echo published-remote   # verify-only: merged is terminal
+}
+
+cmd_status() {
+    local wave="${1:-$(active_wave)}"
+    [ -f "$(manifest_path "$wave")" ] || die "no manifest for wave '$wave'"
+    local repo st blocked up upst
+    printf '%-20s %-17s %-24s %s\n' REPO STATE VERSION NOTE
+    for repo in $(mget "$wave" '.order[]'); do
+        mget "$wave" --arg r "$repo" '.repos[$r] // empty' | grep -q . || continue
+        st="$(derive_state "$wave" "$repo")"
+        # blocked is derived, never stored: some transitive upstream parked/halted.
+        blocked=""
+        if [ "$st" != parked ]; then
+            for up in $(upstreams_of "$wave" "$repo"); do
+                upst="$(mget "$wave" --arg r "$up" '.repos[$r].state // empty')"
+                [ "$upst" = parked ] && blocked="blocked by $up"
+            done
+        fi
+        mset "$wave" '.repos[$r].state = $s' --arg r "$repo" --arg s "$st"
+        printf '%-20s %-17s %-24s %s\n' "$repo" "${blocked:+blocked}${blocked:-$st}" \
+            "$(mget "$wave" --arg r "$repo" '.repos[$r].target_version // "—"')" \
+            "${blocked:-$(mget "$wave" --arg r "$repo" '.repos[$r].parked // ""')}"
+    done
+    [ "$(mget "$wave" '.halted // empty')" != "" ] && warn "WAVE HALTED: $(mget "$wave" .halted)"
+    return 0
+}
+
+# ---------------------------------------------------------------------------
+# next — pure function of status: what should happen now
+# ---------------------------------------------------------------------------
+
+cmd_next() {
+    local wave json=0
+    wave="$(active_wave)"
+    [ "${1:-}" = "--json" ] && json=1
+    cmd_status "$wave" >/dev/null    # refresh derived states first
+
+    [ "$(mget "$wave" '.halted // empty')" != "" ] && { echo "HALTED $(mget "$wave" .halted)"; exit 5; }
+
+    local actions="" repo st up upok upst done_all=1
+    for repo in $(mget "$wave" '.order[]'); do
+        mget "$wave" --arg r "$repo" '.repos[$r] // empty' | grep -q . || continue
+        st="$(mget "$wave" --arg r "$repo" '.repos[$r].state')"
+        [ "$st" = published-remote ] || done_all=0
+        # A parked transitive upstream blocks everything downstream.
+        for up in $(upstreams_of "$wave" "$repo"); do
+            [ "$(mget "$wave" --arg r "$up" '.repos[$r].state // empty')" = parked ] && st=blocked
+        done
+        case "$st" in
+            pending|pulled|pinned) actions="$actions PREP:$repo" ;;
+            bumped)               actions="$actions BUILD:$repo" ;;
+            built|published-local)
+                # Ship needs every in-wave upstream published; else we wait.
+                upok=1
+                for up in $(upstreams_of "$wave" "$repo"); do
+                    upst="$(mget "$wave" --arg r "$up" '.repos[$r].state // empty')"
+                    [ "$upst" = published-remote ] || upok=0
+                done
+                if [ "$st" = built ]; then actions="$actions PREPR:$repo"
+                elif [ "$upok" = 1 ]; then actions="$actions PREPR:$repo"
+                else actions="$actions WAIT-UPSTREAM:$repo"; fi ;;
+            pr-ready)
+                upok=1
+                for up in $(upstreams_of "$wave" "$repo"); do
+                    upst="$(mget "$wave" --arg r "$up" '.repos[$r].state // empty')"
+                    [ "$upst" = published-remote ] || upok=0
+                done
+                if [ "$upok" = 1 ]; then actions="$actions SHIP:$repo"
+                else actions="$actions WAIT-UPSTREAM:$repo"; fi ;;
+            pr-open)  actions="$actions WAIT-REVIEW:$repo" ;;
+            merged)   actions="$actions WAIT-PUBLISH:$repo" ;;
+            parked|blocked|published-remote) ;;
+        esac
+    done
+    if [ "$done_all" = 1 ]; then
+        if [ "$(mget "$wave" '.closing_pr // empty')" = "" ]; then actions="CLOSE"
+        else actions="DONE"; fi
+    fi
+    [ -z "$actions" ] && actions="WAIT"
+    if [ "$json" = 1 ]; then
+        printf '%s\n' $actions | jq -R 'split(":") | {action: .[0], repo: (.[1] // null)}' | jq -s .
+    else
+        printf '%s\n' $actions
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# prep — branch, pull, pins, version
+# ---------------------------------------------------------------------------
+
+cmd_prep() {
+    local repo="${1:?usage: cascade prep <repo>}" wave
+    wave="$(active_wave)"
+    require_submodule "$repo"; require_java
+    local dir="$SUMMIT/$repo" branch cls
+    branch="$(mget "$wave" .branch)"; cls="$(meta_class "$repo")"
+    cd "$dir"
+
+    # Branch off a fresh base (re-entrant).
+    if [ "$(git rev-parse --abbrev-ref HEAD)" != "$branch" ]; then
+        git fetch --quiet origin "$BASE"
+        git checkout -q "$BASE"; git pull --ff-only --quiet origin "$BASE"
+        git switch -q -c "$branch" 2>/dev/null || git switch -q "$branch"
+    fi
+
+    # ./config/pull — commit only what it actually changed.
+    if ! git log --format=%s "origin/$BASE..HEAD" | grep -q '^Update shared agent tooling'; then
+        [ -z "$(git status --porcelain)" ] \
+            || die "working tree not clean before ./config/pull at $repo — commit or stash first"
+        ./config/pull
+        if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -q -m "Update shared agent tooling and config (./config/pull)"
+        else
+            note "config already current in $repo — no pull commit"
+        fi
+    else
+        note "shared tooling already pulled on this branch — skipping"
+    fi
+
+    # Apply the wave's pin deltas (in-wave upstreams only).
+    local up upver pf c cur cur_re nfound
+    for up in $(upstreams_of "$wave" "$repo"); do
+        case "$(mget "$wave" .kind)" in
+            retarget) upver="$(mget "$wave" .target)" ;;
+            *)
+                if [ "$up" = "$(mget "$wave" '.seed.repo // empty')" ] \
+                   && [ -n "$(mget "$wave" '.seed.version // empty')" ] ; then
+                    upver="$(mget "$wave" '.seed.version')"
+                else
+                    upver="$(version_of "$up" "$branch" 2>/dev/null || true)"
+                    [ -n "$upver" ] || upver="$(version_of "$up")"
+                fi ;;
+        esac
+        [ -n "$upver" ] || die "cannot determine wave version of upstream $up (has its prep run?)"
+        pf="buildSrc/src/main/kotlin/io/spine/dependency/local/$(repo_pin_file "$up")"
+        [ -f "$pf" ] || die "$repo has no $pf — unexpected layout"
+        for c in $(repo_track_constants "$up"); do
+            cur="$(grep -E "val $c(: String)? = \"" "$pf" | head -1 | sed -E 's/.*"([^"]+)".*/\1/')"
+            [ -n "$cur" ] || { warn "constant $c not found in $repo/$pf — edit by hand (cascade-adapt), then re-run: ./cascade prep $repo"; exit 3; }
+            [ "$cur" = "$upver" ] && continue
+            cur_re="${cur//./\\.}"
+            sed_inplace -E "s/(val $c(: String)? = \")$cur_re(\")/\1$upver\3/" "$pf"
+            nfound="$(grep -cE "val $c(: String)? = \"$upver\"" "$pf" || true)"
+            [ "$nfound" -ge 1 ] || { git checkout -- "$pf"; warn "pin edit verification failed for $up.$c in $repo — fix by hand, then re-run: ./cascade prep $repo"; exit 3; }
+        done
+        mset "$wave" '.repos[$r].pin_vector[$u] = $v' --arg r "$repo" --arg u "$up" --arg v "$upver"
+    done
+    if [ -n "$(git status --porcelain "buildSrc/src/main/kotlin/io/spine/dependency/local/" 2>/dev/null)" ]; then
+        git add buildSrc/src/main/kotlin/io/spine/dependency/local/
+        git commit -q -m "Update local dependency pins"
+    fi
+
+    # Version step (library repos only).
+    if [ "$cls" = library ]; then
+        local f=version.gradle.kts kind cur next prop
+        kind="$(mget "$wave" .kind)"; prop="$(meta_vprop "$repo")"
+        cur="$(version_of "$repo")"
+        [ -n "$cur" ] || die "cannot read $prop from $repo/$f"
+        if grep -qE "$prop.*by[[:space:]]+extra\(" "$f"; then
+            warn "$repo/$f uses 'by extra(...)' — run the bump-version skill (it migrates + bumps), then: ./cascade prep $repo"
+            exit 3
+        fi
+        if [ "$kind" = retarget ]; then
+            next="$(mget "$wave" .target)"
+            if [ "$cur" != "$next" ]; then
+                cur_re="${cur//./\\.}"
+                sed_inplace "s/${cur_re}/${next}/" "$f"
+                git commit -q -m "Set version -> \`${next}\`" -- "$f"
+                note "$repo version $cur -> $next"
+            fi
+        else
+            if git diff --quiet "origin/$BASE...HEAD" -- "$f" 2>/dev/null; then
+                printf '%s' "$cur" | grep -qE 'SNAPSHOT\.[0-9]+$' \
+                    || { warn "'$cur' is not a snapshot line — run the bump-version skill, then: ./cascade prep $repo"; exit 3; }
+                local pre suf w
+                pre="${cur%.*}"; suf="${cur##*.}"; w="${#suf}"
+                next="$pre.$(printf "%0${w}d" "$((10#$suf + 1))")"
+                cur_re="${cur//./\\.}"
+                sed_inplace "s/${cur_re}/${next}/" "$f"
+                git commit -q -m "Bump version -> \`${next}\`" -- "$f"
+                note "$repo version $cur -> $next"
+            else
+                next="$(version_of "$repo")"
+                note "already bumped on this branch ($next) — skipping"
+            fi
+        fi
+        mset "$wave" '.repos[$r].target_version = $v' --arg r "$repo" --arg v "${next:-$cur}"
+    fi
+    note "prep done: $repo on '$branch'. Next: ./cascade build $repo"
+}
+
+# ---------------------------------------------------------------------------
+# build — sequential gradle build + mavenLocal publication
+# ---------------------------------------------------------------------------
+
+cmd_build() {
+    local repo="${1:?usage: cascade build <repo>}" wave
+    wave="$(active_wave)"
+    require_submodule "$repo"; require_java
+    [ "$(mget "$wave" '.halted // empty')" = "" ] || { warn "wave is halted: $(mget "$wave" .halted)"; exit 5; }
+    local dir="$SUMMIT/$repo" cls branch
+    cls="$(meta_class "$repo")"; branch="$(mget "$wave" .branch)"
+    cd "$dir"
+    [ "$(git rev-parse --abbrev-ref HEAD)" = "$branch" ] || die "$repo is not on $branch — run: ./cascade prep $repo"
+
+    # Self-gate: script-internal gradle bypasses the PreToolUse hooks, so the
+    # version guard is re-implemented here (mirrors publish-version-gate.sh).
+    if [ "$cls" = library ] && [ -x ".agents/skills/version-bumped/scripts/version-bumped.sh" ]; then
+        VERSION_BUMPED_BASE="origin/$BASE" .agents/skills/version-bumped/scripts/version-bumped.sh \
+            || { warn "version-bumped gate failed — run: ./cascade prep $repo"; exit 3; }
+    fi
+
+    local logf; logf="$(git rev-parse --absolute-git-dir)/cascade-build.log"
+    local rounds; rounds="$(mget "$wave" --arg r "$repo" '.repos[$r].adapt_rounds // 0')"
+
+    if ! ./gradlew clean build dokkaGenerate --console=plain >"$logf" 2>&1; then
+        if grep -qE 'HTTP/[0-9.]+ 429|Too Many Requests|status code 429' "$logf"; then
+            mset "$wave" '.halted = $h' --arg h "Maven Central throttling (HTTP 429) during $repo build $(date -u +%FT%TZ) — do not retry; see the throttling diagnostic recipe"
+            warn "HTTP 429 detected — wave halted. Stop all builds now; retrying extends the block (up to 24h)."
+            exit 5
+        fi
+        tail -40 "$logf" >&2
+        if [ "$rounds" -ge "$ADAPT_BUDGET" ]; then
+            "$0" park "$repo" --reason "adapt budget exhausted ($ADAPT_BUDGET rounds); see $logf"
+            warn "$repo auto-parked after $ADAPT_BUDGET adapt rounds"
+            exit 0
+        fi
+        mset "$wave" '.repos[$r].adapt_rounds = (.repos[$r].adapt_rounds // 0) + 1' --arg r "$repo"
+        warn "build failed (round $((rounds + 1))/$ADAPT_BUDGET) — run the cascade-adapt skill in $repo, then: ./cascade build $repo"
+        warn "full log: $logf"
+        exit 3
+    fi
+
+    # Publish to mavenLocal where `build` did not already chain it.
+    if [ "$cls" = library ]; then
+        local tv gp mk
+        tv="$(mget "$wave" --arg r "$repo" '.repos[$r].target_version')"
+        gp="$(meta_group "$repo")"; mk="$(meta_marker "$repo")"
+        if [ ! -d "$M2/$gp/$mk/$tv" ]; then
+            ./gradlew publishToMavenLocal --console=plain >>"$logf" 2>&1 \
+                || { tail -20 "$logf" >&2; warn "publishToMavenLocal failed — inspect $logf, fix (cascade-adapt), then: ./cascade build $repo"; exit 3; }
+        fi
+        [ -d "$M2/$gp/$mk/$tv" ] || die "$mk $tv missing from mavenLocal after publish — check spinePublishing modules for $repo"
+    fi
+
+    # Dependency reports must change for ensure-reports-updated.yml.
+    if [ -d docs/dependencies ]; then
+        if [ -n "$(git status --porcelain docs/dependencies/)" ]; then
+            git add docs/dependencies/
+            git commit -q -m "Update dependency reports"
+        elif git diff --quiet "origin/$BASE...HEAD" -- docs/dependencies/; then
+            warn "docs/dependencies/ unchanged on this branch — ensure-reports-updated.yml would fail the PR."
+            warn "Investigate (cascade-adapt), then: ./cascade build $repo"
+            exit 3
+        fi
+    fi
+
+    mset "$wave" '.repos[$r].built = {head: $h, at: $t}' \
+        --arg r "$repo" --arg h "$(git rev-parse HEAD)" --arg t "$(date -u +%FT%TZ)"
+    note "build done: $repo. Next: run the pre-pr skill in $repo, then ./cascade ship $repo"
+}
+
+# ---------------------------------------------------------------------------
+# ship — gates, push, PR
+# ---------------------------------------------------------------------------
+
+cmd_ship() {
+    local repo="${1:?usage: cascade ship <repo>}" wave
+    wave="$(active_wave)"
+    require_submodule "$repo"
+    local dir="$SUMMIT/$repo" branch
+    branch="$(mget "$wave" .branch)"
+    cd "$dir"
+
+    # Sentinel gate (same check pre-pr-gate.sh runs; exit 3 so the loop can route).
+    local gitdir head s_head s_status
+    gitdir="$(git rev-parse --absolute-git-dir)"; head="$(git rev-parse HEAD)"
+    s_head="$(sed -n 's/^head=//p' "$gitdir/pre-pr.ok" 2>/dev/null || true)"
+    s_status="$(sed -n 's/^status=//p' "$gitdir/pre-pr.ok" 2>/dev/null || true)"
+    { [ "$s_status" = PASS ] && [ "$s_head" = "$head" ]; } \
+        || { warn "no PASS pre-pr sentinel for HEAD in $repo — run the pre-pr skill, then: ./cascade ship $repo"; exit 3; }
+
+    # Upstream-published gate: every pinned in-wave version must be public.
+    local up pv
+    for up in $(upstreams_of "$wave" "$repo"); do
+        pv="$(mget "$wave" --arg r "$repo" --arg u "$up" '.repos[$r].pin_vector[$u] // empty')"
+        [ -n "$pv" ] || continue
+        if ! registry_has "$up" "$pv"; then
+            # Drift check: did the upstream move past our pin (re-bump)?
+            local upcur; upcur="$(version_of "$up" "$branch" 2>/dev/null || version_of "$up")"
+            if [ -n "$upcur" ] && [ "$upcur" != "$pv" ]; then
+                warn "upstream $up re-bumped ($pv -> $upcur) — run: ./cascade refresh $repo"; exit 3
+            fi
+            warn "waiting: $up $pv not yet in the registry"; exit 4
+        fi
+    done
+
+    git checkout -- docs/dependencies/ 2>/dev/null || true
+    if gh pr view "$branch" -R "$ORG/$repo" --json url >/dev/null 2>&1; then
+        git push -q origin "$branch"
+        note "PR already open: $(gh pr view "$branch" -R "$ORG/$repo" --json url --jq .url)"
+    else
+        git push -u origin "$branch"
+        gh pr create --base "$BASE" --head "$branch" \
+            --title "$(pr_title)" \
+            --body-file "$SUMMIT/docs/rollout/rebuild-pr-body.md"
+    fi
+    mset "$wave" '.repos[$r].pr = {url: $u, head: $h}' --arg r "$repo" \
+        --arg u "$(gh pr view "$branch" -R "$ORG/$repo" --json url --jq .url)" --arg h "$head"
+    checkpoint_state "$wave" || true
+}
+
+pr_title() {
+    local wave kind; wave="$(active_wave)"; kind="$(mget "$wave" .kind)"
+    case "$kind" in
+        retarget) echo "Set version to \`$(mget "$wave" .target)\`" ;;
+        *)        echo "Rebuild with refreshed dependencies" ;;
+    esac
+}
+
+# ---------------------------------------------------------------------------
+# refresh — drift repair after an upstream re-bump
+# ---------------------------------------------------------------------------
+
+cmd_refresh() {
+    local repo="${1:?usage: cascade refresh <repo>}" wave
+    wave="$(active_wave)"
+    # Clear the recorded pins so prep re-reads the upstreams' current versions,
+    # then invalidate the build record (the branch will gain commits).
+    mset "$wave" '.repos[$r].pin_vector = {} | .repos[$r].built = null' --arg r "$repo"
+    "$0" prep "$repo"
+    warn "pins refreshed — rebuild + review required: ./cascade build $repo, pre-pr, ./cascade ship $repo"
+    exit 3
+}
+
+# ---------------------------------------------------------------------------
+# park / resume
+# ---------------------------------------------------------------------------
+
+cmd_park() {
+    local repo="${1:?usage: cascade park <repo> --reason \"...\"}" reason=""
+    shift
+    [ "${1:-}" = "--reason" ] && reason="${2:-}"
+    [ -n "$reason" ] || die "a --reason is mandatory for park"
+    local wave; wave="$(active_wave)"
+    mset "$wave" '.repos[$r].parked = $why | .repos[$r].state = "parked"' --arg r "$repo" --arg why "$reason"
+    printf -- '- %s — **parked** `%s`: %s\n' "$(date +%F)" "$repo" "$reason" >> "$TASKS_DIR/$wave.md"
+    note "$repo parked: $reason"
+}
+
+cmd_resume() {
+    local repo="${1:?usage: cascade resume <repo>}" wave
+    wave="$(active_wave)"
+    mset "$wave" '.repos[$r].parked = null | .repos[$r].adapt_rounds = 0' --arg r "$repo"
+    # A halted wave needs explicit human acknowledgement too.
+    mset "$wave" '.halted = null'
+    printf -- '- %s — resumed `%s`.\n' "$(date +%F)" "$repo" >> "$TASKS_DIR/$wave.md"
+    note "$repo resumed"
+}
+
+# ---------------------------------------------------------------------------
+# await — background watcher: exit 0 the moment the action set changes
+# ---------------------------------------------------------------------------
+
+cmd_await() {
+    local timeout_min=30 wave
+    [ "${1:-}" = "--timeout-min" ] && timeout_min="${2:-30}"
+    wave="$(active_wave)"
+    local before now deadline merged_any interval
+    before="$("$0" next 2>/dev/null || true)"
+    deadline=$(( $(date +%s) + timeout_min * 60 ))
+    while [ "$(date +%s)" -lt "$deadline" ]; do
+        merged_any="$(printf '%s' "$before" | grep -c WAIT-PUBLISH || true)"
+        if [ "${merged_any:-0}" -gt 0 ]; then interval=75; else interval=300; fi
+        sleep "$interval"
+        now="$("$0" next 2>/dev/null || true)"
+        [ "$(mget "$wave" '.halted // empty')" != "" ] && { warn "wave halted"; exit 5; }
+        if [ "$now" != "$before" ]; then
+            echo "CHANGED:"; printf '%s\n' "$now"
+            exit 0
+        fi
+    done
+    echo "TIMEOUT after ${timeout_min}m — no change"; exit 4
+}
+
+# ---------------------------------------------------------------------------
+# close — the closing config PR recording the final vector
+# ---------------------------------------------------------------------------
+
+cmd_close() {
+    local wave ship=0
+    wave="$(active_wave)"
+    [ "${1:-}" = "--ship" ] && ship=1
+    local cfg="$SUMMIT/config" vbranch repo tv pf c cur cur_re
+    vbranch="$(mget "$wave" .wave)-vector"
+    require_submodule config
+
+    # Preconditions: every non-parked library repo published-remote.
+    for repo in $(wave_repos "$wave"); do
+        [ "$(meta_class "$repo")" = library ] || continue
+        [ "$(mget "$wave" --arg r "$repo" '.repos[$r].parked // empty')" != "" ] && continue
+        tv="$(mget "$wave" --arg r "$repo" '.repos[$r].target_version // empty')"
+        registry_has "$repo" "$tv" || die "$repo $tv not yet published — close is premature"
+    done
+
+    cd "$cfg"
+    if [ "$(git rev-parse --abbrev-ref HEAD)" != "$vbranch" ]; then
+        git fetch --quiet origin "$BASE"; git checkout -q "$BASE"; git pull --ff-only --quiet origin "$BASE"
+        git switch -q -c "$vbranch" 2>/dev/null || git switch -q "$vbranch"
+    fi
+    # Advance every constant — track AND published-floor — to the wave versions,
+    # all provably published by the precondition above.
+    for repo in $(wave_repos "$wave"); do
+        [ "$(meta_class "$repo")" = library ] || continue
+        [ "$(mget "$wave" --arg r "$repo" '.repos[$r].parked // empty')" != "" ] && continue
+        tv="$(mget "$wave" --arg r "$repo" '.repos[$r].target_version')"
+        pf="buildSrc/src/main/kotlin/io/spine/dependency/local/$(repo_pin_file "$repo")"
+        [ -f "$pf" ] || continue
+        grep -oE 'val (version|versionForBuildScript|dogfoodingVersion|fallbackVersion|fallbackDfVersion)(: String)? = "[^"]+"' "$pf" \
+        | while read -r line; do
+            c="$(printf '%s' "$line" | sed -E 's/val ([A-Za-z]+).*/\1/')"
+            cur="$(printf '%s' "$line" | sed -E 's/.*"([^"]+)".*/\1/')"
+            [ "$cur" = "$tv" ] && continue
+            cur_re="${cur//./\\.}"
+            sed_inplace -E "s/(val $c(: String)? = \")$cur_re(\")/\1$tv\3/" "$pf"
+        done
+    done
+    if [ -n "$(git status --porcelain buildSrc/src/main/kotlin/io/spine/dependency/local/)" ]; then
+        git add buildSrc/src/main/kotlin/io/spine/dependency/local/
+        git commit -q -m "Update local dependency pins"
+    fi
+    if [ "$ship" = 1 ]; then
+        git push -u origin "$vbranch"
+        gh pr create -R "$ORG/config" --base "$BASE" --head "$vbranch" \
+            --title "Record the \`$wave\` version vector" \
+            --body "Advances \`io.spine.dependency.local\` pins to the versions published by wave \`$wave\`. All versions verified present in the registry before this PR was opened."
+        mset "$wave" '.closing_pr = $u' --arg u "$(gh pr view "$vbranch" -R "$ORG/config" --json url --jq .url)"
+        checkpoint_state "$wave" || true
+    else
+        warn "vector staged on config branch '$vbranch' — run the pre-pr skill in config, then: ./cascade close --ship"
+        exit 3
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# state checkpoints — commit the manifest pair on summit's wave branch
+# ---------------------------------------------------------------------------
+
+checkpoint_state() {
+    local wave="$1"
+    cd "$SUMMIT"
+    git add "$TASKS_DIR/$wave.json" "$TASKS_DIR/$wave.md" 2>/dev/null || return 0
+    git diff --cached --quiet 2>/dev/null && return 0
+    git commit -q -m "Update cascade state" -- "$TASKS_DIR/$wave.json" "$TASKS_DIR/$wave.md" 2>/dev/null || true
+}
+
+# ---------------------------------------------------------------------------
+# dispatch
+# ---------------------------------------------------------------------------
+
+CMD="${1:-}"; shift || true
+# Global --wave flag (before or after the subcommand's own args).
+ARGS=""
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --wave) export CASCADE_WAVE="$2"; shift 2 ;;
+        *) ARGS="$ARGS $1"; shift ;;
+    esac
+done
+# shellcheck disable=SC2086
+set -- $ARGS
+
+case "$CMD" in
+    graph)   cmd_graph "$@" ;;
+    plan)    cmd_plan "$@" ;;
+    status)  cmd_status "$@" ;;
+    next)    cmd_next "$@" ;;
+    prep)    cmd_prep "$@" ;;
+    build)   cmd_build "$@" ;;
+    ship)    cmd_ship "$@" ;;
+    refresh) cmd_refresh "$@" ;;
+    park)    cmd_park "$@" ;;
+    resume)  cmd_resume "$@" ;;
+    await)   cmd_await "$@" ;;
+    close)   cmd_close "$@" ;;
+    *) cat <<EOF
+usage: cascade <subcommand> [args] [--wave <slug>]
+
+wave:      graph [--check] | plan --kind <k> [...] | status | next [--json]
+           await [--timeout-min N] | close [--ship]
+per repo:  prep <repo> | build <repo> | ship <repo> | refresh <repo>
+           park <repo> --reason "..." | resume <repo>
+
+See docs/rollout/rebuild.md for the playbook and docs/dependency-graph.md
+for the build-order contract.
+EOF
+       exit 2 ;;
+esac

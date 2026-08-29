@@ -10,7 +10,10 @@ pinned commits of the submodules below, plus the shared agent tooling under `.ag
 ## Repository layout
 
 The submodules are pinned to fixed commits, giving a reproducible snapshot of the
-SDK. They are grouped below by function, not by strict dependency order.
+SDK. They are grouped below by function, not by strict dependency order. The
+build-order contract between them — including which dependency edges
+sequence a cross-repository wave — lives in
+[`docs/dependency-graph.md`](docs/dependency-graph.md).
 
 ### Shared infrastructure
 
