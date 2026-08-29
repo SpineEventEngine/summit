@@ -1,0 +1,362 @@
+{
+  "schema": 1,
+  "wave": "cascade-refresh-2cd0e3b",
+  "kind": "refresh",
+  "created": "2026-08-29T18:02:55Z",
+  "base": "master",
+  "config_sha": "2cd0e3b1bfc860e66a1b9b0866cfb9ecea522f0c",
+  "seed": null,
+  "target": null,
+  "branch": "cascade-refresh-2cd0e3b",
+  "halted": null,
+  "order": [
+    "base-libraries",
+    "reflect",
+    "logging",
+    "testlib",
+    "base-types",
+    "change",
+    "tool-base",
+    "ProtoTap",
+    "time",
+    "compiler",
+    "validation",
+    "money",
+    "core-jvm-compiler",
+    "core-jvm",
+    "jdbc-storage",
+    "gcloud-jvm",
+    "delivery-server",
+    "BuildSpeed"
+  ],
+  "repos": {
+    "base-libraries": {
+      "upstreams": [],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-base"
+      },
+      "state": "pending",
+      "target_version": "2.0.0-SNAPSHOT.442",
+      "pin_vector": {},
+      "adapt_rounds": 1,
+      "built": {
+        "head": "31b57f820e23e8eb3a772bed96cdefcc52c115fb",
+        "at": "2026-08-29T18:16:00Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/base-libraries/pull/960",
+        "head": "31b57f820e23e8eb3a772bed96cdefcc52c115fb"
+      },
+      "parked": null
+    },
+    "logging": {
+      "upstreams": [
+        "base-libraries"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-logging"
+      },
+      "state": "parked",
+      "target_version": "2.0.0-SNAPSHOT.425",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.442"
+      },
+      "adapt_rounds": 0,
+      "built": {
+        "head": "2c4d2209c7d2d794e3da60dc352b7490548444f4",
+        "at": "2026-08-29T18:16:41Z"
+      },
+      "pr": null,
+      "parked": null
+    },
+    "base-types": {
+      "upstreams": [
+        "base-libraries"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-base-types"
+      },
+      "state": "pending",
+      "target_version": null,
+      "pin_vector": {},
+      "adapt_rounds": 0,
+      "built": null,
+      "pr": null,
+      "parked": null
+    },
+    "change": {
+      "upstreams": [
+        "base-libraries"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-change"
+      },
+      "state": "pending",
+      "target_version": null,
+      "pin_vector": {},
+      "adapt_rounds": 0,
+      "built": null,
+      "pr": null,
+      "parked": null
+    },
+    "tool-base": {
+      "upstreams": [
+        "base-libraries",
+        "logging"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine/tools",
+        "artifact": "spine-tool-base"
+      },
+      "state": "pending",
+      "target_version": "2.0.0-SNAPSHOT.422",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.442",
+        "logging": "2.0.0-SNAPSHOT.425"
+      },
+      "adapt_rounds": 1,
+      "built": null,
+      "pr": null,
+      "parked": null
+    },
+    "ProtoTap": {
+      "upstreams": [
+        "base-libraries",
+        "logging",
+        "tool-base"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine/tools",
+        "artifact": "prototap-gradle-plugin"
+      },
+      "state": "pending",
+      "target_version": null,
+      "pin_vector": {},
+      "adapt_rounds": 0,
+      "built": null,
+      "pr": null,
+      "parked": null
+    },
+    "time": {
+      "upstreams": [
+        "ProtoTap",
+        "base-libraries",
+        "logging",
+        "tool-base"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-time"
+      },
+      "state": "pending",
+      "target_version": null,
+      "pin_vector": {},
+      "adapt_rounds": 0,
+      "built": null,
+      "pr": null,
+      "parked": null
+    },
+    "compiler": {
+      "upstreams": [
+        "ProtoTap",
+        "base-libraries",
+        "logging",
+        "time",
+        "tool-base"
+      ],
+      "class": "library",
+      "version_property": "compilerVersion",
+      "probe": {
+        "group_path": "io/spine/tools",
+        "artifact": "compiler-jvm"
+      },
+      "state": "pending",
+      "target_version": null,
+      "pin_vector": {},
+      "adapt_rounds": 0,
+      "built": null,
+      "pr": null,
+      "parked": null
+    },
+    "validation": {
+      "upstreams": [
+        "ProtoTap",
+        "base-libraries",
+        "base-types",
+        "change",
+        "compiler",
+        "logging",
+        "time",
+        "tool-base"
+      ],
+      "class": "library",
+      "version_property": "validationVersion",
+      "probe": {
+        "group_path": "io/spine/tools",
+        "artifact": "spine-validation-java"
+      },
+      "state": "pending",
+      "target_version": null,
+      "pin_vector": {},
+      "adapt_rounds": 0,
+      "built": null,
+      "pr": null,
+      "parked": null
+    },
+    "core-jvm-compiler": {
+      "upstreams": [
+        "ProtoTap",
+        "base-libraries",
+        "compiler",
+        "logging",
+        "time",
+        "tool-base",
+        "validation"
+      ],
+      "class": "library",
+      "version_property": "coreJvmCompilerVersion",
+      "probe": {
+        "group_path": "io/spine/tools",
+        "artifact": "core-jvm-gradle-plugin"
+      },
+      "state": "pending",
+      "target_version": null,
+      "pin_vector": {},
+      "adapt_rounds": 0,
+      "built": null,
+      "pr": null,
+      "parked": null
+    },
+    "core-jvm": {
+      "upstreams": [
+        "base-libraries",
+        "base-types",
+        "change",
+        "core-jvm-compiler",
+        "logging",
+        "time",
+        "validation"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-core"
+      },
+      "state": "pending",
+      "target_version": null,
+      "pin_vector": {},
+      "adapt_rounds": 0,
+      "built": null,
+      "pr": null,
+      "parked": null
+    },
+    "jdbc-storage": {
+      "upstreams": [
+        "core-jvm",
+        "core-jvm-compiler",
+        "validation"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-rdbms"
+      },
+      "state": "pending",
+      "target_version": null,
+      "pin_vector": {},
+      "adapt_rounds": 0,
+      "built": null,
+      "pr": null,
+      "parked": null
+    },
+    "gcloud-jvm": {
+      "upstreams": [
+        "base-libraries",
+        "base-types",
+        "core-jvm",
+        "core-jvm-compiler",
+        "logging",
+        "validation"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine/gcloud",
+        "artifact": "spine-datastore"
+      },
+      "state": "pending",
+      "target_version": null,
+      "pin_vector": {},
+      "adapt_rounds": 0,
+      "built": null,
+      "pr": null,
+      "parked": null
+    },
+    "delivery-server": {
+      "upstreams": [
+        "core-jvm",
+        "core-jvm-compiler",
+        "logging",
+        "time",
+        "validation"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine/delivery",
+        "artifact": "spine-delivery-server"
+      },
+      "state": "pending",
+      "target_version": null,
+      "pin_vector": {},
+      "adapt_rounds": 0,
+      "built": null,
+      "pr": null,
+      "parked": null
+    },
+    "BuildSpeed": {
+      "upstreams": [
+        "core-jvm-compiler"
+      ],
+      "class": "verify-only",
+      "version_property": "",
+      "probe": {
+        "group_path": "",
+        "artifact": ""
+      },
+      "state": "pending",
+      "target_version": null,
+      "pin_vector": {},
+      "adapt_rounds": 0,
+      "built": null,
+      "pr": null,
+      "parked": null
+    }
+  },
+  "excluded": {
+    "reflect": "straggler: config submodule generations behind — first pull is a migration (opt in via --include)",
+    "testlib": "straggler: config submodule generations behind — first pull is a migration (opt in via --include)",
+    "money": "straggler: config submodule generations behind — first pull is a migration (opt in via --include)"
+  },
+  "closing_pr": null
+}
