@@ -17,8 +17,8 @@ sequence a cross-repository wave — lives in
 
 ### Shared infrastructure
 
-| Submodule | Role |
-|-----------|------|
+| Submodule          | Role                                                           |
+|--------------------|----------------------------------------------------------------|
 | [`config`][config] | Dependencies and build configurations shared among subprojects |
 
 The shared agent tooling — skills, scripts, and guidelines — lives in the
@@ -30,44 +30,52 @@ does against the SDK repositories above.
 
 ### Foundation & utilities
 
-| Submodule | Role |
-|-----------|------|
-| [`base-libraries`][base-libraries] | The framework's base types and utilities |
-| [`reflect`][reflect] | Utilities for working with reflection in Java and Kotlin projects |
-| [`logging`][logging] | Fluent logging API for Kotlin projects |
-| [`testlib`][testlib] | Testing utilities for Spine SDK development and users |
+| Submodule                          | Role                                                              |
+|------------------------------------|-------------------------------------------------------------------|
+| [`base-libraries`][base-libraries] | The framework's base types and utilities                          |
+| [`reflect`][reflect]               | Utilities for working with reflection in Java and Kotlin projects |
+| [`logging`][logging]               | Fluent logging API for Kotlin projects                            |
+| [`testlib`][testlib]               | Testing utilities for Spine SDK development and users             |
 
 ### Domain & value types
 
-| Submodule | Role |
-|-----------|------|
-| [`base-types`][base-types] | Popular value object types and associated code |
-| [`change`][change] | Data types and utilities for changes and mismatches in data values |
-| [`time`][time] | Protobuf-based date/time types and utilities |
-| [`money`][money] | Currency and money data types and operations |
+| Submodule                  | Role                                                               |
+|----------------------------|--------------------------------------------------------------------|
+| [`base-types`][base-types] | Popular value object types and associated code                     |
+| [`change`][change]         | Data types and utilities for changes and mismatches in data values |
+| [`time`][time]             | Protobuf-based date/time types and utilities                       |
+| [`money`][money]           | Currency and money data types and operations                       |
 
 ### Compiler & code generation
 
-| Submodule | Role |
-|-----------|------|
-| [`compiler`][compiler] | The Spine Compiler — extendable Protobuf compilation |
-| [`tool-base`][tool-base] | Common code for development tools |
-| [`ProtoTap`][ProtoTap] | Utilities for tapping `protoc` output |
-| [`validation`][validation] | Library and Compiler plugins for generating custom validation code |
-| [`core-jvm-compiler`][core-jvm-compiler] | Plugins of the CoreJvm library for the Spine Compiler |
+| Submodule                                | Role                                                               |
+|------------------------------------------|--------------------------------------------------------------------|
+| [`compiler`][compiler]                   | The Spine Compiler — extendable Protobuf compilation               |
+| [`tool-base`][tool-base]                 | Common code for development tools                                  |
+| [`ProtoTap`][ProtoTap]                   | Utilities for tapping `protoc` output                              |
+| [`validation`][validation]               | Library and Compiler plugins for generating custom validation code |
+| [`core-jvm-compiler`][core-jvm-compiler] | Plugins of the CoreJvm library for the Spine Compiler              |
 
 ### Framework core
 
-| Submodule | Role |
-|-----------|------|
+| Submodule              | Role                                                     |
+|------------------------|----------------------------------------------------------|
 | [`core-jvm`][core-jvm] | The JVM-based implementation of the Spine framework core |
 
 ### Storage & runtime
 
-| Submodule | Role |
-|-----------|------|
-| [`jdbc-storage`][jdbc-storage] | Support for storage in JDBC-compliant databases |
-| [`gcloud-jvm`][gcloud-jvm] | Support for Spine-based Kotlin and Java apps on Google Cloud |
+| Submodule                            | Role                                                         |
+|--------------------------------------|--------------------------------------------------------------|
+| [`jdbc-storage`][jdbc-storage]       | Support for storage in JDBC-compliant databases              |
+| [`gcloud-jvm`][gcloud-jvm]           | Support for Spine-based Kotlin and Java apps on Google Cloud |
+| [`delivery-server`][delivery-server] | gRPC services providing sharded message delivery             |
+
+### Benchmarks & documentation
+
+| Submodule                        | Role                                                                 |
+|----------------------------------|----------------------------------------------------------------------|
+| [`BuildSpeed`][BuildSpeed]       | Model definitions for testing the performance of Spine's build tools |
+| [`documentation`][documentation] | Documentation and articles at spine.io and other web resources       |
 
 ## Getting started
 
@@ -120,3 +128,6 @@ available skills are described in [`AGENTS.md`](AGENTS.md).
 [core-jvm]: https://github.com/SpineEventEngine/core-jvm
 [jdbc-storage]: https://github.com/SpineEventEngine/jdbc-storage
 [gcloud-jvm]: https://github.com/SpineEventEngine/gcloud-jvm
+[delivery-server]: https://github.com/SpineEventEngine/delivery-server
+[BuildSpeed]: https://github.com/SpineEventEngine/BuildSpeed
+[documentation]: https://github.com/SpineEventEngine/documentation
