@@ -8,7 +8,7 @@
   "seed": null,
   "target": null,
   "branch": "cascade-refresh-2cd0e3b",
-  "halted": null,
+  "halted": "halted by owner (2026-08-29): toolchain-first fix chosen — publish a post-refresh compiler / align config fallback pins outside the wave, then re-trigger a fresh wave",
   "order": [
     "base-libraries",
     "reflect",
@@ -38,7 +38,7 @@
         "group_path": "io/spine",
         "artifact": "spine-base"
       },
-      "state": "pending",
+      "state": "pr-open",
       "target_version": "2.0.0-SNAPSHOT.442",
       "pin_vector": {},
       "adapt_rounds": 1,
@@ -62,7 +62,7 @@
         "group_path": "io/spine",
         "artifact": "spine-logging"
       },
-      "state": "parked",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.425",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.442"
@@ -85,13 +85,15 @@
         "group_path": "io/spine",
         "artifact": "spine-base-types"
       },
-      "state": "pending",
-      "target_version": null,
-      "pin_vector": {},
-      "adapt_rounds": 0,
+      "state": "parked",
+      "target_version": "2.0.0-SNAPSHOT.225",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.442"
+      },
+      "adapt_rounds": 2,
       "built": null,
       "pr": null,
-      "parked": null
+      "parked": "toolchain incompatibility: compiler .067 (pre-refresh pins, spine-format .423, jackson-bom 2.22.0) and core-jvm-plugins .091 (refresh-era, jackson 2.22.1) cannot share the plugin-managed :spineCompiler classpath; no post-refresh compiler is published; consumer-side forces do not reach that configuration. Unparks when this wave's compiler/validation/core-jvm-compiler publish a coherent toolchain."
     },
     "change": {
       "upstreams": [
@@ -103,13 +105,15 @@
         "group_path": "io/spine",
         "artifact": "spine-change"
       },
-      "state": "pending",
-      "target_version": null,
-      "pin_vector": {},
+      "state": "parked",
+      "target_version": "2.0.0-SNAPSHOT.208",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.442"
+      },
       "adapt_rounds": 0,
       "built": null,
       "pr": null,
-      "parked": null
+      "parked": "toolchain incompatibility (same as base-types): compiler .067 floor and core-jvm-plugins .091 cannot share the :spineCompiler classpath; also uses the retired CoreJvmCompiler.pluginLib accessor. Resolvable only after a post-refresh toolchain publishes and floors advance."
     },
     "tool-base": {
       "upstreams": [
@@ -122,14 +126,17 @@
         "group_path": "io/spine/tools",
         "artifact": "spine-tool-base"
       },
-      "state": "pending",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.422",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.442",
         "logging": "2.0.0-SNAPSHOT.425"
       },
       "adapt_rounds": 1,
-      "built": null,
+      "built": {
+        "head": "c61bc84c80ca9889493ad6ac19cdecfe065ef472",
+        "at": "2026-08-29T18:26:05Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -166,13 +173,13 @@
         "group_path": "io/spine",
         "artifact": "spine-time"
       },
-      "state": "pending",
+      "state": "parked",
       "target_version": null,
       "pin_vector": {},
       "adapt_rounds": 0,
       "built": null,
       "pr": null,
-      "parked": null
+      "parked": "toolchain incompatibility (same as base-types): compiler .067 floor and core-jvm-plugins .091 cannot share the :spineCompiler classpath; also uses the retired CoreJvmCompiler.pluginLib accessor. Resolvable only after a post-refresh toolchain publishes and floors advance."
     },
     "compiler": {
       "upstreams": [
