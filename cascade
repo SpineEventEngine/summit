@@ -1023,7 +1023,8 @@ cmd_status() {
         fi
         mset "$wave" '.repos[$r].state = $s' --arg r "$repo" --arg s "$st"
         printf '%-20s %-17s %-24s %s\n' "$repo" "${blocked:+blocked}${blocked:-$st}" \
-            "$(mget "$wave" --arg r "$repo" '.repos[$r].target_version // "—"')" \
+            "$(mget "$wave" --arg r "$repo" '.repos[$r].target_version // empty' \
+               | grep . || version_of "$repo" "$branch" 2>/dev/null | grep . || echo "—")" \
             "${blocked:-$(mget "$wave" --arg r "$repo" '.repos[$r].parked // ""')}"
     done
     [ "$(mget "$wave" '.halted // empty')" != "" ] && warn "WAVE HALTED: $(mget "$wave" .halted)"
