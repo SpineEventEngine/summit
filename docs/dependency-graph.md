@@ -30,20 +30,29 @@ One-way dependencies constrain this order absolutely, and regeneration audits
 that (a repository is never placed before one it depends on unless the pair is
 genuinely mutual). Which member of a **mutual** pair counts as "earlier" is a
 convention, not a derivable fact — so the order is recorded here, as reviewed
-documentation:
+documentation.
+
+The convention is **tools before libraries**: the code-generation tools
+(`tool-base`, `ProtoTap`, `compiler`, `validation`, `core-jvm-compiler`) are
+built against the previous generation of the libraries, and the libraries are
+then built against the current generation of the tools. A library therefore
+depends on tools of its own generation, and only the tools carry a dependency
+on the generation behind them. The alternative — libraries first — is equally
+consistent but puts the lag in the libraries, whose artifacts are the ones
+consumed at runtime.
 
 1. `base-libraries`
 2. `reflect`
 3. `logging`
 4. `testlib`
-5. `base-types`
-6. `change`
-7. `tool-base`
-8. `ProtoTap`
-9. `time`
-10. `compiler`
-11. `validation`
-12. `core-jvm-compiler`
+5. `tool-base`
+6. `ProtoTap`
+7. `compiler`
+8. `validation`
+9. `core-jvm-compiler`
+10. `base-types`
+11. `change`
+12. `time`
 13. `money`
 14. `core-jvm`
 15. `jdbc-storage`
@@ -63,25 +72,25 @@ References that merely manage versions — `force(...)`, `constraints`,
 
 ```mermaid
 flowchart BT
-    base-types --> base-libraries
-    change --> base-libraries
     logging --> base-libraries
-    validation --> base-types
-    validation --> change
+    core-jvm --> base-types
+    core-jvm --> change
     validation --> compiler
     delivery-server --> core-jvm
     gcloud-jvm --> core-jvm
     jdbc-storage --> core-jvm
     BuildSpeed --> core-jvm-compiler
-    core-jvm --> core-jvm-compiler
+    base-types --> core-jvm-compiler
+    change --> core-jvm-compiler
+    money --> core-jvm-compiler
+    time --> core-jvm-compiler
     testlib --> logging
     logging --> reflect
     tool-base --> testlib
-    compiler --> time
+    core-jvm --> time
     ProtoTap --> tool-base
-    time --> tool-base
+    compiler --> tool-base
     core-jvm-compiler --> validation
-    money --> validation
 ```
 
 <details>
@@ -116,11 +125,11 @@ from the already-published artifact to the repository consuming it.</summary>
 
 ```mermaid
 flowchart BT
-    compiler -.-> time
+    base-types -.-> validation
+    change -.-> validation
     core-jvm -.-> compiler
     core-jvm -.-> core-jvm-compiler
     core-jvm -.-> validation
-    core-jvm-compiler -.-> base-types
     core-jvm-compiler -.-> compiler
     core-jvm-compiler -.-> validation
     logging -.-> base-libraries
@@ -129,12 +138,12 @@ flowchart BT
     testlib -.-> logging
     testlib -.-> reflect
     time -.-> change
+    time -.-> compiler
+    time -.-> core-jvm-compiler
+    time -.-> validation
     tool-base -.-> base-libraries
     tool-base -.-> testlib
-    validation -.-> base-types
-    validation -.-> change
     validation -.-> compiler
-    validation -.-> time
 ```
 
 </details>
@@ -152,14 +161,14 @@ of the literal in the repository's `version.gradle.kts`.
 | `reflect` | library | gcar : `io.spine:spine-reflect` | `versionToPublish` |
 | `logging` | library | gcar : `io.spine:spine-logging` | `versionToPublish` |
 | `testlib` | library | gcar : `io.spine.tools:base-testlib` | `versionToPublish` |
-| `base-types` | library | gcar : `io.spine:spine-base-types` | `versionToPublish` |
-| `change` | library | gcar : `io.spine:spine-change` | `versionToPublish` |
 | `tool-base` | library | gcar : `io.spine.tools:jvm-tools` | `versionToPublish` |
 | `ProtoTap` | library | gcar : `io.spine.tools:prototap-gradle-plugin` | `versionToPublish` |
-| `time` | library | gcar : `io.spine:spine-time` | `versionToPublish` |
 | `compiler` | library | gcar : `io.spine.tools:compiler-jvm` | `compilerVersion` |
 | `validation` | library | gcar : `io.spine.tools:validation-java` | `validationVersion` |
 | `core-jvm-compiler` | library | gcar : `io.spine.tools:core-jvm-gradle-plugin` | `coreJvmCompilerVersion` |
+| `base-types` | library | gcar : `io.spine:spine-base-types` | `versionToPublish` |
+| `change` | library | gcar : `io.spine:spine-change` | `versionToPublish` |
+| `time` | library | gcar : `io.spine:spine-time` | `versionToPublish` |
 | `money` | library | gcar : `io.spine:spine-money` | `versionToPublish` |
 | `core-jvm` | library | gcar : `io.spine:spine-core` | `versionToPublish` |
 | `jdbc-storage` | library | gcar : `io.spine:spine-rdbms` | `versionToPublish` |
@@ -206,10 +215,13 @@ base-libraries reflect
 base-libraries testlib
 base-libraries tool-base
 base-types base-libraries
+base-types compiler
 base-types core-jvm-compiler
 base-types testlib
 base-types validation
 change base-libraries
+change compiler
+change core-jvm-compiler
 change time
 change validation
 compiler ProtoTap
@@ -241,6 +253,7 @@ core-jvm-compiler testlib
 core-jvm-compiler time
 core-jvm-compiler tool-base
 core-jvm-compiler validation
+delivery-server compiler
 delivery-server core-jvm
 delivery-server core-jvm-compiler
 delivery-server logging
@@ -249,6 +262,7 @@ delivery-server time
 delivery-server validation
 gcloud-jvm base-libraries
 gcloud-jvm base-types
+gcloud-jvm compiler
 gcloud-jvm core-jvm
 gcloud-jvm core-jvm-compiler
 gcloud-jvm logging
@@ -261,6 +275,8 @@ logging base-libraries
 logging reflect
 logging testlib
 money base-libraries
+money compiler
+money core-jvm-compiler
 money testlib
 money validation
 reflect testlib
@@ -269,6 +285,7 @@ testlib tool-base
 time ProtoTap
 time base-libraries
 time compiler
+time core-jvm-compiler
 time logging
 time testlib
 time tool-base

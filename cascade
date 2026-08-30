@@ -68,8 +68,8 @@ sed_inplace() {
 # the next wave — exactly the generation-lag pattern the repos already live by.
 # Changing this order is a reviewed change to docs/dependency-graph.md.
 repos_all() {
-    echo "base-libraries reflect logging testlib base-types change tool-base \
-ProtoTap time compiler validation core-jvm-compiler money core-jvm \
+    echo "base-libraries reflect logging testlib tool-base ProtoTap \
+compiler validation core-jvm-compiler base-types change time money core-jvm \
 jdbc-storage gcloud-jvm delivery-server BuildSpeed"
 }
 
@@ -379,7 +379,12 @@ derive_scoped() {
                 {
                     line = $0
                     if (line ~ /^[[:space:]]*(import|\/\/|\*)/) { updepth(); next }
-                    use = match(line, "(^|[^.A-Za-z])" obj "\\.[A-Za-z]")
+                    # Accept both the bare `Obj.member` (backed by an import)
+                    # and the fully-qualified `io.spine.dependency.local.Obj.member`,
+                    # which is the house style inside `buildscript {}` where
+                    # file-level imports do not apply. The leading guard still
+                    # rejects an unrelated `Something.Obj.member`.
+                    use = match(line, "(^|[^.A-Za-z])(io\\.spine\\.dependency\\.local\\.)?" obj "\\.[A-Za-z]")
                     if (use) {
                         if (line ~ /(^|[^A-Za-z])test[A-Za-z]*\(/)        print "test"
                         else if (line ~ /(^|[^A-Za-z])(api|implementation|compileOnly|compileOnlyApi|runtimeOnly|annotationProcessor|classpath|kapt|ksp)\(/) print "main"
@@ -543,7 +548,16 @@ One-way dependencies constrain this order absolutely, and regeneration audits
 that (a repository is never placed before one it depends on unless the pair is
 genuinely mutual). Which member of a **mutual** pair counts as "earlier" is a
 convention, not a derivable fact — so the order is recorded here, as reviewed
-documentation:
+documentation.
+
+The convention is **tools before libraries**: the code-generation tools
+(`tool-base`, `ProtoTap`, `compiler`, `validation`, `core-jvm-compiler`) are
+built against the previous generation of the libraries, and the libraries are
+then built against the current generation of the tools. A library therefore
+depends on tools of its own generation, and only the tools carry a dependency
+on the generation behind them. The alternative — libraries first — is equally
+consistent but puts the lag in the libraries, whose artifacts are the ones
+consumed at runtime.
 
 EOF
         i=1
