@@ -453,19 +453,23 @@
         "group_path": "",
         "artifact": ""
       },
-      "state": "pending",
+      "state": "parked",
       "target_version": null,
       "pin_vector": {},
       "adapt_rounds": 0,
       "built": null,
       "pr": null,
-      "parked": null
+      "parked": "verify-only: SDK versions arrive as CI environment variables substituted into settings.gradle.kts.template, so there are no file pins to apply, no version to bump, and no artifact to publish"
     },
     "money": {
       "adapt_rounds": 3,
-      "state": "bumped",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.11",
-      "pin_vector": {}
+      "pin_vector": {},
+      "built": {
+        "head": "d40b04a40435265dca6fd38a08d0c028c82ad061",
+        "at": "2026-08-30T16:14:08Z"
+      }
     }
   },
   "excluded": {

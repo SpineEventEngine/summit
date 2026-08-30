@@ -1109,8 +1109,12 @@ cmd_prep() {
         git switch -q -c "$branch" 2>/dev/null || git switch -q "$branch"
     fi
 
-    # ./config/pull — commit only what it actually changed.
-    if ! git log --format=%s "origin/$BASE..HEAD" | grep -q '^Update shared agent tooling'; then
+    # ./config/pull — commit only what it actually changed. A repo that does not
+    # consume `config` (its own hand-written buildSrc, no `config` submodule) has
+    # nothing to pull; skipping keeps it a wave participant instead of a hard error.
+    if [ ! -x ./config/pull ]; then
+        note "$repo does not consume \`config\` — no pull step"
+    elif ! git log --format=%s "origin/$BASE..HEAD" | grep -q '^Update shared agent tooling'; then
         [ -z "$(git status --porcelain)" ] \
             || die "working tree not clean before ./config/pull at $repo — commit or stash first"
         ./config/pull

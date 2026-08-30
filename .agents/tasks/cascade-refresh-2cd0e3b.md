@@ -66,3 +66,4 @@ Machine state: [`cascade-refresh-2cd0e3b.json`](cascade-refresh-2cd0e3b.json). P
 - 2026-08-29 — resumed `time`.
 - 2026-08-29 — resumed `time`.
 - 2026-08-29 — resumed `change`.
+- 2026-08-30 — **parked** `BuildSpeed`: verify-only: SDK versions arrive as CI environment variables substituted into settings.gradle.kts.template, so there are no file pins to apply, no version to bump, and no artifact to publish
