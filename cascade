@@ -1008,7 +1008,8 @@ derive_state() { # <wave> <repo> -> prints state
 cmd_status() {
     local wave="${1:-$(active_wave)}"
     [ -f "$(manifest_path "$wave")" ] || die "no manifest for wave '$wave'"
-    local repo st blocked up upst
+    local repo st blocked up upst wbranch
+    wbranch="$(mget "$wave" .branch)"
     printf '%-20s %-17s %-24s %s\n' REPO STATE VERSION NOTE
     for repo in $(mget "$wave" '.order[]'); do
         mget "$wave" --arg r "$repo" '.repos[$r] // empty' | grep -q . || continue
@@ -1024,7 +1025,7 @@ cmd_status() {
         mset "$wave" '.repos[$r].state = $s' --arg r "$repo" --arg s "$st"
         printf '%-20s %-17s %-24s %s\n' "$repo" "${blocked:+blocked}${blocked:-$st}" \
             "$(mget "$wave" --arg r "$repo" '.repos[$r].target_version // empty' \
-               | grep . || version_of "$repo" "$branch" 2>/dev/null | grep . || echo "—")" \
+               | grep . || version_of "$repo" "$wbranch" 2>/dev/null | grep . || echo "—")" \
             "${blocked:-$(mget "$wave" --arg r "$repo" '.repos[$r].parked // ""')}"
     done
     [ "$(mget "$wave" '.halted // empty')" != "" ] && warn "WAVE HALTED: $(mget "$wave" .halted)"
