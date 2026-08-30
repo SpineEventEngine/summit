@@ -61,3 +61,8 @@ Machine state: [`cascade-refresh-2cd0e3b.json`](cascade-refresh-2cd0e3b.json). P
   build logic, adjacent to wherever the strictly constraint is emitted, so
   every classic `buildscript {}` consumer of refresh-era plugin jars gets it
   without local edits (compiler's local force then retires).
+- 2026-08-29 — resumed `base-types`.
+- 2026-08-29 — resumed `base-types`.
+- 2026-08-29 — resumed `time`.
+- 2026-08-29 — resumed `time`.
+- 2026-08-29 — resumed `change`.
