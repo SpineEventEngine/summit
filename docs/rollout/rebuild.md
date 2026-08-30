@@ -80,7 +80,9 @@ and execute what it prints, in order:
   repo — three adapt→rebuild rounds, then auto-park). Exit 5 = throttling halt.
 - `PREPR:<repo>` → run the `pre-pr` skill inside the repo (writes the sentinel).
 - `SHIP:<repo>` → `./cascade ship <repo>` — sentinel gate, upstream-published
-  gate (every pinned version proven in the registry), drift gate, push, PR.
+  gate, floor gate (every version the repo pins — forward upstreams *and*
+  published floors — proven in the registry, derived from the pin files by
+  content, since floors never appear in the manifest), drift gate, push, PR.
   Exit 4 means an upstream is not published yet: wait, don't force.
 - `WAIT-*` only → `./cascade await` (background it) — exits the moment the
   action set changes; then run `next` again.

@@ -167,11 +167,11 @@ repo_meta() {
         money)             echo "io/spine|spine-money|versionToPublish|library|gcar" ;;
         reflect)           echo "io/spine|spine-reflect|versionToPublish|library|gcar" ;;
         logging)           echo "io/spine|spine-logging|versionToPublish|library|gcar" ;;
-        testlib)           echo "io/spine/tools|spine-testlib|versionToPublish|library|gcar" ;;
-        tool-base)         echo "io/spine/tools|spine-tool-base|versionToPublish|library|gcar" ;;
+        testlib)           echo "io/spine/tools|base-testlib|versionToPublish|library|gcar" ;;
+        tool-base)         echo "io/spine/tools|jvm-tools|versionToPublish|library|gcar" ;;
         ProtoTap)          echo "io/spine/tools|prototap-gradle-plugin|versionToPublish|library|gcar" ;;
         compiler)          echo "io/spine/tools|compiler-jvm|compilerVersion|library|gcar" ;;
-        validation)        echo "io/spine/tools|spine-validation-java|validationVersion|library|gcar" ;;
+        validation)        echo "io/spine/tools|validation-java|validationVersion|library|gcar" ;;
         core-jvm-compiler) echo "io/spine/tools|core-jvm-gradle-plugin|coreJvmCompilerVersion|library|gcar" ;;
         core-jvm)          echo "io/spine|spine-core|versionToPublish|library|gcar" ;;
         jdbc-storage)      echo "io/spine|spine-rdbms|versionToPublish|library|gcar" ;;
@@ -212,16 +212,28 @@ require_java() {
 # Version literal fed to the given extra property, both spellings:
 #   extra.set("prop", "X")   |   val prop ... by extra("X")
 version_of() { # <repo> [<ref>]  -> current version literal (empty if none)
-    local dir="$SUMMIT/$1" prop; prop="$(meta_vprop "$1")"
-    local content
+    local dir="$SUMMIT/$1" prop content v alias
+    prop="$(meta_vprop "$1")"
+    [ -n "$prop" ] || return 0
     if [ -n "${2:-}" ]; then
         content="$(git -C "$dir" show "$2:version.gradle.kts" 2>/dev/null || true)"
     else
         content="$(cat "$dir/version.gradle.kts" 2>/dev/null || true)"
     fi
-    printf '%s\n' "$content" \
-      | sed -nE "s/.*${prop}\"?,?[[:space:]]*\"?([0-9A-Za-z.-]+)\".*/\1/p; s/.*by[[:space:]]+extra\(\"([0-9A-Za-z.-]+)\"\).*/\1/p" \
-      | head -1
+    # 1) The property named on the same line as a quoted version literal —
+    #    covers `extra.set("prop", "X")`, `val prop = "X"`, and
+    #    `val prop: String by extra("X")` alike.
+    v="$(printf '%s\n' "$content" | grep -E "(^|[^A-Za-z])$prop([^A-Za-z]|$)" \
+         | grep -oE '"[0-9][0-9A-Za-z.-]*"' | head -1 | tr -d '"')"
+    if [ -z "$v" ]; then
+        # 2) Indirection: `extra.set("prop", alias)` — resolve the alias.
+        alias="$(printf '%s\n' "$content" \
+                 | sed -nE "s/.*extra\\.set\\(\"$prop\", *([A-Za-z_][A-Za-z0-9_]*)\\).*/\\1/p;\
+                            s/.*$prop[^=]*by[[:space:]]+extra\\(([A-Za-z_][A-Za-z0-9_]*)\\).*/\\1/p" | head -1)"
+        [ -n "$alias" ] && v="$(printf '%s\n' "$content" \
+            | sed -nE "s/.*[^A-Za-z]$alias[[:space:]]*=[[:space:]]*\"([0-9][0-9A-Za-z.-]*)\".*/\\1/p" | head -1)"
+    fi
+    printf '%s' "$v"
 }
 
 # All metadata XML the repo's registry serves for its marker artifact.
@@ -245,6 +257,50 @@ marker_metadata() { # <repo>
 # Does the repo's registry serve <version> of its marker artifact?
 registry_has() { # <repo> <version>
     marker_metadata "$1" | grep -q "<version>$2</version>"
+}
+
+# File.kt -> repo (reverse of repo_pin_file); empty when not a repo pin file.
+pin_file_repo() { # <File.kt>
+    local r
+    for r in $(repos_all); do
+        [ "$(repo_pin_file "$r")" = "$1" ] && { echo "$r"; return; }
+    done
+    echo ""
+}
+
+# Versions this repo pins in its own local pin files that the registry does NOT
+# serve, derived BY CONTENT. `pin_vector` records only forward (wave-ordering)
+# upstreams; published-floor pins point *backwards* in the canonical order and
+# never appear there, so a manifest-driven check is structurally blind to a
+# floor raised past the registry -- while CI resolves from the registry alone
+# and would fail to resolve it. Only top-level constants are read: a nested
+# object (e.g. ToolBase.JavadocFilter) versions a different artifact and would
+# be probed under the wrong marker.
+unpublished_pins() { # <repo> -> "<upstream> <version> <File.kt>:<constant>" lines
+    local dir="$SUMMIT/$1" pf base up line c v cache
+    cache="$(mktemp)"
+    for pf in "$dir"/buildSrc/src/main/kotlin/io/spine/dependency/local/*.kt; do
+        [ -f "$pf" ] || continue
+        base="$(basename "$pf")"
+        up="$(pin_file_repo "$base")"
+        { [ -n "$up" ] && [ -n "$(meta_group "$up")" ]; } || continue
+        { grep -E '^    (private |internal |const |override )*val (version|versionForBuildScript|dogfoodingVersion|fallbackVersion|fallbackDfVersion)(: String)? *= *"' "$pf" || true; } \
+        | while IFS= read -r line; do
+            c="$(printf '%s' "$line" | sed -E 's/.*val ([A-Za-z]+).*/\1/')"
+            v="$(printf '%s' "$line" | sed -E 's/.*"([^"]+)".*/\1/')"
+            grep -qx "$up $v OK" "$cache" 2>/dev/null && continue
+            if grep -qx "$up $v NO" "$cache" 2>/dev/null; then
+                printf '%s %s %s:%s\n' "$up" "$v" "$base" "$c"; continue
+            fi
+            if registry_has "$up" "$v"; then
+                echo "$up $v OK" >>"$cache"
+            else
+                echo "$up $v NO" >>"$cache"
+                printf '%s %s %s:%s\n' "$up" "$v" "$base" "$c"
+            fi
+        done
+    done
+    rm -f "$cache"
 }
 
 # HTTP code GitHub Packages returns for the repo's marker (github registry only).
@@ -1245,6 +1301,30 @@ cmd_ship() {
         fi
     done
 
+    # Floor gate: every version pinned in this repo's own pin files must be
+    # public, derived BY CONTENT (see unpublished_pins) -- the upstream gate
+    # above sees only forward upstreams recorded in pin_vector.
+    local floors wait_only up_r up_v where tv_up
+    floors="$(unpublished_pins "$repo")"
+    if [ -n "$floors" ]; then
+        wait_only=1
+        while read -r up_r up_v where; do
+            [ -n "$up_r" ] || continue
+            tv_up="$(mget "$wave" --arg r "$up_r" '.repos[$r].target_version // empty')"
+            [ "$tv_up" = "$up_v" ] || wait_only=0
+            warn "  $where -> $up_r $up_v (not in the registry)"
+        done <<EOF
+$floors
+EOF
+        if [ "$wait_only" = 1 ]; then
+            warn "waiting: the pins above are in-wave versions not published yet"
+            exit 4
+        fi
+        warn "$repo pins versions the registry does not serve and this wave will not publish."
+        warn "Lower the floor to a published version, rebuild, then: ./cascade ship $repo"
+        exit 3
+    fi
+
     git checkout -- docs/dependencies/ 2>/dev/null || true
     if gh pr view "$branch" -R "$ORG/$repo" --json url >/dev/null 2>&1; then
         git push -q origin "$branch"
@@ -1409,16 +1489,16 @@ checkpoint_state() {
 # ---------------------------------------------------------------------------
 
 CMD="${1:-}"; shift || true
-# Global --wave flag (before or after the subcommand's own args).
-ARGS=""
+# Global --wave flag (before or after the subcommand's own args). Collected in
+# an array so multi-word arguments (a quoted --reason) survive intact.
+ARGS=()
 while [ $# -gt 0 ]; do
     case "$1" in
         --wave) export CASCADE_WAVE="$2"; shift 2 ;;
-        *) ARGS="$ARGS $1"; shift ;;
+        *) ARGS[${#ARGS[@]}]="$1"; shift ;;
     esac
 done
-# shellcheck disable=SC2086
-set -- $ARGS
+set -- ${ARGS[@]+"${ARGS[@]}"}
 
 case "$CMD" in
     graph)   cmd_graph "$@" ;;
