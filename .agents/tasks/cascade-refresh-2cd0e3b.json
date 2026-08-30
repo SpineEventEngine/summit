@@ -88,7 +88,7 @@
         "group_path": "io/spine",
         "artifact": "spine-base-types"
       },
-      "state": "pr-open",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.225",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.442"
@@ -114,7 +114,7 @@
         "group_path": "io/spine",
         "artifact": "spine-change"
       },
-      "state": "pr-open",
+      "state": "bumped",
       "target_version": "2.0.0-SNAPSHOT.208",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.442"
@@ -141,7 +141,7 @@
         "group_path": "io/spine/tools",
         "artifact": "spine-tool-base"
       },
-      "state": "pr-open",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.422",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.442",
@@ -182,7 +182,10 @@
         "head": "f834c624e49d0691b74a2a33fb955d882a605ac8",
         "at": "2026-08-29T21:07:07Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/ProtoTap/pull/21",
+        "head": "ff4a87a9718f8b392e8990166bec7aeaaa307e8b"
+      },
       "parked": null
     },
     "time": {
@@ -463,7 +466,7 @@
     },
     "money": {
       "adapt_rounds": 3,
-      "state": "published-local",
+      "state": "bumped",
       "target_version": "2.0.0-SNAPSHOT.11",
       "pin_vector": {},
       "built": {
