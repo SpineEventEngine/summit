@@ -67,12 +67,12 @@ Machine state: [`cascade-refresh-2cd0e3b.json`](cascade-refresh-2cd0e3b.json). P
 - 2026-08-29 — resumed `time`.
 - 2026-08-29 — resumed `change`.
 - 2026-08-30 — **parked** `BuildSpeed`: verify-only: SDK versions arrive as CI environment variables substituted into settings.gradle.kts.template, so there are no file pins to apply, no version to bump, and no artifact to publish
-- 2026-08-30 — **closing config PR must carry** `config@3e37d502`
-  ("Drop the redundant `-Xcontext-parameters` flag", branch
-  `drop-redundant-context-parameters`). Owner's decision: fold it into the
-  wave's closing vector PR rather than opening a standalone one. `cascade
-  close` branches fresh off `config` master, so cherry-pick that commit onto
-  `<wave>-vector` before `close --ship`.
+- 2026-08-31 — **superseded**: the `-Xcontext-parameters` removal now ships as
+  its own PR, SpineEventEngine/config#753 (branch
+  `drop-redundant-context-parameters`). The earlier decision to fold it into
+  the closing vector PR no longer applies — `cascade close` must NOT
+  cherry-pick it, or the change would be applied twice. If #753 is still open
+  when the wave closes, the closing PR simply does not carry it.
   Context parameters stopped being experimental in Kotlin 2.4.10, so the flag
   now only emits "The argument '-Xcontext-parameters' is redundant for the
   current language version 2.4." Verified: `tool-base`'s
