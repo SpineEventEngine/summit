@@ -43,8 +43,8 @@ documentation:
 9. `time`
 10. `compiler`
 11. `validation`
-12. `money`
-13. `core-jvm-compiler`
+12. `core-jvm-compiler`
+13. `money`
 14. `core-jvm`
 15. `jdbc-storage`
 16. `gcloud-jvm`
@@ -151,7 +151,7 @@ of the literal in the repository's `version.gradle.kts`.
 | `base-libraries` | library | gcar : `io.spine:spine-base` | `versionToPublish` |
 | `reflect` | library | gcar : `io.spine:spine-reflect` | `versionToPublish` |
 | `logging` | library | gcar : `io.spine:spine-logging` | `versionToPublish` |
-| `testlib` | library | gcar : `io.spine.tools:spine-testlib` | `versionToPublish` |
+| `testlib` | library | gcar : `io.spine.tools:base-testlib` | `versionToPublish` |
 | `base-types` | library | gcar : `io.spine:spine-base-types` | `versionToPublish` |
 | `change` | library | gcar : `io.spine:spine-change` | `versionToPublish` |
 | `tool-base` | library | gcar : `io.spine.tools:jvm-tools` | `versionToPublish` |
@@ -159,8 +159,8 @@ of the literal in the repository's `version.gradle.kts`.
 | `time` | library | gcar : `io.spine:spine-time` | `versionToPublish` |
 | `compiler` | library | gcar : `io.spine.tools:compiler-jvm` | `compilerVersion` |
 | `validation` | library | gcar : `io.spine.tools:validation-java` | `validationVersion` |
-| `money` | library | gcar : `io.spine:spine-money` | `versionToPublish` |
 | `core-jvm-compiler` | library | gcar : `io.spine.tools:core-jvm-gradle-plugin` | `coreJvmCompilerVersion` |
+| `money` | library | gcar : `io.spine:spine-money` | `versionToPublish` |
 | `core-jvm` | library | gcar : `io.spine:spine-core` | `versionToPublish` |
 | `jdbc-storage` | library | gcar : `io.spine:spine-rdbms` | `versionToPublish` |
 | `gcloud-jvm` | library | gcar : `io.spine.gcloud:spine-datastore` | `versionToPublish` |

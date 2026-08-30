@@ -69,7 +69,7 @@ sed_inplace() {
 # Changing this order is a reviewed change to docs/dependency-graph.md.
 repos_all() {
     echo "base-libraries reflect logging testlib base-types change tool-base \
-ProtoTap time compiler validation money core-jvm-compiler core-jvm \
+ProtoTap time compiler validation core-jvm-compiler money core-jvm \
 jdbc-storage gcloud-jvm delivery-server BuildSpeed"
 }
 
