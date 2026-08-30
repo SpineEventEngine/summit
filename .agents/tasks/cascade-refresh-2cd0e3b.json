@@ -62,15 +62,15 @@
         "group_path": "io/spine",
         "artifact": "spine-logging"
       },
-      "state": "bumped",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.425",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.442"
       },
       "adapt_rounds": 0,
       "built": {
-        "head": "2c4d2209c7d2d794e3da60dc352b7490548444f4",
-        "at": "2026-08-29T18:16:41Z"
+        "head": "1d7a7ce5069e31a71a059919f8eea67e42d8008b",
+        "at": "2026-08-30T16:05:09Z"
       },
       "pr": {
         "url": "https://github.com/SpineEventEngine/logging/pull/150",
@@ -88,15 +88,15 @@
         "group_path": "io/spine",
         "artifact": "spine-base-types"
       },
-      "state": "bumped",
+      "state": "pr-open",
       "target_version": "2.0.0-SNAPSHOT.225",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.442"
       },
       "adapt_rounds": 1,
       "built": {
-        "head": "968d43e64eae5c7c6a4c49b9a92e5d21dfc1df54",
-        "at": "2026-08-29T21:03:31Z"
+        "head": "7860cc8500a6c185cf692cdd1922d57a53b16b6e",
+        "at": "2026-08-30T16:05:09Z"
       },
       "pr": {
         "url": "https://github.com/SpineEventEngine/base-types/pull/55",
@@ -114,15 +114,15 @@
         "group_path": "io/spine",
         "artifact": "spine-change"
       },
-      "state": "bumped",
+      "state": "pr-open",
       "target_version": "2.0.0-SNAPSHOT.208",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.442"
       },
       "adapt_rounds": 2,
       "built": {
-        "head": "07f6206deda7026d18aff13bf74379c41516ddfb",
-        "at": "2026-08-29T21:17:15Z"
+        "head": "b4dd302c539548b59440d7acf3d9db0b05023052",
+        "at": "2026-08-30T16:05:09Z"
       },
       "pr": {
         "url": "https://github.com/SpineEventEngine/change/pull/9",
