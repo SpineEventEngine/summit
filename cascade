@@ -946,6 +946,16 @@ derive_state() { # <wave> <repo> -> prints state
 
     git -C "$dir" rev-parse --verify -q "$branch" >/dev/null 2>&1 || { echo pending; return; }
 
+    # Terminal state, checked first: once the wave's target version is served by
+    # the registry, this repository is done. Without this the derivation reads a
+    # MERGED branch as `pending` -- after the merge `origin/$BASE..$branch` is
+    # empty, so the branch looks like it never had work -- and the wave asks to
+    # prep and rebuild a repository it has already shipped.
+    local tvp; tvp="$(mget "$wave" --arg r "$repo" '.repos[$r].target_version // empty')"
+    if [ -n "$tvp" ] && registry_has "$repo" "$tvp"; then
+        echo published-remote; return
+    fi
+
     local subjects
     subjects="$(git -C "$dir" log --format=%s "origin/$BASE..$branch" 2>/dev/null || true)"
 
