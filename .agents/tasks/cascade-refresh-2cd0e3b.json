@@ -114,7 +114,7 @@
         "group_path": "io/spine",
         "artifact": "spine-change"
       },
-      "state": "bumped",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.208",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.442"
@@ -170,7 +170,7 @@
         "group_path": "io/spine/tools",
         "artifact": "prototap-gradle-plugin"
       },
-      "state": "published-local",
+      "state": "published-remote",
       "target_version": "0.17.1",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.442",
@@ -214,7 +214,10 @@
         "head": "0e90717f9059acefd49bbc66b74917ce14448049",
         "at": "2026-08-29T21:14:58Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/time/pull/200",
+        "head": "04a90564452a4795472661528f3cf101a5d13e5f"
+      },
       "parked": null
     },
     "compiler": {
