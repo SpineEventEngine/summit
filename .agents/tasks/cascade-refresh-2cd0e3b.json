@@ -348,7 +348,7 @@
         "group_path": "io/spine",
         "artifact": "spine-core"
       },
-      "state": "bumped",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.551",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.442",
@@ -394,7 +394,10 @@
         "head": "83e3453ff5758d2f5f9e24fe1cc8b7c1081db8d4",
         "at": "2026-08-29T23:07:47Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/jdbc-storage/pull/183",
+        "head": "6321333bc7101359e8c53efd21740d9016a3fef4"
+      },
       "parked": null
     },
     "gcloud-jvm": {
