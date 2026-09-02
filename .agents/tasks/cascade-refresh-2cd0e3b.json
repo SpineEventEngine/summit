@@ -364,7 +364,10 @@
         "head": "b6d5c819eefed624f3d1063267d29b47eee75bf7",
         "at": "2026-08-29T23:05:06Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/core-jvm/pull/1676",
+        "head": "8b964873214933f45515cecc687ff41b67848b24"
+      },
       "parked": null
     },
     "jdbc-storage": {
