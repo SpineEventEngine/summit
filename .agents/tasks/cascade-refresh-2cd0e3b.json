@@ -326,7 +326,10 @@
         "head": "627c6f62f4bfc2d416c85724bc19e5e06e028d1c",
         "at": "2026-08-29T22:57:23Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/core-jvm-compiler/pull/113",
+        "head": "b75e7947eae0f820b6a4f2d3d71399e95984dbb6"
+      },
       "parked": null
     },
     "core-jvm": {
