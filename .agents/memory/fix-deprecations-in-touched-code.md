@@ -31,3 +31,21 @@ review cycle on something the author should have seen.
 - Confirm the replacement is itself clean and preserves behaviour before
   committing; Gradle's suggested replacement is usually right, but
   role-based factories can reject usages the legacy form allowed.
+
+**Known third-party sources — do not chase these again:**
+
+Two Gradle-10 deprecations fire in every Spine build and originate in
+third-party plugins, so no Spine repo can fix them in its own code. Replacing
+them is a dedicated dependency-update task, never adapt work:
+
+- `Project.getProperties` — Gradle Doctor (`com.osacky.doctor` 0.12.1), from
+  `DoctorPlugin.apply`.
+- `ReportingExtension.file(String)` — the detekt Gradle plugin. The frame
+  reads `detekt-code-analysis.gradle.kts:67`, which looks like a `config` bug
+  but is the `plugins { id("io.gitlab.arturbosch.detekt") }` line; the call is
+  inside the plugin, which uses it to derive its default reports directory.
+
+Attribute a warning with `--warning-mode all --stacktrace` and look for an
+`io.spine.*` or `*_gradle` frame before assuming the deprecation is ours. A
+frame naming a `.gradle.kts` file may still be a third-party plugin being
+applied on that line.
