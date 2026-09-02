@@ -234,7 +234,7 @@
         "group_path": "io/spine/tools",
         "artifact": "compiler-jvm"
       },
-      "state": "bumped",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.069",
       "pin_vector": {
         "ProtoTap": "0.17.1",
@@ -271,7 +271,7 @@
         "group_path": "io/spine/tools",
         "artifact": "spine-validation-java"
       },
-      "state": "bumped",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.464",
       "pin_vector": {
         "ProtoTap": "0.17.1",
@@ -310,7 +310,7 @@
         "group_path": "io/spine/tools",
         "artifact": "core-jvm-gradle-plugin"
       },
-      "state": "published-local",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.092",
       "pin_vector": {
         "ProtoTap": "0.17.1",
@@ -348,7 +348,7 @@
         "group_path": "io/spine",
         "artifact": "spine-core"
       },
-      "state": "published-local",
+      "state": "bumped",
       "target_version": "2.0.0-SNAPSHOT.551",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.442",
@@ -485,8 +485,12 @@
       "target_version": "2.0.0-SNAPSHOT.11",
       "pin_vector": {},
       "built": {
-        "head": "d40b04a40435265dca6fd38a08d0c028c82ad061",
-        "at": "2026-08-30T16:14:08Z"
+        "head": "99df67a17ab6f4a38955d31f76b61bf70780c2b8",
+        "at": "2026-09-02T16:56:20Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/money/pull/31",
+        "head": "5aa54695245740a9bf5c1e5cbd1275e00ebb6a9e"
       }
     }
   },
