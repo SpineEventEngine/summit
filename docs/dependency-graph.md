@@ -172,27 +172,27 @@ nothing. The marker is one published artifact whose registry metadata answers
 "is version X of this repository published?"; the version property is the name
 of the literal in the repository's `version.gradle.kts`.
 
-| Repository | Class | Registry : marker | Version property |
-|---|---|---|---|
-| `base-libraries` | library | gcar : `io.spine:spine-base` | `versionToPublish` |
-| `reflect` | library | gcar : `io.spine:spine-reflect` | `versionToPublish` |
-| `logging` | library | gcar : `io.spine:spine-logging` | `versionToPublish` |
-| `testlib` | library | gcar : `io.spine.tools:base-testlib` | `versionToPublish` |
-| `dokka-tools` | library | gcar : `io.spine.tools:dokka-extensions` | `versionToPublish` |
-| `tool-base` | library | gcar : `io.spine.tools:jvm-tools` | `versionToPublish` |
-| `ProtoTap` | library | gcar : `io.spine.tools:prototap-gradle-plugin` | `versionToPublish` |
-| `compiler` | library | gcar : `io.spine.tools:compiler-jvm` | `compilerVersion` |
-| `validation` | library | gcar : `io.spine.tools:validation-java` | `validationVersion` |
-| `core-jvm-compiler` | library | gcar : `io.spine.tools:core-jvm-gradle-plugin` | `coreJvmCompilerVersion` |
-| `base-types` | library | gcar : `io.spine:spine-base-types` | `versionToPublish` |
-| `change` | library | gcar : `io.spine:spine-change` | `versionToPublish` |
-| `time` | library | gcar : `io.spine:spine-time` | `versionToPublish` |
-| `money` | library | gcar : `io.spine:spine-money` | `versionToPublish` |
-| `core-jvm` | library | gcar : `io.spine:spine-core` | `versionToPublish` |
-| `jdbc-storage` | library | gcar : `io.spine:spine-rdbms` | `versionToPublish` |
-| `gcloud-jvm` | library | gcar : `io.spine.gcloud:spine-datastore` | `versionToPublish` |
-| `delivery-server` | library | github : `io.spine.delivery:spine-delivery-server` | `versionToPublish` |
-| `BuildSpeed` | verify-only | — | — |
+| Repository          | Class       | Registry : marker                                  | Version property         |
+|---------------------|-------------|----------------------------------------------------|--------------------------|
+| `base-libraries`    | library     | gcar : `io.spine:spine-base`                       | `versionToPublish`       |
+| `reflect`           | library     | gcar : `io.spine:spine-reflect`                    | `versionToPublish`       |
+| `logging`           | library     | gcar : `io.spine:spine-logging`                    | `versionToPublish`       |
+| `testlib`           | library     | gcar : `io.spine.tools:base-testlib`               | `versionToPublish`       |
+| `dokka-tools`       | library     | gcar : `io.spine.tools:dokka-extensions`           | `versionToPublish`       |
+| `tool-base`         | library     | gcar : `io.spine.tools:jvm-tools`                  | `versionToPublish`       |
+| `ProtoTap`          | library     | gcar : `io.spine.tools:prototap-gradle-plugin`     | `versionToPublish`       |
+| `compiler`          | library     | gcar : `io.spine.tools:compiler-jvm`               | `compilerVersion`        |
+| `validation`        | library     | gcar : `io.spine.tools:validation-java`            | `validationVersion`      |
+| `core-jvm-compiler` | library     | gcar : `io.spine.tools:core-jvm-gradle-plugin`     | `coreJvmCompilerVersion` |
+| `base-types`        | library     | gcar : `io.spine:spine-base-types`                 | `versionToPublish`       |
+| `change`            | library     | gcar : `io.spine:spine-change`                     | `versionToPublish`       |
+| `time`              | library     | gcar : `io.spine:spine-time`                       | `versionToPublish`       |
+| `money`             | library     | gcar : `io.spine:spine-money`                      | `versionToPublish`       |
+| `core-jvm`          | library     | gcar : `io.spine:spine-core`                       | `versionToPublish`       |
+| `jdbc-storage`      | library     | gcar : `io.spine:spine-rdbms`                      | `versionToPublish`       |
+| `gcloud-jvm`        | library     | gcar : `io.spine.gcloud:spine-datastore`           | `versionToPublish`       |
+| `delivery-server`   | library     | github : `io.spine.delivery:spine-delivery-server` | `versionToPublish`       |
+| `BuildSpeed`        | verify-only | —                                                  | —                        |
 
 `documentation` is not on the graph: it is a Spine 1.x site project, not part
 of the SDK build line.
