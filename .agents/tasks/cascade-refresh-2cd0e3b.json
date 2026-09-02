@@ -464,7 +464,10 @@
         "head": "d298d8ceca2adf19d9352bcec42c7b61ebee030d",
         "at": "2026-08-29T23:51:15Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/delivery-server/pull/65",
+        "head": "049a1b1f36f60157d5112da73d53f5b4c2dbf389"
+      },
       "parked": null
     },
     "BuildSpeed": {
