@@ -288,7 +288,10 @@
         "head": "731fd336003752bafb31cd7e20a1e1aa95c1f2b5",
         "at": "2026-08-29T22:48:48Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/validation/pull/328",
+        "head": "28e89a534d7ad32a5b1b69adac6445ad52594f53"
+      },
       "parked": null
     },
     "core-jvm-compiler": {
