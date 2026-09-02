@@ -68,9 +68,9 @@ sed_inplace() {
 # the next wave — exactly the generation-lag pattern the repos already live by.
 # Changing this order is a reviewed change to docs/dependency-graph.md.
 repos_all() {
-    echo "base-libraries reflect logging testlib tool-base ProtoTap \
-compiler validation core-jvm-compiler base-types change time money core-jvm \
-jdbc-storage gcloud-jvm delivery-server BuildSpeed"
+    echo "base-libraries reflect logging testlib dokka-tools tool-base \
+ProtoTap compiler validation core-jvm-compiler base-types change time money \
+core-jvm jdbc-storage gcloud-jvm delivery-server BuildSpeed"
 }
 
 # Position of a repo in the canonical order (1-based; 0 = unknown).
@@ -168,6 +168,7 @@ repo_meta() {
         reflect)           echo "io/spine|spine-reflect|versionToPublish|library|gcar" ;;
         logging)           echo "io/spine|spine-logging|versionToPublish|library|gcar" ;;
         testlib)           echo "io/spine/tools|base-testlib|versionToPublish|library|gcar" ;;
+        dokka-tools)       echo "io/spine/tools|dokka-extensions|versionToPublish|library|gcar" ;;
         tool-base)         echo "io/spine/tools|jvm-tools|versionToPublish|library|gcar" ;;
         ProtoTap)          echo "io/spine/tools|prototap-gradle-plugin|versionToPublish|library|gcar" ;;
         compiler)          echo "io/spine/tools|compiler-jvm|compilerVersion|library|gcar" ;;
@@ -563,6 +564,21 @@ EOF
         i=1
         for repo in $(repos_all); do echo "$i. \`$repo\`"; i=$((i + 1)); done
         cat <<'EOF'
+
+## Documentation tooling
+
+`dokka-tools` publishes `io.spine.tools:dokka-extensions`, the Dokka plugin
+that hides `@Internal` declarations. Every repository adds it to the
+`dokkaPlugin` configuration, but none of them says so: the dependency is
+declared once in `buildSrc/src/main/kotlin/DokkaExts.kt`, which `config`
+distributes to all of them identically. It is therefore a property of the
+shared build configuration rather than of any repository, and the edges below
+— derived from repository-owned build files — do not show it.
+
+The direction that *is* shown, `dokka-tools -> base-libraries`, is a real
+declared dependency: the plugin uses `io.spine.annotation.Internal`. The
+reverse direction is a documentation-time dependency on a published version,
+so it constrains nothing about build order.
 
 ## Production dependencies (transitive reduction)
 

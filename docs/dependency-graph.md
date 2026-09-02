@@ -45,20 +45,36 @@ consumed at runtime.
 2. `reflect`
 3. `logging`
 4. `testlib`
-5. `tool-base`
-6. `ProtoTap`
-7. `compiler`
-8. `validation`
-9. `core-jvm-compiler`
-10. `base-types`
-11. `change`
-12. `time`
-13. `money`
-14. `core-jvm`
-15. `jdbc-storage`
-16. `gcloud-jvm`
-17. `delivery-server`
-18. `BuildSpeed`
+5. `dokka-tools`
+6. `tool-base`
+7. `ProtoTap`
+8. `compiler`
+9. `validation`
+10. `core-jvm-compiler`
+11. `base-types`
+12. `change`
+13. `time`
+14. `money`
+15. `core-jvm`
+16. `jdbc-storage`
+17. `gcloud-jvm`
+18. `delivery-server`
+19. `BuildSpeed`
+
+## Documentation tooling
+
+`dokka-tools` publishes `io.spine.tools:dokka-extensions`, the Dokka plugin
+that hides `@Internal` declarations. Every repository adds it to the
+`dokkaPlugin` configuration, but none of them says so: the dependency is
+declared once in `buildSrc/src/main/kotlin/DokkaExts.kt`, which `config`
+distributes to all of them identically. It is therefore a property of the
+shared build configuration rather than of any repository, and the edges below
+— derived from repository-owned build files — do not show it.
+
+The direction that *is* shown, `dokka-tools -> base-libraries`, is a real
+declared dependency: the plugin uses `io.spine.annotation.Internal`. The
+reverse direction is a documentation-time dependency on a published version,
+so it constrains nothing about build order.
 
 ## Production dependencies (transitive reduction)
 
@@ -72,6 +88,7 @@ References that merely manage versions — `force(...)`, `constraints`,
 
 ```mermaid
 flowchart BT
+    dokka-tools --> base-libraries
     logging --> base-libraries
     core-jvm --> base-types
     core-jvm --> change
@@ -161,6 +178,7 @@ of the literal in the repository's `version.gradle.kts`.
 | `reflect` | library | gcar : `io.spine:spine-reflect` | `versionToPublish` |
 | `logging` | library | gcar : `io.spine:spine-logging` | `versionToPublish` |
 | `testlib` | library | gcar : `io.spine.tools:base-testlib` | `versionToPublish` |
+| `dokka-tools` | library | gcar : `io.spine.tools:dokka-extensions` | `versionToPublish` |
 | `tool-base` | library | gcar : `io.spine.tools:jvm-tools` | `versionToPublish` |
 | `ProtoTap` | library | gcar : `io.spine.tools:prototap-gradle-plugin` | `versionToPublish` |
 | `compiler` | library | gcar : `io.spine.tools:compiler-jvm` | `compilerVersion` |
@@ -260,6 +278,7 @@ delivery-server logging
 delivery-server testlib
 delivery-server time
 delivery-server validation
+dokka-tools base-libraries
 gcloud-jvm base-libraries
 gcloud-jvm base-types
 gcloud-jvm compiler

@@ -67,3 +67,6 @@
 [submodule "documentation"]
 	path = documentation
 	url = https://github.com/SpineEventEngine/documentation.git
+[submodule "dokka-tools"]
+	path = dokka-tools
+	url = https://github.com/SpineEventEngine/dokka-tools.git
