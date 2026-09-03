@@ -28,9 +28,11 @@ Wave kinds:
 
 ## 0. Prerequisites (once per machine)
 
-- A durable `export JAVA_HOME="$(/usr/libexec/java_home -v 17)"` in your shell
-  profile — agent-run builds (`pre-pr`, `bump-version`) do not inherit the
-  script's own export.
+- A durable `JAVA_HOME` pointing at a JDK 17 in your shell profile — agent-run
+  builds (`pre-pr`, `bump-version`) do not inherit the script's own export. On
+  macOS that is `export JAVA_HOME="$(/usr/libexec/java_home -v 17)"`; elsewhere
+  set it to the JDK 17 path directly, or use your distribution's alternatives
+  mechanism.
 - `gh auth status` shows a token with `repo` + `workflow` scope, plus
   `read:packages` — `delivery-server` publishes to GitHub Packages, and
   `ship` and `close` cannot verify its artifacts without that scope.

@@ -532,7 +532,6 @@ filter_in_set() {
     done
     return 0
 }
-floor_edges()   { while read -r a b; do [ "$(order_pos "$a")" -ge "$(order_pos "$b")" ] && echo "$a $b"; done || true; }
 
 # Edge pairs currently stored in the graph doc — the canonical machine list in
 # the ```edges fenced block (the mermaid diagram is its transitive reduction,
@@ -928,7 +927,7 @@ cmd_plan() {
 
     # Manifest.
     mkdir -p "$TASKS_DIR"
-    local repos_json="{}" ups gp mk vp cls tv
+    local repos_json="{}" ups gp mk vp cls tv st0
     for repo in $final; do
         ups="$(printf '%s\n' "$fwd" | awk -v r="$repo" '$2==r{print $1}' \
                | filter_in_set "$final" | jq -R . | jq -s 'map(select(length > 0))')"
@@ -936,12 +935,20 @@ cmd_plan() {
         vp="$(meta_vprop "$repo")"; cls="$(meta_class "$repo")"
         tv="null"
         [ "$kind" = retarget ] && [ "$cls" = library ] && tv="\"$target\""
+        # A ripple seed given as `repo@version` is already published by hand:
+        # record it terminal at that version so `next` does not schedule a
+        # `prep` that would bump it a second time. Downstream repos still read
+        # the supplied version through `.seed.version`.
+        st0='"pending"'
+        if [ "$kind" = ripple ] && [ "$repo" = "$seed" ] && [ -n "$seed_ver" ]; then
+            st0='"published-remote"'; tv="\"$seed_ver\""
+        fi
         repos_json="$(printf '%s' "$repos_json" | jq \
             --arg r "$repo" --argjson ups "$ups" --arg gp "$gp" --arg mk "$mk" \
-            --arg vp "$vp" --arg cls "$cls" --argjson tv "$tv" \
+            --arg vp "$vp" --arg cls "$cls" --argjson tv "$tv" --argjson st0 "$st0" \
             '. + {($r): {upstreams: $ups, class: $cls, version_property: $vp,
                          probe: {group_path: $gp, artifact: $mk},
-                         state: "pending", target_version: $tv, pin_vector: {},
+                         state: $st0, target_version: $tv, pin_vector: {},
                          adapt_rounds: 0, built: null, pr: null, parked: null}}')"
     done
     jq -n \
@@ -1116,15 +1123,26 @@ cmd_next() {
 
     [ "$(mget "$wave" '.halted // empty')" != "" ] && { echo "HALTED $(mget "$wave" .halted)"; exit 5; }
 
-    local actions="" repo st up upok upst done_all=1
+    # A park holds everything downstream of it, not just its direct consumers.
+    # `.order` is topological, so one pass propagates the block transitively.
+    local blocked_set=" " repo up upst
+    for repo in $(mget "$wave" '.order[]'); do
+        mget "$wave" --arg r "$repo" '.repos[$r] // empty' | grep -q . || continue
+        for up in $(upstreams_of "$wave" "$repo"); do
+            upst="$(mget "$wave" --arg r "$up" '.repos[$r].state // empty')"
+            case "$blocked_set" in *" $up "*) upst=parked ;; esac
+            [ "$upst" = parked ] && { blocked_set="$blocked_set$repo "; break; }
+        done
+    done
+
+    local actions="" st upok done_all=1
     for repo in $(mget "$wave" '.order[]'); do
         mget "$wave" --arg r "$repo" '.repos[$r] // empty' | grep -q . || continue
         st="$(mget "$wave" --arg r "$repo" '.repos[$r].state')"
-        [ "$st" = published-remote ] || done_all=0
-        # A parked transitive upstream blocks everything downstream.
-        for up in $(upstreams_of "$wave" "$repo"); do
-            [ "$(mget "$wave" --arg r "$up" '.repos[$r].state // empty')" = parked ] && st=blocked
-        done
+        # A parked repo is terminal: `close` skips it, so it must not hold the
+        # wave open forever (`BuildSpeed` is parked on every refresh).
+        case "$st" in published-remote|parked) ;; *) done_all=0 ;; esac
+        case "$blocked_set" in *" $repo "*) st=blocked ;; esac
         case "$st" in
             pending|pulled|pinned) actions="$actions PREP:$repo" ;;
             bumped)               actions="$actions BUILD:$repo" ;;
@@ -1314,15 +1332,16 @@ cmd_build() {
         exit 3
     fi
 
-    # Publish to mavenLocal where `build` did not already chain it.
+    # Publish to mavenLocal after every successful build. Keying this on the
+    # marker directory would skip it whenever a repo is rebuilt at an unchanged
+    # version — exactly what `refresh` does — leaving downstream builds to
+    # resolve artifacts from the previous HEAD.
     if [ "$cls" = library ]; then
         local tv gp mk
         tv="$(mget "$wave" --arg r "$repo" '.repos[$r].target_version')"
         gp="$(meta_group "$repo")"; mk="$(meta_marker "$repo")"
-        if [ ! -d "$M2/$gp/$mk/$tv" ]; then
-            ./gradlew publishToMavenLocal --console=plain >>"$logf" 2>&1 \
-                || { tail -20 "$logf" >&2; warn "publishToMavenLocal failed — inspect $logf, fix (cascade-adapt), then: ./cascade build $repo"; exit 3; }
-        fi
+        ./gradlew publishToMavenLocal --console=plain >>"$logf" 2>&1 \
+            || { tail -20 "$logf" >&2; warn "publishToMavenLocal failed — inspect $logf, fix (cascade-adapt), then: ./cascade build $repo"; exit 3; }
         [ -d "$M2/$gp/$mk/$tv" ] || die "$mk $tv missing from mavenLocal after publish — check spinePublishing modules for $repo"
     fi
 
@@ -1547,6 +1566,15 @@ cmd_close() {
         git commit -q -m "Update local dependency pins"
     fi
     if [ "$ship" = 1 ]; then
+        # Same gate as `ship`. The script's own `git push`/`gh pr create` never
+        # reach the PreToolUse hooks, so without this the documented
+        # close -> pre-pr -> close --ship review step rests on operator memory.
+        local gitdir chead s_head s_status
+        gitdir="$(git rev-parse --absolute-git-dir)"; chead="$(git rev-parse HEAD)"
+        s_head="$(sed -n 's/^head=//p' "$gitdir/pre-pr.ok" 2>/dev/null || true)"
+        s_status="$(sed -n 's/^status=//p' "$gitdir/pre-pr.ok" 2>/dev/null || true)"
+        { [ "$s_status" = PASS ] && [ "$s_head" = "$chead" ]; } \
+            || { warn "no PASS pre-pr sentinel for HEAD in config — run the pre-pr skill there, then: ./cascade close --ship"; exit 3; }
         git push -u origin "$vbranch"
         gh pr create -R "$ORG/config" --base "$BASE" --head "$vbranch" \
             --title "Record the \`$wave\` version vector" \
