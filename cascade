@@ -1492,13 +1492,24 @@ cmd_close() {
         tv="$(mget "$wave" --arg r "$repo" '.repos[$r].target_version')"
         pf="buildSrc/src/main/kotlin/io/spine/dependency/local/$(repo_pin_file "$repo")"
         [ -f "$pf" ] || continue
-        grep -oE 'val (version|versionForBuildScript|dogfoodingVersion|fallbackVersion|fallbackDfVersion)(: String)? = "[^"]+"' "$pf" \
+        # Only the pin object's OWN constants, which sit at indent 4. A nested
+        # object declares a different artifact on its own version line — e.g.
+        # `ToolBase.JavadocFilter.version` is `spine-javadoc-filter`, versioned
+        # independently of `tool-base`. Matching it would pin that artifact at a
+        # version it was never published under.
+        # A no-match `grep` exits 1, which under `pipefail` would abort the
+        # whole run; warn instead, so a pin file whose shape changed is loud
+        # rather than silently skipped.
+        pins="$(grep -oE '^ {4}(private )?(const |override )?val (version|versionForBuildScript|dogfoodingVersion|fallbackVersion|fallbackDfVersion)(: String)? = "[^"]+"' "$pf" || true)"
+        [ -n "$pins" ] || warn "$repo: no version constant matched in $(basename "$pf") — left untouched"
+        printf '%s\n' "$pins" \
         | while read -r line; do
-            c="$(printf '%s' "$line" | sed -E 's/val ([A-Za-z]+).*/\1/')"
+            [ -n "$line" ] || continue
+            c="$(printf '%s' "$line" | sed -E 's/.*val ([A-Za-z]+).*/\1/')"
             cur="$(printf '%s' "$line" | sed -E 's/.*"([^"]+)".*/\1/')"
             [ "$cur" = "$tv" ] && continue
             cur_re="${cur//./\\.}"
-            sed_inplace -E "s/(val $c(: String)? = \")$cur_re(\")/\1$tv\3/" "$pf"
+            sed_inplace -E "s/^( {4}(private )?(const |override )?val $c(: String)? = \")$cur_re(\")/\1$tv\5/" "$pf"
         done
     done
     if [ -n "$(git status --porcelain buildSrc/src/main/kotlin/io/spine/dependency/local/)" ]; then
