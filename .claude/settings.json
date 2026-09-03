@@ -47,6 +47,9 @@
     "deny": [
       "Bash(git reset --hard:*)",
       "Bash(git clean -fdx:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git push --force-with-lease:*)",
       "Bash(rm -rf /:*)",
       "Bash(rm -rf ~:*)",
       "Bash(gh pr merge:*)",
@@ -54,6 +57,7 @@
     ],
     "ask": [
       "Bash(git rebase:*)",
+      "Bash(git tag:*)",
       "Bash(git merge:*)",
       "Bash(git cherry-pick:*)",
       "Bash(./gradlew publish:*)",

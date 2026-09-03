@@ -7,8 +7,9 @@ repository plus a closing `config` PR that records the new version vector.
 The deterministic mechanics live in the repo-owned [`cascade`](../../cascade)
 script; the judgement steps — fixing build breakage, the pre-PR review, and the
 version edge cases — are agent-driven, requested by the script via **exit code 3**
-(the message always names the skill and the resume command). State is derived,
-never remembered: interrupt anything, re-run it, and the wave resumes.
+(the message always names a resume command, and a skill when the fix needs
+judgement). State is derived, never remembered: interrupt anything, re-run it,
+and the wave resumes.
 
 How a wave uses [`../dependency-graph.md`](../dependency-graph.md): only
 dependencies on repositories *earlier* in that document's canonical build
@@ -30,7 +31,9 @@ Wave kinds:
 - A durable `export JAVA_HOME="$(/usr/libexec/java_home -v 17)"` in your shell
   profile — agent-run builds (`pre-pr`, `bump-version`) do not inherit the
   script's own export.
-- `gh auth status` shows a token with `repo` + `workflow` scope.
+- `gh auth status` shows a token with `repo` + `workflow` scope, plus
+  `read:packages` — `delivery-server` publishes to GitHub Packages, and
+  `ship` and `close` cannot verify its artifacts without that scope.
 - Builds run **strictly sequentially** — never start a second Gradle build while
   a wave build runs. Maven Central consumption blocks (HTTP 429) are machine-wide
   and retries extend them up to 24 h; the script halts the wave on the first 429
@@ -96,7 +99,7 @@ acknowledge throttle halts. Everything else is the loop.
 ## 3. Drift
 
 If an upstream re-bumps while a downstream PR is in review (registry collision
-or breaking-PR reclassification), `ship`/`status` detect it:
+or breaking-PR reclassification), `ship` detects it:
 
 ```bash
 ./cascade refresh <repo>     # re-pin, then rebuild + pre-pr + ship again

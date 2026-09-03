@@ -71,7 +71,7 @@ distributes to all of them identically. It is therefore a property of the
 shared build configuration rather than of any repository, and the edges below
 — derived from repository-owned build files — do not show it.
 
-The direction that *is* shown, `dokka-tools -> base-libraries`, is a real
+The direction that *is* shown, `dokka-tools --> base-libraries`, is a real
 declared dependency: the plugin uses `io.spine.annotation.Internal`. The
 reverse direction is a documentation-time dependency on a published version,
 so it constrains nothing about build order.

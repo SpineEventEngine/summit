@@ -53,6 +53,38 @@ sed_inplace() {
     if sed --version >/dev/null 2>&1; then sed -i "$@"; else sed -i '' "$@"; fi
 }
 
+# --- Pin-file constants ------------------------------------------------------
+# A pin object's OWN constants sit at indent 4. A nested object declares a
+# DIFFERENT artifact on its own version line — `ToolBase.JavadocFilter.version`
+# is `spine-javadoc-filter`, versioned independently of `tool-base` — so a match
+# must never reach deeper indentation. All declaration forms in use are
+# accepted: `const val`, `private const val`, and the `override val` of a
+# `Dependency()` subclass.
+PIN_CONSTANTS='version|versionForBuildScript|dogfoodingVersion|fallbackVersion|fallbackDfVersion'
+
+pin_const_re() { # <name-or-alternation>
+    printf '^ {4}(private )?(const |override )?val (%s)(: String)? = "' "$1"
+}
+
+# Value of one constant, or empty. Never fails: a no-match `grep` exits 1,
+# which under `pipefail` would abort the caller before it could report.
+read_pin_constant() { # <file> <name>
+    grep -E "$(pin_const_re "$2")" "$1" 2>/dev/null | head -1 \
+        | sed -E 's/.*"([^"]+)".*/\1/' || true
+}
+
+# Same, reading the file out of a git ref rather than the work tree.
+read_pin_constant_at() { # <dir> <ref> <path> <name>
+    git -C "$1" show "$2:$3" 2>/dev/null | grep -E "$(pin_const_re "$4")" | head -1 \
+        | sed -E 's/.*"([^"]+)".*/\1/' || true
+}
+
+# Rewrites one constant in place, anchored so a nested object cannot match.
+write_pin_constant() { # <file> <name> <old> <new>
+    local old_re="${3//./\\.}"
+    sed_inplace -E "s/^( {4}(private )?(const |override )?val ($2)(: String)? = \")$old_re(\")/\1$4\6/" "$1"
+}
+
 # ---------------------------------------------------------------------------
 # Static knowledge. Everything here is verified at `plan` time (probe markers
 # against the registry; graph vs fresh derivation), so a wrong entry fails
@@ -225,7 +257,7 @@ version_of() { # <repo> [<ref>]  -> current version literal (empty if none)
     #    covers `extra.set("prop", "X")`, `val prop = "X"`, and
     #    `val prop: String by extra("X")` alike.
     v="$(printf '%s\n' "$content" | grep -E "(^|[^A-Za-z])$prop([^A-Za-z]|$)" \
-         | grep -oE '"[0-9][0-9A-Za-z.-]*"' | head -1 | tr -d '"')"
+         | grep -oE '"[0-9][0-9A-Za-z.-]*"' | head -1 | tr -d '"' || true)"
     if [ -z "$v" ]; then
         # 2) Indirection: `extra.set("prop", alias)` — resolve the alias.
         alias="$(printf '%s\n' "$content" \
@@ -988,8 +1020,8 @@ derive_state() { # <wave> <repo> -> prints state
         [ -n "$pv" ] || { ok=0; break; }
         pf="$SUMMIT/$repo/buildSrc/src/main/kotlin/io/spine/dependency/local/$(repo_pin_file "$up")"
         for c in $(repo_track_constants "$up"); do
-            have="$(git -C "$dir" show "$branch:buildSrc/src/main/kotlin/io/spine/dependency/local/$(repo_pin_file "$up")" 2>/dev/null \
-                    | grep -E "val $c(: String)? = \"" | head -1 | sed -E 's/.*"([^"]+)".*/\1/')"
+            have="$(read_pin_constant_at "$dir" "$branch" \
+                    "buildSrc/src/main/kotlin/io/spine/dependency/local/$(repo_pin_file "$up")" "$c")"
             [ "$have" = "$pv" ] || { ok=0; break 2; }
         done
     done
@@ -1187,12 +1219,11 @@ cmd_prep() {
         pf="buildSrc/src/main/kotlin/io/spine/dependency/local/$(repo_pin_file "$up")"
         [ -f "$pf" ] || die "$repo has no $pf — unexpected layout"
         for c in $(repo_track_constants "$up"); do
-            cur="$(grep -E "val $c(: String)? = \"" "$pf" | head -1 | sed -E 's/.*"([^"]+)".*/\1/')"
+            cur="$(read_pin_constant "$pf" "$c")"
             [ -n "$cur" ] || { warn "constant $c not found in $repo/$pf — edit by hand (cascade-adapt), then re-run: ./cascade prep $repo"; exit 3; }
             [ "$cur" = "$upver" ] && continue
-            cur_re="${cur//./\\.}"
-            sed_inplace -E "s/(val $c(: String)? = \")$cur_re(\")/\1$upver\3/" "$pf"
-            nfound="$(grep -cE "val $c(: String)? = \"$upver\"" "$pf" || true)"
+            write_pin_constant "$pf" "$c" "$cur" "$upver"
+            nfound="$(grep -cE "$(pin_const_re "$c")${upver//./\\.}\"" "$pf" || true)"
             [ "$nfound" -ge 1 ] || { git checkout -- "$pf"; warn "pin edit verification failed for $up.$c in $repo — fix by hand, then re-run: ./cascade prep $repo"; exit 3; }
         done
         mset "$wave" '.repos[$r].pin_vector[$u] = $v' --arg r "$repo" --arg u "$up" --arg v "$upver"
@@ -1500,7 +1531,7 @@ cmd_close() {
         # A no-match `grep` exits 1, which under `pipefail` would abort the
         # whole run; warn instead, so a pin file whose shape changed is loud
         # rather than silently skipped.
-        pins="$(grep -oE '^ {4}(private )?(const |override )?val (version|versionForBuildScript|dogfoodingVersion|fallbackVersion|fallbackDfVersion)(: String)? = "[^"]+"' "$pf" || true)"
+        pins="$(grep -oE "$(pin_const_re "$PIN_CONSTANTS")[^\"]+\"" "$pf" || true)"
         [ -n "$pins" ] || warn "$repo: no version constant matched in $(basename "$pf") — left untouched"
         printf '%s\n' "$pins" \
         | while read -r line; do
@@ -1508,8 +1539,7 @@ cmd_close() {
             c="$(printf '%s' "$line" | sed -E 's/.*val ([A-Za-z]+).*/\1/')"
             cur="$(printf '%s' "$line" | sed -E 's/.*"([^"]+)".*/\1/')"
             [ "$cur" = "$tv" ] && continue
-            cur_re="${cur//./\\.}"
-            sed_inplace -E "s/^( {4}(private )?(const |override )?val $c(: String)? = \")$cur_re(\")/\1$tv\5/" "$pf"
+            write_pin_constant "$pf" "$c" "$cur" "$tv"
         done
     done
     if [ -n "$(git status --porcelain buildSrc/src/main/kotlin/io/spine/dependency/local/)" ]; then
