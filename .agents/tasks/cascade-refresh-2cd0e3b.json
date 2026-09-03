@@ -382,7 +382,7 @@
         "group_path": "io/spine",
         "artifact": "spine-rdbms"
       },
-      "state": "published-local",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.121",
       "pin_vector": {
         "core-jvm": "2.0.0-SNAPSHOT.551",
@@ -415,7 +415,7 @@
         "group_path": "io/spine/gcloud",
         "artifact": "spine-datastore"
       },
-      "state": "published-local",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.231",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.442",
@@ -450,7 +450,7 @@
         "group_path": "io/spine/delivery",
         "artifact": "spine-delivery-server"
       },
-      "state": "published-local",
+      "state": "published-remote",
       "target_version": "0.17.1",
       "pin_vector": {
         "core-jvm": "2.0.0-SNAPSHOT.551",
@@ -490,7 +490,7 @@
     },
     "money": {
       "adapt_rounds": 3,
-      "state": "bumped",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.11",
       "pin_vector": {},
       "built": {
@@ -508,5 +508,5 @@
     "testlib": "straggler: config submodule generations behind — first pull is a migration (opt in via --include)",
     "money": "straggler: config submodule generations behind — first pull is a migration (opt in via --include)"
   },
-  "closing_pr": null
+  "closing_pr": "https://github.com/SpineEventEngine/config/pull/759"
 }
