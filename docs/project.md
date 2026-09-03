@@ -42,3 +42,7 @@ mechanics) with an agent-driven playbook (the judgement steps):
   repo end-to-end (bump → build → sweep → pre-PR → PR), driven by the
   [`proofread-repo`](../proofread-repo) script, with an optional
   [`proofread-fanout.workflow.js`](rollout/proofread-fanout.workflow.js) for the sweep.
+- [`rollout/rebuild.md`](rollout/rebuild.md) — propagate a change across the SDK
+  repositories in dependency order (a `config` refresh, an upstream ripple, or a
+  coordinated version retarget), driven by the [`cascade`](../cascade) script
+  against the build-order contract in [`dependency-graph.md`](dependency-graph.md).
