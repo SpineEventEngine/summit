@@ -775,7 +775,14 @@ cmd_graph() {
 # Manifest access
 # ---------------------------------------------------------------------------
 
-manifest_path() { echo "$TASKS_DIR/$1.json"; }
+# A completed wave's manifest is moved to `archive/`, which keeps it out of
+# `active_wave`'s glob while leaving it readable when named explicitly:
+#   CASCADE_WAVE=<slug> ./cascade status
+manifest_path() {
+    local p="$TASKS_DIR/$1.json"
+    [ -f "$p" ] || p="$TASKS_DIR/archive/$1.json"
+    echo "$p"
+}
 
 # Resolve the active wave: explicit $CASCADE_WAVE / --wave beats a lone manifest.
 active_wave() {
@@ -1085,7 +1092,10 @@ derive_state() { # <wave> <repo> -> prints state
 }
 
 cmd_status() {
-    local wave="${1:-$(active_wave)}"
+    # Declared before assignment: `local x="$(cmd)"` returns `local`'s status,
+    # masking a failing substitution, so `active_wave`'s `die` would not stop
+    # the script and a second, confusing error would follow.
+    local wave; wave="${1:-$(active_wave)}"
     [ -f "$(manifest_path "$wave")" ] || die "no manifest for wave '$wave'"
     local repo st blocked up upst wbranch
     wbranch="$(mget "$wave" .branch)"
