@@ -124,7 +124,7 @@ extra_edges() {
 # Default exclusions, with reasons surfaced by `plan`.
 excluded_reason() {
     case "$1" in
-        documentation) echo "Spine 1.x; not part of the SDK build line" ;;
+        documentation) echo "documentation area of the spine.io site; not part of the SDK build line" ;;
         reflect|money|testlib)
             echo "straggler: config submodule generations behind — first pull is a migration (opt in via --include)" ;;
         *) echo "" ;;
@@ -688,8 +688,8 @@ EOF
         done
         cat <<'EOF'
 
-`documentation` is not on the graph: it is a Spine 1.x site project, not part
-of the SDK build line.
+`documentation` is not on the graph: it is the documentation area of the
+spine.io site, not part of the SDK build line.
 
 ## Maintenance
 
