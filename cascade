@@ -827,12 +827,13 @@ usage: cascade plan --kind refresh|ripple|retarget
                     [--seed <repo>[@<version>]]   (ripple)
                     [--target <version>]          (retarget)
                     [--include <repo>]... [--exclude <repo>]...
+                    [--slug-suffix <word>]   (distinct name, e.g. one wave per repo)
 EOF
     exit 2
 }
 
 cmd_plan() {
-    local kind="" seed="" seed_ver="" target="" includes="" excludes=""
+    local kind="" seed="" seed_ver="" target="" includes="" excludes="" suffix=""
     while [ $# -gt 0 ]; do
         case "$1" in
             --kind) kind="$2"; shift 2 ;;
@@ -840,12 +841,15 @@ cmd_plan() {
             --target) target="$2"; shift 2 ;;
             --include) includes="$includes $2"; shift 2 ;;
             --exclude) excludes="$excludes $2"; shift 2 ;;
+            --slug-suffix) suffix="$2"; shift 2 ;;
             *) usage_plan ;;
         esac
     done
     case "$kind" in refresh|ripple|retarget) ;; *) usage_plan ;; esac
     [ "$kind" = ripple ] && [ -z "$seed" ] && usage_plan
     [ "$kind" = retarget ] && [ -z "$target" ] && usage_plan
+    # The suffix becomes part of a branch name and a file name.
+    case "$suffix" in *[!A-Za-z0-9-]*) die "--slug-suffix accepts letters, digits, and '-' only" ;; esac
 
     "$0" graph --check
 
@@ -859,6 +863,12 @@ cmd_plan() {
         ripple)   slug="cascade-ripple-$seed-${seed_ver##*.}" ;;
         retarget) slug="cascade-retarget-$target" ;;
     esac
+    [ -z "$suffix" ] || slug="$slug-$suffix"
+    # A slug must name one wave: `manifest_path` falls back to `archive/`, so a
+    # reused slug would make the archived wave and the new one indistinguishable.
+    # Successive single-repo waves against the same `config` commit hit this.
+    [ ! -f "$TASKS_DIR/archive/$slug.json" ] \
+        || die "wave $slug is already archived — plan under a distinct name: --slug-suffix <word>"
 
     # Scope. Only forward (wave-ordering) edges scope and order a wave; floor
     # edges are consumed at last-published versions and impose nothing.
@@ -972,7 +982,7 @@ cmd_plan() {
           target: (if $target == "" then null else $target end),
           branch: $wave, halted: null, order: $order,
           repos: $repos, excluded: $excluded, closing_pr: null}' \
-        > "$(manifest_path "$slug")"
+        > "$TASKS_DIR/$slug.json"
 
     # Companion task file for humans/agents.
     local md="$TASKS_DIR/$slug.md"

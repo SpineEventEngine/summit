@@ -57,6 +57,16 @@ continuing.** Stragglers (`reflect`, `money`, `testlib`) are excluded by default
 opt them in with `--include` — their first `config/pull` is a migration, so
 expect adapt work or parks.
 
+To catch up one repository at a time, scope the wave to it (`--include <repo>`
+plus `--exclude` for every other repository) and give it its own name with
+`--slug-suffix <repo>`. Waves planned against the same `config` commit otherwise
+share a name, and `plan` refuses a name whose wave is already archived:
+
+```bash
+./cascade plan --kind refresh --include testlib --exclude <every other repo>... \
+    --slug-suffix testlib                          # -> cascade-refresh-<sha>-testlib
+```
+
 `retarget` prerequisite: the stragglers must be caught up first (every module
 carries the target version). Verify the version guards accept the jump — Maven
 qualifier ordering may rank `M1` below the `SNAPSHOT` line.
