@@ -232,9 +232,11 @@ require_submodule() {
 require_java() {
     # Validate, never trust: a jenv/profile JAVA_HOME may point at an old JDK
     # (observed: corretto 11 while the SDK builds on 17 — Gradle refuses).
+    # `|| true`: under `pipefail` a missing or broken `java` (e.g. JAVA_HOME
+    # unset) would otherwise abort the script here, before the fallback runs.
     local want=17 ver
     ver="$("${JAVA_HOME:-/nonexistent}/bin/java" -version 2>&1 \
-           | sed -nE 's/.*version "([0-9]+).*/\1/p' | head -1)"
+           | sed -nE 's/.*version "([0-9]+).*/\1/p' | head -1 || true)"
     if ! [ "${ver:-0}" -ge "$want" ] 2>/dev/null; then
         JAVA_HOME="$(/usr/libexec/java_home -v "$want" 2>/dev/null || true)"
     fi
