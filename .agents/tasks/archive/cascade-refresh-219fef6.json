@@ -39,7 +39,7 @@
         "group_path": "io/spine",
         "artifact": "spine-reflect"
       },
-      "state": "published-local",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.201",
       "pin_vector": {},
       "adapt_rounds": 1,
@@ -74,5 +74,5 @@
     "delivery-server": "excluded by --exclude",
     "BuildSpeed": "excluded by --exclude"
   },
-  "closing_pr": null
+  "closing_pr": "https://github.com/SpineEventEngine/config/pull/784"
 }
