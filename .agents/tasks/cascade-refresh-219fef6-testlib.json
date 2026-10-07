@@ -39,12 +39,18 @@
         "group_path": "io/spine/tools",
         "artifact": "base-testlib"
       },
-      "state": "bumped",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.214",
       "pin_vector": {},
       "adapt_rounds": 0,
-      "built": null,
-      "pr": null,
+      "built": {
+        "head": "c6a01c89b167253e105506d035cded35781cbb51",
+        "at": "2026-10-07T19:06:15Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/testlib/pull/14",
+        "head": "c6a01c89b167253e105506d035cded35781cbb51"
+      },
       "parked": null
     }
   },
