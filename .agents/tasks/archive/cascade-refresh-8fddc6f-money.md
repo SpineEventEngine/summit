@@ -17,3 +17,4 @@ Machine state: [`cascade-refresh-8fddc6f-money.json`](cascade-refresh-8fddc6f-mo
 ## Log
 
 - 2026-10-07 — wave planned.
+- 2026-10-08 — closed without a `config` PR: `config` has no `Money` pin to advance (no SDK repository depends on `money`).
