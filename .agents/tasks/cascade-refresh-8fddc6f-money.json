@@ -39,7 +39,7 @@
         "group_path": "io/spine",
         "artifact": "spine-money"
       },
-      "state": "pr-open",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.12",
       "pin_vector": {},
       "adapt_rounds": 0,
