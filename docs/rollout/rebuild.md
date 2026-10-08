@@ -58,12 +58,14 @@ opt them in with `--include` — their first `config/pull` is a migration, so
 expect adapt work or parks.
 
 To catch up one repository at a time, scope the wave to it (`--include <repo>`
-plus `--exclude` for every other repository) and give it its own name with
-`--slug-suffix <repo>`. Waves planned against the same `config` commit otherwise
-share a name, and `plan` refuses a name whose wave is already archived:
+plus one `--exclude <repo>` for each other repository; the option takes a single
+repository and is repeated) and give it its own name with `--slug-suffix <repo>`.
+`refresh` waves planned against the same `config` commit otherwise share a name,
+and `plan` refuses a name whose wave is already archived:
 
 ```bash
-./cascade plan --kind refresh --include testlib --exclude <every other repo>... \
+./cascade plan --kind refresh --include testlib \
+    --exclude base-libraries --exclude reflect --exclude logging ... \
     --slug-suffix testlib                          # -> cascade-refresh-<sha>-testlib
 ```
 
