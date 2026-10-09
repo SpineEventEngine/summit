@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "wave": "cascade-refresh-219fef6-testlib",
+  "kind": "refresh",
+  "created": "2026-10-07T18:29:36Z",
+  "base": "master",
+  "config_sha": "219fef6ddd42c1e236dddf04526fb2a64409de6a",
+  "seed": null,
+  "target": null,
+  "branch": "cascade-refresh-219fef6-testlib",
+  "halted": null,
+  "order": [
+    "base-libraries",
+    "reflect",
+    "logging",
+    "testlib",
+    "dokka-tools",
+    "tool-base",
+    "ProtoTap",
+    "compiler",
+    "validation",
+    "core-jvm-compiler",
+    "base-types",
+    "change",
+    "time",
+    "money",
+    "core-jvm",
+    "jdbc-storage",
+    "gcloud-jvm",
+    "delivery-server",
+    "BuildSpeed"
+  ],
+  "repos": {
+    "testlib": {
+      "upstreams": [],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine/tools",
+        "artifact": "base-testlib"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.214",
+      "pin_vector": {},
+      "adapt_rounds": 0,
+      "built": {
+        "head": "c6a01c89b167253e105506d035cded35781cbb51",
+        "at": "2026-10-07T19:06:15Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/testlib/pull/14",
+        "head": "c6a01c89b167253e105506d035cded35781cbb51"
+      },
+      "parked": null
+    }
+  },
+  "excluded": {
+    "base-libraries": "excluded by --exclude",
+    "reflect": "excluded by --exclude",
+    "logging": "excluded by --exclude",
+    "dokka-tools": "excluded by --exclude",
+    "tool-base": "excluded by --exclude",
+    "ProtoTap": "excluded by --exclude",
+    "compiler": "excluded by --exclude",
+    "validation": "excluded by --exclude",
+    "core-jvm-compiler": "excluded by --exclude",
+    "base-types": "excluded by --exclude",
+    "change": "excluded by --exclude",
+    "time": "excluded by --exclude",
+    "money": "excluded by --exclude",
+    "core-jvm": "excluded by --exclude",
+    "jdbc-storage": "excluded by --exclude",
+    "gcloud-jvm": "excluded by --exclude",
+    "delivery-server": "excluded by --exclude",
+    "BuildSpeed": "excluded by --exclude"
+  },
+  "closing_pr": "https://github.com/SpineEventEngine/config/pull/785"
+}

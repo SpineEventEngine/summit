@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "wave": "cascade-refresh-8fddc6f-money",
+  "kind": "refresh",
+  "created": "2026-10-07T19:36:34Z",
+  "base": "master",
+  "config_sha": "8fddc6f17507209855ccd33706cca429b2473876",
+  "seed": null,
+  "target": null,
+  "branch": "cascade-refresh-8fddc6f-money",
+  "halted": null,
+  "order": [
+    "base-libraries",
+    "reflect",
+    "logging",
+    "testlib",
+    "dokka-tools",
+    "tool-base",
+    "ProtoTap",
+    "compiler",
+    "validation",
+    "core-jvm-compiler",
+    "base-types",
+    "change",
+    "time",
+    "money",
+    "core-jvm",
+    "jdbc-storage",
+    "gcloud-jvm",
+    "delivery-server",
+    "BuildSpeed"
+  ],
+  "repos": {
+    "money": {
+      "upstreams": [],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-money"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.12",
+      "pin_vector": {},
+      "adapt_rounds": 0,
+      "built": {
+        "head": "eba56701b7ca27859dc90b7af8435fb09ec3a49d",
+        "at": "2026-10-07T19:54:20Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/money/pull/32",
+        "head": "eba56701b7ca27859dc90b7af8435fb09ec3a49d"
+      },
+      "parked": null
+    }
+  },
+  "excluded": {
+    "base-libraries": "excluded by --exclude",
+    "reflect": "excluded by --exclude",
+    "logging": "excluded by --exclude",
+    "testlib": "excluded by --exclude",
+    "dokka-tools": "excluded by --exclude",
+    "tool-base": "excluded by --exclude",
+    "ProtoTap": "excluded by --exclude",
+    "compiler": "excluded by --exclude",
+    "validation": "excluded by --exclude",
+    "core-jvm-compiler": "excluded by --exclude",
+    "base-types": "excluded by --exclude",
+    "change": "excluded by --exclude",
+    "time": "excluded by --exclude",
+    "core-jvm": "excluded by --exclude",
+    "jdbc-storage": "excluded by --exclude",
+    "gcloud-jvm": "excluded by --exclude",
+    "delivery-server": "excluded by --exclude",
+    "BuildSpeed": "excluded by --exclude"
+  },
+  "closing_pr": null
+}

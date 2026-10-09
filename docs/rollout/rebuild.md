@@ -53,13 +53,27 @@ Wave kinds:
 fresh derivation (drift → fix the graph first), validates the registry probe
 markers, refuses to run over open `cascade-*` PRs, and writes the wave manifest
 pair to `.agents/tasks/<wave>.{json,md}`. **Review the printed order before
-continuing.** Stragglers (`reflect`, `money`, `testlib`) are excluded by default;
-opt them in with `--include` — their first `config/pull` is a migration, so
-expect adapt work or parks.
+continuing.** `plan` prints every repository it leaves out, with the reason;
+`--include <repo>` opts a default-excluded repository back in. The former
+stragglers (`reflect`, `testlib`, `money`) were caught up one at a time in
+October 2026 and are no longer excluded.
 
-`retarget` prerequisite: the stragglers must be caught up first (every module
-carries the target version). Verify the version guards accept the jump — Maven
-qualifier ordering may rank `M1` below the `SNAPSHOT` line.
+To run a wave for a single repository, scope the wave to it with one
+`--exclude <repo>` for each other repository (the option takes a single
+repository and is repeated) and give it its own name with `--slug-suffix <repo>`.
+`refresh` waves planned against the same `config` commit otherwise share a name,
+and `plan` refuses a name whose wave is already archived:
+
+```bash
+./cascade plan --kind refresh \
+    --exclude base-libraries --exclude reflect --exclude logging ... \
+    --slug-suffix testlib                          # -> cascade-refresh-<sha>-testlib
+```
+
+`retarget` prerequisite: every repository must be caught up to the current
+baseline first, so that every module carries the target version. Verify the
+version guards accept the jump — Maven qualifier ordering may rank `M1` below
+the `SNAPSHOT` line.
 
 ## 2. Drive the wave
 
