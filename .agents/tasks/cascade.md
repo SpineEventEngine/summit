@@ -250,7 +250,7 @@ on-hold throttling task's cache/proxy phases before unattended cloud waves.
 1. **Graph**: `cascade graph` output renders on GitHub, matches the known order
    (base-libraries → logging/testlib/base-types/change/time → tool-base/ProtoTap/
    compiler → validation → core-jvm-compiler → core-jvm → jdbc-storage/gcloud-jvm/
-   delivery-server; BuildSpeed verify-only); `graph --check` flags drift after a
+   delivery; BuildSpeed verify-only); `graph --check` flags drift after a
    hand-edited edge.
 2. **Unit-level**: `plan --kind refresh` reads the graph and freezes edges; `plan
    --kind ripple --seed base-libraries@<ver>` scopes to the downstream closure only.
@@ -365,7 +365,7 @@ and refuses to run on drift.
     132-edge set stays canonical in a machine-readable ```edges block (each
     edge is a direct pin the wave advances, so none can be dropped from the
     data — only from the rendering).
-  * `delivery-server` publishes **only to GitHub Packages** (proprietary) —
+  * `delivery` publishes **only to GitHub Packages** (proprietary) —
     probes gained a per-repo registry field; reading GH Packages needs the
     `read:packages` token scope (playbook prerequisite; `plan` warns, ship
     hard-requires).

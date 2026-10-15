@@ -102,7 +102,7 @@ write_pin_constant() { # <file> <name> <old> <new>
 repos_all() {
     echo "base-libraries reflect logging testlib dokka-tools tool-base \
 ProtoTap compiler validation core-jvm-compiler base-types change time money \
-core-jvm jdbc-storage gcloud-jvm delivery-server BuildSpeed"
+core-jvm jdbc-storage gcloud-jvm delivery BuildSpeed"
 }
 
 # Position of a repo in the canonical order (1-based; 0 = unknown).
@@ -186,7 +186,7 @@ repo_track_constants() {
 # marker-artifact: one definitely-published artifact used for registry probes.
 # class: library (full pipeline) | verify-only (no version/publishing steps).
 # registry: gcar (public europe-maven.pkg.dev) | github (GitHub Packages —
-# delivery-server is proprietary and publishes only there; probes authenticate
+# delivery is proprietary and publishes only there; probes authenticate
 # with `gh auth token`).
 repo_meta() {
     case "$1" in
@@ -207,7 +207,7 @@ repo_meta() {
         core-jvm)          echo "io/spine|spine-core|versionToPublish|library|gcar" ;;
         jdbc-storage)      echo "io/spine|spine-rdbms|versionToPublish|library|gcar" ;;
         gcloud-jvm)        echo "io/spine/gcloud|spine-datastore|versionToPublish|library|gcar" ;;
-        delivery-server)   echo "io/spine/delivery|spine-delivery-server|versionToPublish|library|github" ;;
+        delivery)          echo "io/spine/delivery|spine-delivery-server|versionToPublish|library|github" ;;
         BuildSpeed)        echo "|||verify-only|" ;;
         *) echo "" ;;
     esac

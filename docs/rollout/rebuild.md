@@ -34,7 +34,7 @@ Wave kinds:
   set it to the JDK 17 path directly, or use your distribution's alternatives
   mechanism.
 - `gh auth status` shows a token with `repo` + `workflow` scope, plus
-  `read:packages` — `delivery-server` publishes to GitHub Packages, and
+  `read:packages` — `delivery` publishes to GitHub Packages, and
   `ship` and `close` cannot verify its artifacts without that scope.
 - Builds run **strictly sequentially** — never start a second Gradle build while
   a wave build runs. Maven Central consumption blocks (HTTP 429) are machine-wide
