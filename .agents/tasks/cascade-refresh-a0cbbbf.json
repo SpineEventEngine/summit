@@ -39,7 +39,7 @@
         "group_path": "io/spine",
         "artifact": "spine-base"
       },
-      "state": "bumped",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.461",
       "pin_vector": {},
       "adapt_rounds": 1,
@@ -61,7 +61,7 @@
         "group_path": "io/spine",
         "artifact": "spine-reflect"
       },
-      "state": "bumped",
+      "state": "pr-open",
       "target_version": "2.0.0-SNAPSHOT.202",
       "pin_vector": {},
       "adapt_rounds": 0,
@@ -86,7 +86,7 @@
         "group_path": "io/spine",
         "artifact": "spine-logging"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.426",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -110,7 +110,7 @@
         "group_path": "io/spine/tools",
         "artifact": "base-testlib"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.215",
       "pin_vector": {
         "logging": "2.0.0-SNAPSHOT.426"
@@ -133,7 +133,7 @@
         "group_path": "io/spine/tools",
         "artifact": "dokka-extensions"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.11",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461"
@@ -143,7 +143,10 @@
         "head": "880762b8ff3472c17e02d3441c5d239d30da8825",
         "at": "2026-10-15T19:12:18Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/dokka-tools/pull/12",
+        "head": "880762b8ff3472c17e02d3441c5d239d30da8825"
+      },
       "parked": null
     },
     "tool-base": {
@@ -158,7 +161,7 @@
         "group_path": "io/spine/tools",
         "artifact": "jvm-tools"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.426",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -186,7 +189,7 @@
         "group_path": "io/spine/tools",
         "artifact": "prototap-gradle-plugin"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "0.17.3",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -195,7 +198,10 @@
         "tool-base": "2.0.0-SNAPSHOT.426"
       },
       "adapt_rounds": 1,
-      "built": null,
+      "built": {
+        "head": "91eaaaad39c33ec1b0e6c61dcaf7a036a261c01d",
+        "at": "2026-10-15T19:21:02Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -214,7 +220,7 @@
         "group_path": "io/spine/tools",
         "artifact": "compiler-jvm"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.070",
       "pin_vector": {
         "ProtoTap": "0.17.3",
@@ -224,8 +230,11 @@
         "testlib": "2.0.0-SNAPSHOT.215",
         "tool-base": "2.0.0-SNAPSHOT.426"
       },
-      "adapt_rounds": 0,
-      "built": null,
+      "adapt_rounds": 1,
+      "built": {
+        "head": "005cfa4be7bd78734885b8dad4a4466e28116c03",
+        "at": "2026-10-15T19:50:24Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -245,7 +254,7 @@
         "group_path": "io/spine/tools",
         "artifact": "validation-java"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.465",
       "pin_vector": {
         "ProtoTap": "0.17.3",
@@ -256,8 +265,11 @@
         "testlib": "2.0.0-SNAPSHOT.215",
         "tool-base": "2.0.0-SNAPSHOT.426"
       },
-      "adapt_rounds": 0,
-      "built": null,
+      "adapt_rounds": 1,
+      "built": {
+        "head": "d5b98ece3ce0602eacc74626a0da15912404f942",
+        "at": "2026-10-15T19:53:41Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -278,7 +290,7 @@
         "group_path": "io/spine/tools",
         "artifact": "core-jvm-gradle-plugin"
       },
-      "state": "bumped",
+      "state": "parked",
       "target_version": "2.0.0-SNAPSHOT.098",
       "pin_vector": {
         "ProtoTap": "0.17.3",
@@ -290,10 +302,10 @@
         "tool-base": "2.0.0-SNAPSHOT.426",
         "validation": "2.0.0-SNAPSHOT.465"
       },
-      "adapt_rounds": 0,
+      "adapt_rounds": 2,
       "built": null,
       "pr": null,
-      "parked": null
+      "parked": "awaiting owner decision: 5 tests in tests/entity-queries (EntityQueryBuilderTest) assert FieldMask behavior that base-libraries#964 made a deprecated no-op ('Please remove the call'); deleting them was blocked as test removal"
     },
     "base-types": {
       "upstreams": [
