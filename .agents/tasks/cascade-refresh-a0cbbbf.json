@@ -69,7 +69,10 @@
         "head": "23d55db7a207c0df47ae5abf584d7cd2a89e75e8",
         "at": "2026-10-15T19:10:08Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/reflect/pull/15",
+        "head": "23d55db7a207c0df47ae5abf584d7cd2a89e75e8"
+      },
       "parked": null
     },
     "logging": {
