@@ -1220,6 +1220,13 @@ cmd_prep() {
         git switch -q -c "$branch" 2>/dev/null || git switch -q "$branch"
     fi
 
+    # Check `config` out at the commit the branch records: `git pull` moves the
+    # recorded pointer but not the checkout (a false "not clean" below), and an
+    # uninitialized one would pass for a repo that does not consume `config`.
+    if git config -f .gitmodules --get submodule.config.path >/dev/null 2>&1; then
+        git submodule update --init --quiet -- config
+    fi
+
     # ./config/pull — commit only what it actually changed. A repo that does not
     # consume `config` (its own hand-written buildSrc, no `config` submodule) has
     # nothing to pull; skipping keeps it a wave participant instead of a hard error.
