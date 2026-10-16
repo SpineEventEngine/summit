@@ -269,7 +269,7 @@
         "group_path": "io/spine/tools",
         "artifact": "validation-java"
       },
-      "state": "published-local",
+      "state": "pr-open",
       "target_version": "2.0.0-SNAPSHOT.465",
       "pin_vector": {
         "ProtoTap": "0.17.3",
@@ -308,7 +308,7 @@
         "group_path": "io/spine/tools",
         "artifact": "core-jvm-gradle-plugin"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.098",
       "pin_vector": {
         "ProtoTap": "0.17.3",
@@ -342,7 +342,7 @@
         "group_path": "io/spine",
         "artifact": "spine-base-types"
       },
-      "state": "published-local",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.226",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -372,7 +372,7 @@
         "group_path": "io/spine",
         "artifact": "spine-change"
       },
-      "state": "published-local",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.209",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -405,7 +405,7 @@
         "group_path": "io/spine",
         "artifact": "spine-time"
       },
-      "state": "published-local",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.252",
       "pin_vector": {
         "ProtoTap": "0.17.3",
@@ -439,7 +439,7 @@
         "group_path": "io/spine",
         "artifact": "spine-money"
       },
-      "state": "published-local",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.13",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -474,7 +474,7 @@
         "group_path": "io/spine",
         "artifact": "spine-core"
       },
-      "state": "published-local",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.572",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -507,7 +507,7 @@
         "group_path": "io/spine",
         "artifact": "spine-rdbms"
       },
-      "state": "published-local",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.131",
       "pin_vector": {
         "core-jvm": "2.0.0-SNAPSHOT.572",
@@ -539,7 +539,7 @@
         "group_path": "io/spine/gcloud",
         "artifact": "spine-datastore"
       },
-      "state": "published-local",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.241",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -575,7 +575,7 @@
         "group_path": "io/spine/delivery",
         "artifact": "spine-delivery-server"
       },
-      "state": "published-local",
+      "state": "pr-ready",
       "target_version": "0.24.1",
       "pin_vector": {
         "compiler": "2.0.0-SNAPSHOT.074",
