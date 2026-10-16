@@ -61,7 +61,7 @@
         "group_path": "io/spine",
         "artifact": "spine-reflect"
       },
-      "state": "pr-open",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.202",
       "pin_vector": {},
       "adapt_rounds": 0,
@@ -97,7 +97,10 @@
         "head": "79766b3c73d9c11ed13b1081a084d87bc21b12a7",
         "at": "2026-10-15T19:11:03Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/logging/pull/151",
+        "head": "79766b3c73d9c11ed13b1081a084d87bc21b12a7"
+      },
       "parked": null
     },
     "testlib": {
@@ -133,7 +136,7 @@
         "group_path": "io/spine/tools",
         "artifact": "dokka-extensions"
       },
-      "state": "pr-ready",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.11",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461"
@@ -290,7 +293,7 @@
         "group_path": "io/spine/tools",
         "artifact": "core-jvm-gradle-plugin"
       },
-      "state": "parked",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.098",
       "pin_vector": {
         "ProtoTap": "0.17.3",
@@ -302,10 +305,13 @@
         "tool-base": "2.0.0-SNAPSHOT.426",
         "validation": "2.0.0-SNAPSHOT.465"
       },
-      "adapt_rounds": 2,
-      "built": null,
+      "adapt_rounds": 0,
+      "built": {
+        "head": "dee4edfdbf4f356293623388bc4a6faf9a800e72",
+        "at": "2026-10-16T13:45:53Z"
+      },
       "pr": null,
-      "parked": "awaiting owner decision: 5 tests in tests/entity-queries (EntityQueryBuilderTest) assert FieldMask behavior that base-libraries#964 made a deprecated no-op ('Please remove the call'); deleting them was blocked as test removal"
+      "parked": null
     },
     "base-types": {
       "upstreams": [
@@ -321,7 +327,7 @@
         "group_path": "io/spine",
         "artifact": "spine-base-types"
       },
-      "state": "bumped",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.226",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -330,8 +336,11 @@
         "testlib": "2.0.0-SNAPSHOT.215",
         "validation": "2.0.0-SNAPSHOT.465"
       },
-      "adapt_rounds": 0,
-      "built": null,
+      "adapt_rounds": 1,
+      "built": {
+        "head": "4d96be22f8a04ef12fbab5983aed2cf46efb1c62",
+        "at": "2026-10-16T13:47:39Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -348,7 +357,7 @@
         "group_path": "io/spine",
         "artifact": "spine-change"
       },
-      "state": "bumped",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.209",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -356,8 +365,11 @@
         "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
         "validation": "2.0.0-SNAPSHOT.465"
       },
-      "adapt_rounds": 0,
-      "built": null,
+      "adapt_rounds": 2,
+      "built": {
+        "head": "6d15a7d9caa8e9ecddbe9f0dca2a394be78a16db",
+        "at": "2026-10-16T13:50:18Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -378,7 +390,7 @@
         "group_path": "io/spine",
         "artifact": "spine-time"
       },
-      "state": "bumped",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.252",
       "pin_vector": {
         "ProtoTap": "0.17.3",
@@ -390,8 +402,11 @@
         "tool-base": "2.0.0-SNAPSHOT.426",
         "validation": "2.0.0-SNAPSHOT.465"
       },
-      "adapt_rounds": 0,
-      "built": null,
+      "adapt_rounds": 2,
+      "built": {
+        "head": "a33fac7d0b56b39916c41f6f2e2d4710fb522486",
+        "at": "2026-10-16T14:19:35Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -409,7 +424,7 @@
         "group_path": "io/spine",
         "artifact": "spine-money"
       },
-      "state": "bumped",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.13",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -418,8 +433,11 @@
         "testlib": "2.0.0-SNAPSHOT.215",
         "validation": "2.0.0-SNAPSHOT.465"
       },
-      "adapt_rounds": 0,
-      "built": null,
+      "adapt_rounds": 1,
+      "built": {
+        "head": "15e1b8d92b76be1711b4037f382a8422d85c383c",
+        "at": "2026-10-16T14:21:02Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -454,7 +472,7 @@
         "time": "2.0.0-SNAPSHOT.252",
         "validation": "2.0.0-SNAPSHOT.465"
       },
-      "adapt_rounds": 0,
+      "adapt_rounds": 2,
       "built": null,
       "pr": null,
       "parked": null

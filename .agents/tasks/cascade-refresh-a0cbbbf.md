@@ -37,3 +37,4 @@ Machine state: [`cascade-refresh-a0cbbbf.json`](cascade-refresh-a0cbbbf.json). P
 - 2026-10-15 — wave planned.
 - 2026-10-15 — **parked** `BuildSpeed`: verify-only: SDK versions arrive as CI environment variables substituted into settings.gradle.kts.template, so there are no file pins to apply, no version to bump, and no artifact to publish
 - 2026-10-15 — **parked** `core-jvm-compiler`: awaiting owner decision: 5 tests in tests/entity-queries (EntityQueryBuilderTest) assert FieldMask behavior that base-libraries#964 made a deprecated no-op ('Please remove the call'); deleting them was blocked as test removal
+- 2026-10-16 — resumed `core-jvm-compiler`.
