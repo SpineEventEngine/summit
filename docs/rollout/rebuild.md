@@ -99,25 +99,27 @@ and execute what it prints, in order:
   repo — three adapt→rebuild rounds, then auto-park). Exit 5 = throttling halt.
 - `PREPR:<repo>` → run the `pre-pr` skill inside the repo (writes the sentinel).
 - `SHIP:<repo>` → `./cascade ship <repo>` — sentinel gate, upstream-published
-  gate (the upstream has not re-bumped since the pin, the registry serves its
-  version *from the wave's merged PR*, and its `publish.yml` run for the merge
-  commit succeeded), floor gate (every version
+  gate (the upstream has not re-bumped since this repo pinned it, the registry
+  serves its version *and* the upstream's wave PR for it has merged, and its
+  `publish.yml` run for the merge commit succeeded), floor gate (every version
   the repo pins — forward upstreams *and* published floors — proven in the
   registry, derived from the pin files by content, since floors never appear in
   the manifest), drift gate, push, PR. Exit 4 means an upstream is not
-  published yet: wait, don't force.
+  published yet: wait, don't force. Exit 3 from the upstream gate (the upstream
+  re-bumped, collided with the base branch, or failed to publish) means
+  re-pinning with `./cascade refresh <repo>` once the upstream is fixed.
 - `FIX-PUBLISH:<repo>` → the repo's `publish.yml` run failed after its PR
   merged. A run that fails midway may already have uploaded some modules, so
   the registry's marker artifact proves nothing; `./cascade status` links the
-  run. Fix the build, publish a new version, and re-pin the downstream repos
-  (`./cascade refresh <repo>`). Downstream repos wait meanwhile.
-- `REBUMP:<repo>` → the registry serves the repo's wave version, but the wave's
-  PR has not merged: the base branch took the same version first, so the
+  run. Fix the build, publish a new version, and re-pin each downstream repo
+  with `./cascade refresh <downstream>`. Downstream repos wait meanwhile.
+- `REBUMP:<repo>` → the registry serves the repo's wave version, but the repo's
+  wave PR has not merged: the base branch took the same version first, so the
   registry holds the base branch's build, not the wave's. Merge the base branch
-  into the wave branch (a `version.gradle.kts` conflict follows the
-  `bump-version` Conflict Rule), then `./cascade refresh <repo>` bumps past it.
-  Rebuild it, and re-pin each downstream repo with
-  `./cascade refresh <downstream>`.
+  into the wave branch, resolving a `version.gradle.kts` conflict by the
+  `bump-version` Conflict Rule, then run `./cascade refresh <repo>` to re-bump
+  past the base branch's version. Rebuild the repo, and re-pin each downstream
+  repo with `./cascade refresh <downstream>`. Downstream repos wait meanwhile.
 - `WAIT-*` only → `./cascade await` (background it) — exits the moment the
   action set changes; then run `next` again.
 - `CLOSE` → `./cascade close` — stages the final vector in `config` (floors
