@@ -413,9 +413,11 @@ derive_scoped() {
         # shellcheck disable=SC2086
         objs="$( { grep -hoE 'io\.spine\.dependency\.local\.[A-Z][A-Za-z]+' $files 2>/dev/null \
                        | sed 's/.*\.//'
+                   # Optional: most repositories reference no alias, and `grep`
+                   # exits 1 on no match, which `pipefail` would propagate.
                    grep -hoE '(^|[^.A-Za-z])(spineCompiler|coreJvmCompiler)\.[A-Za-z]' $files 2>/dev/null \
                        | grep -oE 'spineCompiler|coreJvmCompiler' \
-                       | while read -r a; do obj_of_alias "$a"; done
+                       | while read -r a; do obj_of_alias "$a"; done || true
                  } | sort -u)"
         # Block-aware classification: a reference creates an edge only where
         # it is a declared dependency. References inside version-management
