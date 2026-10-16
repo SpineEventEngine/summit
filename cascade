@@ -150,9 +150,10 @@ obj_to_repo() {
     esac
 }
 
-# `config`'s accessor aliases for local objects (`BuildExtensions.kt`), used
-# where the objects are not imported, e.g. `classpath(spineCompiler.pluginLib)`
-# in a `buildscript {}` block.
+# `config`'s accessor aliases for local objects (`BuildExtensions.kt`) that are
+# dereferenced as `<alias>.member` where the objects are not imported, e.g.
+# `classpath(spineCompiler.pluginLib)` in a `buildscript {}` block.
+# `obj_of_alias` is the inverse.
 alias_of_obj() {
     case "$1" in
         Compiler) echo spineCompiler ;;
@@ -204,7 +205,7 @@ repo_track_constants() {
 # marker-artifact: one definitely-published artifact used for registry probes.
 # class: library (full pipeline) | verify-only (no version/publishing steps).
 # registry: gcar (public europe-maven.pkg.dev) | github (GitHub Packages —
-# delivery is proprietary and publishes only there; probes authenticate
+# `delivery` is proprietary and publishes only there; probes authenticate
 # with `gh auth token`).
 repo_meta() {
     case "$1" in
@@ -478,7 +479,8 @@ derive_scoped() {
         #   coreJvmCompiler / io.spine.core-jvm           -> core-jvm-compiler
         #   io.spine.{artifact-meta,descriptor-set-file,
         #             generated-sources}                  -> tool-base
-        # The accessors also apply as `id(spineCompiler.pluginId)`.
+        # `spineCompiler` and `coreJvmCompiler` (not `prototap`) also appear as
+        # `id(<accessor>.pluginId)`.
         # shellcheck disable=SC2086
         {
             grep -hE '^[[:space:]]*(prototap|spineCompiler|coreJvmCompiler)[[:space:]]*$' $files 2>/dev/null \
@@ -1249,8 +1251,9 @@ cmd_prep() {
     fi
 
     # Check `config` out at the commit the branch records: `git pull` moves the
-    # recorded pointer but not the checkout (a false "not clean" below), and an
-    # uninitialized one would pass for a repo that does not consume `config`.
+    # recorded pointer but not the checkout (a false "working tree not clean" error
+    # below), and an uninitialized `config` would be mistaken for a repo that does
+    # not consume it.
     if git config -f .gitmodules --get submodule.config.path >/dev/null 2>&1; then
         git submodule update --init --quiet -- config
     fi
