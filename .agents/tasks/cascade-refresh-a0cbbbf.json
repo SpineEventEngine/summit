@@ -233,7 +233,7 @@
         "artifact": "compiler-jvm"
       },
       "state": "published-remote",
-      "target_version": "2.0.0-SNAPSHOT.072",
+      "target_version": "2.0.0-SNAPSHOT.074",
       "pin_vector": {
         "ProtoTap": "0.17.3",
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -248,8 +248,8 @@
         "at": "2026-10-16T16:42:26Z"
       },
       "pr": {
-        "url": "https://github.com/SpineEventEngine/compiler/pull/91",
-        "head": "0ebf947332a4521f15c5c232223529cf2f8fb805"
+        "url": "https://github.com/SpineEventEngine/compiler/pull/92",
+        "head": "0ec7e51fc6f0cc8f6a83faee53672a16722021d2"
       },
       "parked": null
     },
@@ -274,17 +274,14 @@
       "pin_vector": {
         "ProtoTap": "0.17.3",
         "base-libraries": "2.0.0-SNAPSHOT.461",
-        "compiler": "2.0.0-SNAPSHOT.072",
+        "compiler": "2.0.0-SNAPSHOT.074",
         "logging": "2.0.0-SNAPSHOT.426",
         "reflect": "2.0.0-SNAPSHOT.202",
         "testlib": "2.0.0-SNAPSHOT.215",
         "tool-base": "2.0.0-SNAPSHOT.426"
       },
-      "adapt_rounds": 1,
-      "built": {
-        "head": "808b2a34f08951a57c376cdc0c1eeda71cafc4b1",
-        "at": "2026-10-16T18:59:02Z"
-      },
+      "adapt_rounds": 0,
+      "built": null,
       "pr": {
         "url": "https://github.com/SpineEventEngine/validation/pull/332",
         "head": "808b2a34f08951a57c376cdc0c1eeda71cafc4b1"
@@ -308,12 +305,12 @@
         "group_path": "io/spine/tools",
         "artifact": "core-jvm-gradle-plugin"
       },
-      "state": "pr-ready",
+      "state": "bumped",
       "target_version": "2.0.0-SNAPSHOT.098",
       "pin_vector": {
         "ProtoTap": "0.17.3",
         "base-libraries": "2.0.0-SNAPSHOT.461",
-        "compiler": "2.0.0-SNAPSHOT.072",
+        "compiler": "2.0.0-SNAPSHOT.074",
         "logging": "2.0.0-SNAPSHOT.426",
         "reflect": "2.0.0-SNAPSHOT.202",
         "testlib": "2.0.0-SNAPSHOT.215",
@@ -321,10 +318,7 @@
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 0,
-      "built": {
-        "head": "14802413eeeef3eaa7496da22a89765769dfe52d",
-        "at": "2026-10-16T16:49:19Z"
-      },
+      "built": null,
       "pr": null,
       "parked": null
     },
@@ -342,20 +336,17 @@
         "group_path": "io/spine",
         "artifact": "spine-base-types"
       },
-      "state": "pr-ready",
+      "state": "bumped",
       "target_version": "2.0.0-SNAPSHOT.226",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
-        "compiler": "2.0.0-SNAPSHOT.072",
+        "compiler": "2.0.0-SNAPSHOT.074",
         "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
         "testlib": "2.0.0-SNAPSHOT.215",
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 1,
-      "built": {
-        "head": "2a95dfc406846826d8d7af958326e5877b96858e",
-        "at": "2026-10-16T16:49:42Z"
-      },
+      "built": null,
       "pr": null,
       "parked": null
     },
@@ -372,19 +363,16 @@
         "group_path": "io/spine",
         "artifact": "spine-change"
       },
-      "state": "pr-ready",
+      "state": "bumped",
       "target_version": "2.0.0-SNAPSHOT.209",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
-        "compiler": "2.0.0-SNAPSHOT.072",
+        "compiler": "2.0.0-SNAPSHOT.074",
         "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 2,
-      "built": {
-        "head": "41c092c16c96484e05afd02dc4baf2afd4f8884e",
-        "at": "2026-10-16T16:50:12Z"
-      },
+      "built": null,
       "pr": null,
       "parked": null
     },
@@ -405,12 +393,12 @@
         "group_path": "io/spine",
         "artifact": "spine-time"
       },
-      "state": "pr-ready",
+      "state": "bumped",
       "target_version": "2.0.0-SNAPSHOT.252",
       "pin_vector": {
         "ProtoTap": "0.17.3",
         "base-libraries": "2.0.0-SNAPSHOT.461",
-        "compiler": "2.0.0-SNAPSHOT.072",
+        "compiler": "2.0.0-SNAPSHOT.074",
         "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
         "logging": "2.0.0-SNAPSHOT.426",
         "testlib": "2.0.0-SNAPSHOT.215",
@@ -418,10 +406,7 @@
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 2,
-      "built": {
-        "head": "8a671484a8782ce16f0e551dea322549d75c5919",
-        "at": "2026-10-16T16:51:56Z"
-      },
+      "built": null,
       "pr": null,
       "parked": null
     },
@@ -439,20 +424,17 @@
         "group_path": "io/spine",
         "artifact": "spine-money"
       },
-      "state": "pr-ready",
+      "state": "bumped",
       "target_version": "2.0.0-SNAPSHOT.13",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
-        "compiler": "2.0.0-SNAPSHOT.072",
+        "compiler": "2.0.0-SNAPSHOT.074",
         "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
         "testlib": "2.0.0-SNAPSHOT.215",
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 1,
-      "built": {
-        "head": "36b807e1987543e260b2e08bdcf1d2a9e5cba83e",
-        "at": "2026-10-16T16:52:16Z"
-      },
+      "built": null,
       "pr": null,
       "parked": null
     },
@@ -474,8 +456,8 @@
         "group_path": "io/spine",
         "artifact": "spine-core"
       },
-      "state": "published-remote",
-      "target_version": "2.0.0-SNAPSHOT.571",
+      "state": "bumped",
+      "target_version": "2.0.0-SNAPSHOT.572",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
         "base-types": "2.0.0-SNAPSHOT.226",
@@ -488,10 +470,7 @@
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 2,
-      "built": {
-        "head": "b0ea6626f1b11d74c254be3ffaa56f63068016d8",
-        "at": "2026-10-16T16:57:21Z"
-      },
+      "built": null,
       "pr": null,
       "parked": null
     },
@@ -507,18 +486,15 @@
         "group_path": "io/spine",
         "artifact": "spine-rdbms"
       },
-      "state": "pr-ready",
+      "state": "bumped",
       "target_version": "2.0.0-SNAPSHOT.131",
       "pin_vector": {
-        "core-jvm": "2.0.0-SNAPSHOT.571",
+        "core-jvm": "2.0.0-SNAPSHOT.572",
         "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 1,
-      "built": {
-        "head": "4041f0981bb8a768549e1f4d37203dcd67eb6099",
-        "at": "2026-10-16T16:58:50Z"
-      },
+      "built": null,
       "pr": null,
       "parked": null
     },
@@ -539,23 +515,20 @@
         "group_path": "io/spine/gcloud",
         "artifact": "spine-datastore"
       },
-      "state": "pr-ready",
+      "state": "bumped",
       "target_version": "2.0.0-SNAPSHOT.241",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
         "base-types": "2.0.0-SNAPSHOT.226",
-        "compiler": "2.0.0-SNAPSHOT.072",
-        "core-jvm": "2.0.0-SNAPSHOT.571",
+        "compiler": "2.0.0-SNAPSHOT.074",
+        "core-jvm": "2.0.0-SNAPSHOT.572",
         "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
         "logging": "2.0.0-SNAPSHOT.426",
         "testlib": "2.0.0-SNAPSHOT.215",
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 1,
-      "built": {
-        "head": "585029b09743e3abdb098c662c9dc34e0821a3f1",
-        "at": "2026-10-16T17:01:20Z"
-      },
+      "built": null,
       "pr": null,
       "parked": null
     },
@@ -575,11 +548,11 @@
         "group_path": "io/spine/delivery",
         "artifact": "spine-delivery-server"
       },
-      "state": "pr-ready",
+      "state": "bumped",
       "target_version": "0.24.1",
       "pin_vector": {
-        "compiler": "2.0.0-SNAPSHOT.072",
-        "core-jvm": "2.0.0-SNAPSHOT.571",
+        "compiler": "2.0.0-SNAPSHOT.074",
+        "core-jvm": "2.0.0-SNAPSHOT.572",
         "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
         "logging": "2.0.0-SNAPSHOT.426",
         "testlib": "2.0.0-SNAPSHOT.215",
@@ -587,10 +560,7 @@
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 1,
-      "built": {
-        "head": "b648666cd68a31b58ee79ed12d0cf0906f80c71a",
-        "at": "2026-10-16T17:14:02Z"
-      },
+      "built": null,
       "pr": null,
       "parked": null
     },
