@@ -5,6 +5,7 @@
     "allow": [
       "Edit(version.gradle.kts)",
       "Bash(./gradlew:*)",
+      "Bash(./gradlew clean:*)",
       "Bash(./config/gradlew:*)",
       "Bash(git status:*)",
       "Bash(git diff:*)",
@@ -61,8 +62,7 @@
       "Bash(git merge:*)",
       "Bash(git cherry-pick:*)",
       "Bash(./gradlew publish:*)",
-      "Bash(./gradlew uploadArtifacts:*)",
-      "Bash(./gradlew clean:*)"
+      "Bash(./gradlew uploadArtifacts:*)"
     ]
   },
   "hooks": {
