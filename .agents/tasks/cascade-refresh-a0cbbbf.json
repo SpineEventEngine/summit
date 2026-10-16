@@ -232,7 +232,7 @@
         "group_path": "io/spine/tools",
         "artifact": "compiler-jvm"
       },
-      "state": "bumped",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.072",
       "pin_vector": {
         "ProtoTap": "0.17.3",
@@ -285,7 +285,10 @@
         "head": "7c6c90e4a39cf76b409c61050d27ddfb62d47cfb",
         "at": "2026-10-16T16:45:11Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/validation/pull/332",
+        "head": "7c6c90e4a39cf76b409c61050d27ddfb62d47cfb"
+      },
       "parked": null
     },
     "core-jvm-compiler": {
