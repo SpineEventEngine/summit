@@ -269,7 +269,7 @@
         "group_path": "io/spine/tools",
         "artifact": "validation-java"
       },
-      "state": "bumped",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.465",
       "pin_vector": {
         "ProtoTap": "0.17.3",
@@ -281,10 +281,13 @@
         "tool-base": "2.0.0-SNAPSHOT.426"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "964398a378c866f769ce6f4cce850c8b20163d19",
+        "at": "2026-10-16T21:50:25Z"
+      },
       "pr": {
         "url": "https://github.com/SpineEventEngine/validation/pull/332",
-        "head": "808b2a34f08951a57c376cdc0c1eeda71cafc4b1"
+        "head": "964398a378c866f769ce6f4cce850c8b20163d19"
       },
       "parked": null
     },
@@ -317,8 +320,11 @@
         "tool-base": "2.0.0-SNAPSHOT.426",
         "validation": "2.0.0-SNAPSHOT.465"
       },
-      "adapt_rounds": 0,
-      "built": null,
+      "adapt_rounds": 1,
+      "built": {
+        "head": "50bbdfdc7b2f34d324495baff3b9ce02a1c2a310",
+        "at": "2026-10-16T23:04:25Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -336,7 +342,7 @@
         "group_path": "io/spine",
         "artifact": "spine-base-types"
       },
-      "state": "bumped",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.226",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -346,7 +352,10 @@
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 1,
-      "built": null,
+      "built": {
+        "head": "6cfbcdef3b1bbc640fe588f8cf0f9c7939a59152",
+        "at": "2026-10-16T22:36:46Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -363,7 +372,7 @@
         "group_path": "io/spine",
         "artifact": "spine-change"
       },
-      "state": "bumped",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.209",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -372,7 +381,10 @@
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 2,
-      "built": null,
+      "built": {
+        "head": "6f74f8b6afbb88088cd04b5d003df2048d90d086",
+        "at": "2026-10-16T22:37:21Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -393,7 +405,7 @@
         "group_path": "io/spine",
         "artifact": "spine-time"
       },
-      "state": "bumped",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.252",
       "pin_vector": {
         "ProtoTap": "0.17.3",
@@ -406,7 +418,10 @@
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 2,
-      "built": null,
+      "built": {
+        "head": "d73aa1d78248b05880419143bddb3d83d116364c",
+        "at": "2026-10-16T22:38:44Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -424,7 +439,7 @@
         "group_path": "io/spine",
         "artifact": "spine-money"
       },
-      "state": "bumped",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.13",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -434,7 +449,10 @@
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 1,
-      "built": null,
+      "built": {
+        "head": "d435a853f42a6aead6ed6733017d8a3f57690603",
+        "at": "2026-10-16T22:39:04Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -456,7 +474,7 @@
         "group_path": "io/spine",
         "artifact": "spine-core"
       },
-      "state": "bumped",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.572",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -470,7 +488,10 @@
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 2,
-      "built": null,
+      "built": {
+        "head": "77ac8090e0e0e077de583977b7cf536bb59d0512",
+        "at": "2026-10-16T22:45:14Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -486,7 +507,7 @@
         "group_path": "io/spine",
         "artifact": "spine-rdbms"
       },
-      "state": "bumped",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.131",
       "pin_vector": {
         "core-jvm": "2.0.0-SNAPSHOT.572",
@@ -494,7 +515,10 @@
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 1,
-      "built": null,
+      "built": {
+        "head": "ccfb397ddda4df12acaf275ab019c0cb9e16c9d6",
+        "at": "2026-10-16T22:46:46Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -515,7 +539,7 @@
         "group_path": "io/spine/gcloud",
         "artifact": "spine-datastore"
       },
-      "state": "bumped",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.241",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -528,7 +552,10 @@
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 1,
-      "built": null,
+      "built": {
+        "head": "567a3173a80a2d7ec4005a6b10d137759f609352",
+        "at": "2026-10-16T22:48:56Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -548,7 +575,7 @@
         "group_path": "io/spine/delivery",
         "artifact": "spine-delivery-server"
       },
-      "state": "bumped",
+      "state": "published-local",
       "target_version": "0.24.1",
       "pin_vector": {
         "compiler": "2.0.0-SNAPSHOT.074",
@@ -560,7 +587,10 @@
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 1,
-      "built": null,
+      "built": {
+        "head": "799a899d46648b5d5db6bfb0ef54ae9932440ded",
+        "at": "2026-10-16T23:00:09Z"
+      },
       "pr": null,
       "parked": null
     },
