@@ -269,7 +269,7 @@
         "group_path": "io/spine/tools",
         "artifact": "validation-java"
       },
-      "state": "pr-ready",
+      "state": "bumped",
       "target_version": "2.0.0-SNAPSHOT.465",
       "pin_vector": {
         "ProtoTap": "0.17.3",
@@ -282,12 +282,12 @@
       },
       "adapt_rounds": 1,
       "built": {
-        "head": "7c6c90e4a39cf76b409c61050d27ddfb62d47cfb",
-        "at": "2026-10-16T16:45:11Z"
+        "head": "808b2a34f08951a57c376cdc0c1eeda71cafc4b1",
+        "at": "2026-10-16T18:59:02Z"
       },
       "pr": {
         "url": "https://github.com/SpineEventEngine/validation/pull/332",
-        "head": "7c6c90e4a39cf76b409c61050d27ddfb62d47cfb"
+        "head": "808b2a34f08951a57c376cdc0c1eeda71cafc4b1"
       },
       "parked": null
     },
@@ -474,7 +474,7 @@
         "group_path": "io/spine",
         "artifact": "spine-core"
       },
-      "state": "pr-ready",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.571",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
