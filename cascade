@@ -311,6 +311,32 @@ registry_has() { # <repo> <version>
     marker_metadata "$1" | grep -q "<version>$2</version>"
 }
 
+# The `publish.yml` run for the merge commit of the repo's wave PR, as
+# "<verdict> <run URL>": `ok`, `failed`, or `running`. The marker artifact alone
+# cannot prove a publish completed: a run that fails midway has already uploaded
+# some modules (compiler `.072` reached the registry without `compiler-testlib`).
+# With no recorded PR, no merge commit, or no run (a seed published by hand, a
+# repo without the workflow), the verdict is `ok` and the registry stays the
+# only evidence, as before.
+publish_verdict() { # <wave> <repo>
+    local url sha run
+    url="$(mget "$1" --arg r "$2" '.repos[$r].pr.url // empty')"
+    [ -n "$url" ] || { echo ok; return; }
+    sha="$(gh pr view "$url" --json mergeCommit --jq '.mergeCommit.oid // empty' 2>/dev/null || true)"
+    [ -n "$sha" ] || { echo ok; return; }
+    run="$(gh run list -R "$ORG/$2" --workflow publish.yml --commit "$sha" --limit 1 \
+             --json status,conclusion,url \
+             --jq '.[0] // empty | "\(.status) \(if (.conclusion // "") == "" then "none" else .conclusion end) \(.url)"' \
+             2>/dev/null || true)"
+    [ -n "$run" ] || { echo ok; return; }
+    set -- $run
+    case "$1 $2" in
+        "completed success") echo "ok $3" ;;
+        completed\ *)        echo "failed $3" ;;
+        *)                   echo "running $3" ;;
+    esac
+}
+
 # File.kt -> repo (reverse of repo_pin_file); empty when not a repo pin file.
 pin_file_repo() { # <File.kt>
     local r
@@ -1057,7 +1083,11 @@ derive_state() { # <wave> <repo> -> prints state
     # prep and rebuild a repository it has already shipped.
     local tvp; tvp="$(mget "$wave" --arg r "$repo" '.repos[$r].target_version // empty')"
     if [ -n "$tvp" ] && registry_has "$repo" "$tvp"; then
-        echo published-remote; return
+        case "$(publish_verdict "$wave" "$repo")" in
+            failed\ *)  echo publish-failed; return ;;
+            running\ *) echo merged; return ;;
+            *)          echo published-remote; return ;;
+        esac
     fi
 
     local subjects
@@ -1124,9 +1154,14 @@ derive_state() { # <wave> <repo> -> prints state
         *)      echo pr-ready; return ;;
     esac
 
-    # published-remote (library): registry serves the target.
+    # published-remote (library): registry serves the target and the publish run
+    # completed.
     if [ "$cls" = library ]; then
         local tv; tv="$(mget "$wave" --arg r "$repo" '.repos[$r].target_version')"
+        case "$(publish_verdict "$wave" "$repo")" in
+            failed\ *)  echo publish-failed; return ;;
+            running\ *) echo merged; return ;;
+        esac
         registry_has "$repo" "$tv" || { echo merged; return; }
         echo published-remote; return
     fi
@@ -1154,10 +1189,13 @@ cmd_status() {
             done
         fi
         mset "$wave" '.repos[$r].state = $s' --arg r "$repo" --arg s "$st"
+        local note
+        note="$(mget "$wave" --arg r "$repo" '.repos[$r].parked // ""')"
+        [ "$st" = publish-failed ] && note="publish run failed: $(publish_verdict "$wave" "$repo" | cut -d' ' -f2)"
         printf '%-20s %-17s %-24s %s\n' "$repo" "${blocked:+blocked}${blocked:-$st}" \
             "$(mget "$wave" --arg r "$repo" '.repos[$r].target_version // empty' \
                | grep . || version_of "$repo" "$wbranch" 2>/dev/null | grep . || echo "—")" \
-            "${blocked:-$(mget "$wave" --arg r "$repo" '.repos[$r].parked // ""')}"
+            "${blocked:-$note}"
     done
     [ "$(mget "$wave" '.halted // empty')" != "" ] && warn "WAVE HALTED: $(mget "$wave" .halted)"
     return 0
@@ -1218,6 +1256,9 @@ cmd_next() {
                 else actions="$actions WAIT-UPSTREAM:$repo"; fi ;;
             pr-open)  actions="$actions WAIT-REVIEW:$repo" ;;
             merged)   actions="$actions WAIT-PUBLISH:$repo" ;;
+            # The publish run failed after the merge; a human fixes the build
+            # and publishes a new version. Downstream repos keep waiting.
+            publish-failed) actions="$actions FIX-PUBLISH:$repo" ;;
             parked|blocked|published-remote) ;;
         esac
     done
@@ -1455,6 +1496,15 @@ cmd_ship() {
             fi
             warn "waiting: $up $pv not yet in the registry"; exit 4
         fi
+        # The marker alone may come from a publish that failed midway.
+        local verdict; verdict="$(publish_verdict "$wave" "$up")"
+        case "$verdict" in
+            failed\ *)
+                warn "upstream $up $pv: its publish run failed (${verdict#failed }), so some modules may be missing"
+                warn "fix and re-publish $up, re-pin with ./cascade refresh $repo, then ship again"
+                exit 3 ;;
+            running\ *) warn "waiting: $up $pv publish still running (${verdict#running })"; exit 4 ;;
+        esac
     done
 
     # Floor gate: every version pinned in this repo's own pin files must be
