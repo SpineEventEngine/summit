@@ -337,6 +337,24 @@ publish_verdict() { # <wave> <repo>
     esac
 }
 
+# Has the wave's own PR for the repo merged? Without that, a registry serving the
+# wave's target version serves someone else's build: the base branch took the
+# same version first (core-jvm `.571`). A ripple seed is published by hand, and
+# when `gh` itself fails, the registry stays the only evidence, as before.
+wave_pr_merged() { # <wave> <repo>
+    local ref out
+    [ "$2" = "$(mget "$1" '.seed.repo // empty')" ] \
+        && [ -n "$(mget "$1" '.seed.version // empty')" ] && return 0
+    ref="$(mget "$1" --arg r "$2" '.repos[$r].pr.url // empty')"
+    [ -n "$ref" ] || ref="$(mget "$1" .branch)"
+    if out="$(gh pr view "$ref" -R "$ORG/$2" --json state --jq .state 2>&1)"; then
+        [ "$out" = MERGED ]
+    else
+        case "$out" in *"no pull requests found"*) return 1 ;; esac
+        return 0
+    fi
+}
+
 # File.kt -> repo (reverse of repo_pin_file); empty when not a repo pin file.
 pin_file_repo() { # <File.kt>
     local r
@@ -1080,9 +1098,12 @@ derive_state() { # <wave> <repo> -> prints state
     # the registry, this repository is done. Without this the derivation reads a
     # MERGED branch as `pending` -- after the merge `origin/$BASE..$branch` is
     # empty, so the branch looks like it never had work -- and the wave asks to
-    # prep and rebuild a repository it has already shipped.
+    # prep and rebuild a repository it has already shipped. Unless the wave's PR
+    # has not merged: then the registry's copy is the base branch's build of the
+    # same version, and the repository must re-bump.
     local tvp; tvp="$(mget "$wave" --arg r "$repo" '.repos[$r].target_version // empty')"
     if [ -n "$tvp" ] && registry_has "$repo" "$tvp"; then
+        wave_pr_merged "$wave" "$repo" || { echo collision; return; }
         case "$(publish_verdict "$wave" "$repo")" in
             failed\ *)  echo publish-failed; return ;;
             running\ *) echo merged; return ;;
@@ -1192,6 +1213,7 @@ cmd_status() {
         local note
         note="$(mget "$wave" --arg r "$repo" '.repos[$r].parked // ""')"
         [ "$st" = publish-failed ] && note="publish run failed: $(publish_verdict "$wave" "$repo" | cut -d' ' -f2)"
+        [ "$st" = collision ] && note="$BASE published this version first — merge $BASE, then: ./cascade refresh $repo"
         printf '%-20s %-17s %-24s %s\n' "$repo" "${blocked:+blocked}${blocked:-$st}" \
             "$(mget "$wave" --arg r "$repo" '.repos[$r].target_version // empty' \
                | grep . || version_of "$repo" "$wbranch" 2>/dev/null | grep . || echo "—")" \
@@ -1259,6 +1281,9 @@ cmd_next() {
             # The publish run failed after the merge; a human fixes the build
             # and publishes a new version. Downstream repos keep waiting.
             publish-failed) actions="$actions FIX-PUBLISH:$repo" ;;
+            # The base branch published the wave's target version first; the
+            # repo merges it and re-bumps. Downstream repos keep waiting.
+            collision) actions="$actions REBUMP:$repo" ;;
             parked|blocked|published-remote) ;;
         esac
     done
@@ -1488,6 +1513,12 @@ cmd_ship() {
     for up in $(upstreams_of "$wave" "$repo"); do
         pv="$(mget "$wave" --arg r "$repo" --arg u "$up" '.repos[$r].pin_vector[$u] // empty')"
         [ -n "$pv" ] || continue
+        # Drift the registry cannot reveal: the upstream re-bumped after this repo
+        # was pinned (a collision or a failed publish), but the old pin is public.
+        local tvu; tvu="$(mget "$wave" --arg r "$up" '.repos[$r].target_version // empty')"
+        if [ -n "$tvu" ] && [ "$tvu" != "$pv" ]; then
+            warn "upstream $up re-bumped ($pv -> $tvu) — run: ./cascade refresh $repo"; exit 3
+        fi
         if ! registry_has "$up" "$pv"; then
             # Drift check: did the upstream move past our pin (re-bump)?
             local upcur; upcur="$(version_of "$up" "$branch" 2>/dev/null || version_of "$up")"
@@ -1496,6 +1527,11 @@ cmd_ship() {
             fi
             warn "waiting: $up $pv not yet in the registry"; exit 4
         fi
+        # A copy the wave did not publish is the base branch's build of that version.
+        wave_pr_merged "$wave" "$up" || {
+            warn "upstream $up $pv: the registry serves $BASE's build of that version, not the wave's"
+            warn "re-bump $up first (REBUMP in ./cascade next), then: ./cascade refresh $repo"
+            exit 3; }
         # The marker alone may come from a publish that failed midway.
         local verdict; verdict="$(publish_verdict "$wave" "$up")"
         case "$verdict" in
