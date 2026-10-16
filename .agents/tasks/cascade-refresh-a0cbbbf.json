@@ -113,7 +113,7 @@
         "group_path": "io/spine/tools",
         "artifact": "base-testlib"
       },
-      "state": "pr-ready",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.215",
       "pin_vector": {
         "logging": "2.0.0-SNAPSHOT.426"
@@ -179,7 +179,10 @@
         "head": "b1071b8b25e87619031f011350887bd949c0875a",
         "at": "2026-10-15T19:14:48Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/tool-base/pull/195",
+        "head": "b1071b8b25e87619031f011350887bd949c0875a"
+      },
       "parked": null
     },
     "ProtoTap": {
@@ -296,7 +299,7 @@
         "group_path": "io/spine/tools",
         "artifact": "core-jvm-gradle-plugin"
       },
-      "state": "published-local",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.098",
       "pin_vector": {
         "ProtoTap": "0.17.3",
@@ -330,7 +333,7 @@
         "group_path": "io/spine",
         "artifact": "spine-base-types"
       },
-      "state": "published-local",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.226",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -360,7 +363,7 @@
         "group_path": "io/spine",
         "artifact": "spine-change"
       },
-      "state": "published-local",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.209",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -393,7 +396,7 @@
         "group_path": "io/spine",
         "artifact": "spine-time"
       },
-      "state": "published-local",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.252",
       "pin_vector": {
         "ProtoTap": "0.17.3",
@@ -427,7 +430,7 @@
         "group_path": "io/spine",
         "artifact": "spine-money"
       },
-      "state": "published-local",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.13",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -462,7 +465,7 @@
         "group_path": "io/spine",
         "artifact": "spine-core"
       },
-      "state": "published-local",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.571",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -495,7 +498,7 @@
         "group_path": "io/spine",
         "artifact": "spine-rdbms"
       },
-      "state": "published-local",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.131",
       "pin_vector": {
         "core-jvm": "2.0.0-SNAPSHOT.571",
@@ -527,7 +530,7 @@
         "group_path": "io/spine/gcloud",
         "artifact": "spine-datastore"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.241",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -540,7 +543,10 @@
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 1,
-      "built": null,
+      "built": {
+        "head": "0d4e1453e321c7b679a032eb3a6661687806fbd6",
+        "at": "2026-10-16T15:30:44Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -560,7 +566,7 @@
         "group_path": "io/spine/delivery",
         "artifact": "spine-delivery-server"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "0.24.1",
       "pin_vector": {
         "compiler": "2.0.0-SNAPSHOT.070",
@@ -571,8 +577,11 @@
         "time": "2.0.0-SNAPSHOT.252",
         "validation": "2.0.0-SNAPSHOT.465"
       },
-      "adapt_rounds": 0,
-      "built": null,
+      "adapt_rounds": 1,
+      "built": {
+        "head": "1b997818116181a5d7b91bd4378162ad988982aa",
+        "at": "2026-10-16T15:44:02Z"
+      },
       "pr": null,
       "parked": null
     },
