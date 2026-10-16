@@ -167,7 +167,7 @@
         "group_path": "io/spine/tools",
         "artifact": "jvm-tools"
       },
-      "state": "pr-ready",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.426",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -211,7 +211,10 @@
         "head": "91eaaaad39c33ec1b0e6c61dcaf7a036a261c01d",
         "at": "2026-10-15T19:21:02Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/ProtoTap/pull/23",
+        "head": "91eaaaad39c33ec1b0e6c61dcaf7a036a261c01d"
+      },
       "parked": null
     },
     "compiler": {
@@ -229,8 +232,8 @@
         "group_path": "io/spine/tools",
         "artifact": "compiler-jvm"
       },
-      "state": "pr-ready",
-      "target_version": "2.0.0-SNAPSHOT.070",
+      "state": "bumped",
+      "target_version": "2.0.0-SNAPSHOT.072",
       "pin_vector": {
         "ProtoTap": "0.17.3",
         "base-libraries": "2.0.0-SNAPSHOT.461",
