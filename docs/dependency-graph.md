@@ -255,6 +255,7 @@ compiler validation
 core-jvm base-libraries
 core-jvm base-types
 core-jvm change
+core-jvm compiler
 core-jvm core-jvm-compiler
 core-jvm logging
 core-jvm reflect
@@ -287,6 +288,7 @@ gcloud-jvm core-jvm-compiler
 gcloud-jvm logging
 gcloud-jvm testlib
 gcloud-jvm validation
+jdbc-storage compiler
 jdbc-storage core-jvm
 jdbc-storage core-jvm-compiler
 jdbc-storage validation

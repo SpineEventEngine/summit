@@ -150,6 +150,24 @@ obj_to_repo() {
     esac
 }
 
+# `config`'s accessor aliases for local objects (`BuildExtensions.kt`), used
+# where the objects are not imported, e.g. `classpath(spineCompiler.pluginLib)`
+# in a `buildscript {}` block.
+alias_of_obj() {
+    case "$1" in
+        Compiler) echo spineCompiler ;;
+        CoreJvmCompiler) echo coreJvmCompiler ;;
+        *) echo "" ;;
+    esac
+}
+
+obj_of_alias() {
+    case "$1" in
+        spineCompiler) echo Compiler ;;
+        coreJvmCompiler) echo CoreJvmCompiler ;;
+    esac
+}
+
 # repo -> pin file (relative to a consumer's buildSrc local/ dir).
 repo_pin_file() {
     case "$1" in
@@ -392,8 +410,12 @@ derive_scoped() {
         done
         [ -n "$files" ] || continue
         # shellcheck disable=SC2086
-        objs="$(grep -hoE 'io\.spine\.dependency\.local\.[A-Z][A-Za-z]+' $files 2>/dev/null \
-                | sed 's/.*\.//' | sort -u)"
+        objs="$( { grep -hoE 'io\.spine\.dependency\.local\.[A-Z][A-Za-z]+' $files 2>/dev/null \
+                       | sed 's/.*\.//'
+                   grep -hoE '(^|[^.A-Za-z])(spineCompiler|coreJvmCompiler)\.[A-Za-z]' $files 2>/dev/null \
+                       | grep -oE 'spineCompiler|coreJvmCompiler' \
+                       | while read -r a; do obj_of_alias "$a"; done
+                 } | sort -u)"
         # Block-aware classification: a reference creates an edge only where
         # it is a declared dependency. References inside version-management
         # constructs — force(...), constraints {...}, exclude(...) — create NO
@@ -407,7 +429,7 @@ derive_scoped() {
             up="$(obj_to_repo "$o")"
             [ -n "$up" ] && [ "$up" != "$repo" ] || continue
             # shellcheck disable=SC2086
-            scopes="$(awk -v obj="$o" '
+            scopes="$(awk -v obj="$o" -v alias="$(alias_of_obj "$o")" '
                 function push(tag) { sp++; tags[sp] = tag; depths[sp] = depth }
                 {
                     line = $0
@@ -416,8 +438,10 @@ derive_scoped() {
                     # and the fully-qualified `io.spine.dependency.local.Obj.member`,
                     # which is the house style inside `buildscript {}` where
                     # file-level imports do not apply. The leading guard still
-                    # rejects an unrelated `Something.Obj.member`.
+                    # rejects an unrelated `Something.Obj.member`. A `config`
+                    # accessor alias (`spineCompiler.member`) counts the same way.
                     use = match(line, "(^|[^.A-Za-z])(io\\.spine\\.dependency\\.local\\.)?" obj "\\.[A-Za-z]")
+                    if (!use && alias != "") use = match(line, "(^|[^.A-Za-z])" alias "\\.[A-Za-z]")
                     if (use) {
                         if (line ~ /(^|[^A-Za-z])test[A-Za-z]*\(/)        print "test"
                         else if (line ~ /(^|[^A-Za-z])(api|implementation|compileOnly|compileOnlyApi|runtimeOnly|annotationProcessor|classpath|kapt|ksp)\(/) print "main"
@@ -454,11 +478,15 @@ derive_scoped() {
         #   coreJvmCompiler / io.spine.core-jvm           -> core-jvm-compiler
         #   io.spine.{artifact-meta,descriptor-set-file,
         #             generated-sources}                  -> tool-base
+        # The accessors also apply as `id(spineCompiler.pluginId)`.
         # shellcheck disable=SC2086
         {
             grep -hE '^[[:space:]]*(prototap|spineCompiler|coreJvmCompiler)[[:space:]]*$' $files 2>/dev/null \
                 | sed 's/[[:space:]]//g' | sort -u \
                 | sed 's/^prototap$/ProtoTap/; s/^spineCompiler$/compiler/; s/^coreJvmCompiler$/core-jvm-compiler/'
+            grep -hoE '(^|[^.A-Za-z])id\((spineCompiler|coreJvmCompiler)\.pluginId\)' $files 2>/dev/null \
+                | grep -oE 'spineCompiler|coreJvmCompiler' | sort -u \
+                | sed 's/^spineCompiler$/compiler/; s/^coreJvmCompiler$/core-jvm-compiler/'
             grep -hoE '"io\.spine\.(prototap|compiler|core-jvm|artifact-meta|descriptor-set-file|generated-sources)"' $files 2>/dev/null \
                 | tr -d '"' | sort -u \
                 | sed 's/^io\.spine\.prototap$/ProtoTap/; s/^io\.spine\.compiler$/compiler/; s/^io\.spine\.core-jvm$/core-jvm-compiler/; s/^io\.spine\..*$/tool-base/'
