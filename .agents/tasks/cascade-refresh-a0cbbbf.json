@@ -198,7 +198,7 @@
         "group_path": "io/spine/tools",
         "artifact": "prototap-gradle-plugin"
       },
-      "state": "pr-ready",
+      "state": "published-remote",
       "target_version": "0.17.3",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
@@ -244,10 +244,13 @@
       },
       "adapt_rounds": 1,
       "built": {
-        "head": "005cfa4be7bd78734885b8dad4a4466e28116c03",
-        "at": "2026-10-15T19:50:24Z"
+        "head": "0ebf947332a4521f15c5c232223529cf2f8fb805",
+        "at": "2026-10-16T16:42:26Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/compiler/pull/91",
+        "head": "0ebf947332a4521f15c5c232223529cf2f8fb805"
+      },
       "parked": null
     },
     "validation": {
@@ -271,7 +274,7 @@
       "pin_vector": {
         "ProtoTap": "0.17.3",
         "base-libraries": "2.0.0-SNAPSHOT.461",
-        "compiler": "2.0.0-SNAPSHOT.070",
+        "compiler": "2.0.0-SNAPSHOT.072",
         "logging": "2.0.0-SNAPSHOT.426",
         "reflect": "2.0.0-SNAPSHOT.202",
         "testlib": "2.0.0-SNAPSHOT.215",
@@ -279,8 +282,8 @@
       },
       "adapt_rounds": 1,
       "built": {
-        "head": "d5b98ece3ce0602eacc74626a0da15912404f942",
-        "at": "2026-10-15T19:53:41Z"
+        "head": "7c6c90e4a39cf76b409c61050d27ddfb62d47cfb",
+        "at": "2026-10-16T16:45:11Z"
       },
       "pr": null,
       "parked": null
@@ -307,7 +310,7 @@
       "pin_vector": {
         "ProtoTap": "0.17.3",
         "base-libraries": "2.0.0-SNAPSHOT.461",
-        "compiler": "2.0.0-SNAPSHOT.070",
+        "compiler": "2.0.0-SNAPSHOT.072",
         "logging": "2.0.0-SNAPSHOT.426",
         "reflect": "2.0.0-SNAPSHOT.202",
         "testlib": "2.0.0-SNAPSHOT.215",
@@ -316,8 +319,8 @@
       },
       "adapt_rounds": 0,
       "built": {
-        "head": "dee4edfdbf4f356293623388bc4a6faf9a800e72",
-        "at": "2026-10-16T13:45:53Z"
+        "head": "14802413eeeef3eaa7496da22a89765769dfe52d",
+        "at": "2026-10-16T16:49:19Z"
       },
       "pr": null,
       "parked": null
@@ -340,15 +343,15 @@
       "target_version": "2.0.0-SNAPSHOT.226",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
-        "compiler": "2.0.0-SNAPSHOT.070",
+        "compiler": "2.0.0-SNAPSHOT.072",
         "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
         "testlib": "2.0.0-SNAPSHOT.215",
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 1,
       "built": {
-        "head": "4d96be22f8a04ef12fbab5983aed2cf46efb1c62",
-        "at": "2026-10-16T13:47:39Z"
+        "head": "2a95dfc406846826d8d7af958326e5877b96858e",
+        "at": "2026-10-16T16:49:42Z"
       },
       "pr": null,
       "parked": null
@@ -370,14 +373,14 @@
       "target_version": "2.0.0-SNAPSHOT.209",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
-        "compiler": "2.0.0-SNAPSHOT.070",
+        "compiler": "2.0.0-SNAPSHOT.072",
         "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 2,
       "built": {
-        "head": "6d15a7d9caa8e9ecddbe9f0dca2a394be78a16db",
-        "at": "2026-10-16T13:50:18Z"
+        "head": "41c092c16c96484e05afd02dc4baf2afd4f8884e",
+        "at": "2026-10-16T16:50:12Z"
       },
       "pr": null,
       "parked": null
@@ -404,7 +407,7 @@
       "pin_vector": {
         "ProtoTap": "0.17.3",
         "base-libraries": "2.0.0-SNAPSHOT.461",
-        "compiler": "2.0.0-SNAPSHOT.070",
+        "compiler": "2.0.0-SNAPSHOT.072",
         "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
         "logging": "2.0.0-SNAPSHOT.426",
         "testlib": "2.0.0-SNAPSHOT.215",
@@ -413,8 +416,8 @@
       },
       "adapt_rounds": 2,
       "built": {
-        "head": "a33fac7d0b56b39916c41f6f2e2d4710fb522486",
-        "at": "2026-10-16T14:19:35Z"
+        "head": "8a671484a8782ce16f0e551dea322549d75c5919",
+        "at": "2026-10-16T16:51:56Z"
       },
       "pr": null,
       "parked": null
@@ -437,15 +440,15 @@
       "target_version": "2.0.0-SNAPSHOT.13",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
-        "compiler": "2.0.0-SNAPSHOT.070",
+        "compiler": "2.0.0-SNAPSHOT.072",
         "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
         "testlib": "2.0.0-SNAPSHOT.215",
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 1,
       "built": {
-        "head": "15e1b8d92b76be1711b4037f382a8422d85c383c",
-        "at": "2026-10-16T14:21:02Z"
+        "head": "36b807e1987543e260b2e08bdcf1d2a9e5cba83e",
+        "at": "2026-10-16T16:52:16Z"
       },
       "pr": null,
       "parked": null
@@ -483,8 +486,8 @@
       },
       "adapt_rounds": 2,
       "built": {
-        "head": "7e9d7ac69245c9aa8dfb2536f00d6ed23a73f618",
-        "at": "2026-10-16T15:20:18Z"
+        "head": "b0ea6626f1b11d74c254be3ffaa56f63068016d8",
+        "at": "2026-10-16T16:57:21Z"
       },
       "pr": null,
       "parked": null
@@ -510,8 +513,8 @@
       },
       "adapt_rounds": 1,
       "built": {
-        "head": "199ab027bb3a85524644587c925dc084bc762a27",
-        "at": "2026-10-16T15:25:43Z"
+        "head": "4041f0981bb8a768549e1f4d37203dcd67eb6099",
+        "at": "2026-10-16T16:58:50Z"
       },
       "pr": null,
       "parked": null
@@ -538,7 +541,7 @@
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
         "base-types": "2.0.0-SNAPSHOT.226",
-        "compiler": "2.0.0-SNAPSHOT.070",
+        "compiler": "2.0.0-SNAPSHOT.072",
         "core-jvm": "2.0.0-SNAPSHOT.571",
         "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
         "logging": "2.0.0-SNAPSHOT.426",
@@ -547,8 +550,8 @@
       },
       "adapt_rounds": 1,
       "built": {
-        "head": "0d4e1453e321c7b679a032eb3a6661687806fbd6",
-        "at": "2026-10-16T15:30:44Z"
+        "head": "585029b09743e3abdb098c662c9dc34e0821a3f1",
+        "at": "2026-10-16T17:01:20Z"
       },
       "pr": null,
       "parked": null
@@ -572,7 +575,7 @@
       "state": "pr-ready",
       "target_version": "0.24.1",
       "pin_vector": {
-        "compiler": "2.0.0-SNAPSHOT.070",
+        "compiler": "2.0.0-SNAPSHOT.072",
         "core-jvm": "2.0.0-SNAPSHOT.571",
         "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
         "logging": "2.0.0-SNAPSHOT.426",
@@ -582,8 +585,8 @@
       },
       "adapt_rounds": 1,
       "built": {
-        "head": "1b997818116181a5d7b91bd4378162ad988982aa",
-        "at": "2026-10-16T15:44:02Z"
+        "head": "b648666cd68a31b58ee79ed12d0cf0906f80c71a",
+        "at": "2026-10-16T17:14:02Z"
       },
       "pr": null,
       "parked": null
