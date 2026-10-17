@@ -269,7 +269,7 @@
         "group_path": "io/spine/tools",
         "artifact": "validation-java"
       },
-      "state": "merged",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.465",
       "pin_vector": {
         "ProtoTap": "0.17.3",
@@ -325,7 +325,10 @@
         "head": "50bbdfdc7b2f34d324495baff3b9ce02a1c2a310",
         "at": "2026-10-16T23:04:25Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/core-jvm-compiler/pull/119",
+        "head": "50bbdfdc7b2f34d324495baff3b9ce02a1c2a310"
+      },
       "parked": null
     },
     "base-types": {
