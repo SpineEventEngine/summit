@@ -1113,6 +1113,19 @@ derive_state() { # <wave> <repo> -> prints state
         esac
     fi
 
+    # The wave's PR merged, but the registry does not serve the target yet: the
+    # publish run is pending, or it failed before uploading the marker (validation
+    # `.465` hit HTTP 429 while configuring). Commits pushed to the branch after
+    # the merge must not read as a fresh branch that needs `prep` again.
+    if [ -n "$tvp" ] && [ -n "$(mget "$wave" --arg r "$repo" '.repos[$r].pr.url // empty')" ] \
+       && wave_pr_merged "$wave" "$repo"; then
+        case "$(publish_verdict "$wave" "$repo")" in
+            failed\ *) echo publish-failed ;;
+            *)         echo merged ;;
+        esac
+        return
+    fi
+
     local subjects
     subjects="$(git -C "$dir" log --format=%s "origin/$BASE..$branch" 2>/dev/null || true)"
 
