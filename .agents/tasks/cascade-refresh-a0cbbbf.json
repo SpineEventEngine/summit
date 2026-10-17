@@ -282,12 +282,12 @@
       },
       "adapt_rounds": 0,
       "built": {
-        "head": "964398a378c866f769ce6f4cce850c8b20163d19",
-        "at": "2026-10-16T21:50:25Z"
+        "head": "24363727adb7222598dcef60b19304235afbc1d5",
+        "at": "2026-10-17T01:32:28Z"
       },
       "pr": {
         "url": "https://github.com/SpineEventEngine/validation/pull/332",
-        "head": "964398a378c866f769ce6f4cce850c8b20163d19"
+        "head": "24363727adb7222598dcef60b19304235afbc1d5"
       },
       "parked": null
     },
