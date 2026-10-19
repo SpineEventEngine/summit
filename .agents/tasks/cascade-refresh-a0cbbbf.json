@@ -308,7 +308,7 @@
         "group_path": "io/spine/tools",
         "artifact": "core-jvm-gradle-plugin"
       },
-      "state": "pr-ready",
+      "state": "pr-open",
       "target_version": "2.0.0-SNAPSHOT.098",
       "pin_vector": {
         "ProtoTap": "0.17.3",
@@ -345,8 +345,8 @@
         "group_path": "io/spine",
         "artifact": "spine-base-types"
       },
-      "state": "pr-ready",
-      "target_version": "2.0.0-SNAPSHOT.226",
+      "state": "collision",
+      "target_version": "2.0.0-SNAPSHOT.227",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
         "compiler": "2.0.0-SNAPSHOT.074",
@@ -355,10 +355,7 @@
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 1,
-      "built": {
-        "head": "6cfbcdef3b1bbc640fe588f8cf0f9c7939a59152",
-        "at": "2026-10-16T22:36:46Z"
-      },
+      "built": null,
       "pr": null,
       "parked": null
     },
@@ -481,7 +478,7 @@
       "target_version": "2.0.0-SNAPSHOT.572",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
-        "base-types": "2.0.0-SNAPSHOT.226",
+        "base-types": "2.0.0-SNAPSHOT.227",
         "change": "2.0.0-SNAPSHOT.209",
         "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
         "logging": "2.0.0-SNAPSHOT.426",
@@ -491,10 +488,7 @@
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 2,
-      "built": {
-        "head": "77ac8090e0e0e077de583977b7cf536bb59d0512",
-        "at": "2026-10-16T22:45:14Z"
-      },
+      "built": null,
       "pr": null,
       "parked": null
     },
@@ -546,7 +540,7 @@
       "target_version": "2.0.0-SNAPSHOT.241",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.461",
-        "base-types": "2.0.0-SNAPSHOT.226",
+        "base-types": "2.0.0-SNAPSHOT.227",
         "compiler": "2.0.0-SNAPSHOT.074",
         "core-jvm": "2.0.0-SNAPSHOT.572",
         "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
@@ -555,10 +549,7 @@
         "validation": "2.0.0-SNAPSHOT.465"
       },
       "adapt_rounds": 1,
-      "built": {
-        "head": "567a3173a80a2d7ec4005a6b10d137759f609352",
-        "at": "2026-10-16T22:48:56Z"
-      },
+      "built": null,
       "pr": null,
       "parked": null
     },
