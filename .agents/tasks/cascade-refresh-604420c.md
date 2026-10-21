@@ -36,3 +36,4 @@ Machine state: [`cascade-refresh-604420c.json`](cascade-refresh-604420c.json). P
 
 - 2026-10-21 — wave planned.
 - 2026-10-21 — **parked** `BuildSpeed`: verify-only: SDK versions arrive as CI environment variables substituted into settings.gradle.kts.template, so there are no file pins to apply, no version to bump, and no artifact to publish
+- 2026-10-21 — **parked** `core-jvm-compiler`: CoreJvmPluginIgTest: applying the published plugin by ID in plugins{} with Compiler .080 on the buildscript classpath fails on Gradle's embedded-Kotlin pin (org.jetbrains:annotations strictly 13.0); worked with Compiler .074

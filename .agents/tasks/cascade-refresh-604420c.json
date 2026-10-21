@@ -43,8 +43,14 @@
       "target_version": "2.0.0-SNAPSHOT.462",
       "pin_vector": {},
       "adapt_rounds": 0,
-      "built": null,
-      "pr": null,
+      "built": {
+        "head": "e6ce655acb5683b3e475deb7bed0d8971195bea3",
+        "at": "2026-10-21T15:43:07Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/base-libraries/pull/968",
+        "head": "e6ce655acb5683b3e475deb7bed0d8971195bea3"
+      },
       "parked": null
     },
     "reflect": {
@@ -59,7 +65,10 @@
       "target_version": "2.0.0-SNAPSHOT.203",
       "pin_vector": {},
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "867d9cf05a0224a6c9dc3768785ae9a82d56458b",
+        "at": "2026-10-21T15:43:26Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -80,8 +89,11 @@
         "base-libraries": "2.0.0-SNAPSHOT.462",
         "reflect": "2.0.0-SNAPSHOT.203"
       },
-      "adapt_rounds": 0,
-      "built": null,
+      "adapt_rounds": 1,
+      "built": {
+        "head": "ecacc07a6bd1130faa5b5302f6deecd0469d9760",
+        "at": "2026-10-21T15:55:46Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -101,7 +113,10 @@
         "logging": "2.0.0-SNAPSHOT.427"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "b8018f38dc4cbdbe1322c91f97652ef535d779d1",
+        "at": "2026-10-21T15:56:18Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -121,7 +136,10 @@
         "base-libraries": "2.0.0-SNAPSHOT.462"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "bae4036811749421871d065a0bf842b6bd249749",
+        "at": "2026-10-21T15:56:40Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -145,7 +163,10 @@
         "testlib": "2.0.0-SNAPSHOT.216"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "513bc9e6e8e3d77f027eaf75e031bd987acfc9d2",
+        "at": "2026-10-21T15:59:24Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -171,7 +192,10 @@
         "tool-base": "2.0.0-SNAPSHOT.428"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "08b843a3068eedaf80ba7912c1d2b529df7a45ac",
+        "at": "2026-10-21T16:00:23Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -201,7 +225,10 @@
         "tool-base": "2.0.0-SNAPSHOT.428"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "d2ae7b61ae233b7f647df249fb51b2355bb13f36",
+        "at": "2026-10-21T16:07:22Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -233,7 +260,10 @@
         "tool-base": "2.0.0-SNAPSHOT.428"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "d126ad45889823e8a71eb0378eef0af441cf1f72",
+        "at": "2026-10-21T16:10:01Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -254,7 +284,7 @@
         "group_path": "io/spine/tools",
         "artifact": "core-jvm-gradle-plugin"
       },
-      "state": "bumped",
+      "state": "parked",
       "target_version": "2.0.0-SNAPSHOT.099",
       "pin_vector": {
         "ProtoTap": "0.17.4",
@@ -266,10 +296,10 @@
         "tool-base": "2.0.0-SNAPSHOT.428",
         "validation": "2.0.0-SNAPSHOT.469"
       },
-      "adapt_rounds": 0,
+      "adapt_rounds": 1,
       "built": null,
       "pr": null,
-      "parked": null
+      "parked": "CoreJvmPluginIgTest: applying the published plugin by ID in plugins{} with Compiler .080 on the buildscript classpath fails on Gradle's embedded-Kotlin pin (org.jetbrains:annotations strictly 13.0); worked with Compiler .074"
     },
     "base-types": {
       "upstreams": [
