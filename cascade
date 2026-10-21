@@ -1592,7 +1592,10 @@ EOF
         note "PR already open: $(gh pr view "$branch" -R "$ORG/$repo" --json url --jq .url)"
     else
         git push -u origin "$branch"
-        gh pr create --base "$BASE" --head "$branch" \
+        # A draft: the organization's ruleset requests a Copilot review for every
+        # pull request opened as ready, before CI has run. The driver marks the
+        # draft ready once all its checks pass, which requests that review then.
+        gh pr create --draft --base "$BASE" --head "$branch" \
             --title "$(pr_title)" \
             --body-file "$SUMMIT/docs/rollout/rebuild-pr-body.md"
     fi

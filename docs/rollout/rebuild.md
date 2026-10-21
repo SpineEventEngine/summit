@@ -108,6 +108,10 @@ and execute what it prints, in order:
   published yet: wait, don't force. Exit 3 from the upstream gate (the upstream
   re-bumped, collided with the base branch, or failed to publish) means
   re-pinning with `./cascade refresh <repo>` once the upstream is fixed.
+  The PR opens as a draft, because the organization's ruleset requests a
+  Copilot review for every PR opened as ready, before CI has run. Once all its
+  checks pass, mark it ready (`gh pr ready <url>`), which requests that review
+  then, and enable auto-merge.
 - `FIX-PUBLISH:<repo>` → the repo's `publish.yml` run failed after its PR
   merged. A run that fails midway may already have uploaded some modules, so
   the registry's marker artifact proves nothing; `./cascade status` links the
