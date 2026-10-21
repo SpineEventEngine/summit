@@ -86,7 +86,7 @@
         "group_path": "io/spine",
         "artifact": "spine-logging"
       },
-      "state": "pr-ready",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.427",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.462",
@@ -123,7 +123,10 @@
         "head": "b8018f38dc4cbdbe1322c91f97652ef535d779d1",
         "at": "2026-10-21T15:56:18Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/testlib/pull/16",
+        "head": "b8018f38dc4cbdbe1322c91f97652ef535d779d1"
+      },
       "parked": null
     },
     "dokka-tools": {
@@ -136,7 +139,7 @@
         "group_path": "io/spine/tools",
         "artifact": "dokka-extensions"
       },
-      "state": "pr-ready",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.12",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.462"
@@ -564,7 +567,7 @@
         "group_path": "io/spine/delivery",
         "artifact": "spine-delivery-server"
       },
-      "state": "published-local",
+      "state": "pr-ready",
       "target_version": "0.24.1",
       "pin_vector": {
         "compiler": "2.0.0-SNAPSHOT.080",
