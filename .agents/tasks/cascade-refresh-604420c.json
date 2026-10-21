@@ -39,7 +39,7 @@
         "group_path": "io/spine",
         "artifact": "spine-base"
       },
-      "state": "bumped",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.462",
       "pin_vector": {},
       "adapt_rounds": 0,
@@ -61,7 +61,7 @@
         "group_path": "io/spine",
         "artifact": "spine-reflect"
       },
-      "state": "bumped",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.203",
       "pin_vector": {},
       "adapt_rounds": 0,
@@ -86,7 +86,7 @@
         "group_path": "io/spine",
         "artifact": "spine-logging"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.427",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.462",
@@ -97,7 +97,10 @@
         "head": "ecacc07a6bd1130faa5b5302f6deecd0469d9760",
         "at": "2026-10-21T15:55:46Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/logging/pull/152",
+        "head": "ecacc07a6bd1130faa5b5302f6deecd0469d9760"
+      },
       "parked": null
     },
     "testlib": {
@@ -110,7 +113,7 @@
         "group_path": "io/spine/tools",
         "artifact": "base-testlib"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.216",
       "pin_vector": {
         "logging": "2.0.0-SNAPSHOT.427"
@@ -133,7 +136,7 @@
         "group_path": "io/spine/tools",
         "artifact": "dokka-extensions"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.12",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.462"
@@ -158,7 +161,7 @@
         "group_path": "io/spine/tools",
         "artifact": "jvm-tools"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.428",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.462",
@@ -186,7 +189,7 @@
         "group_path": "io/spine/tools",
         "artifact": "prototap-gradle-plugin"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "0.17.4",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.462",
@@ -217,7 +220,7 @@
         "group_path": "io/spine/tools",
         "artifact": "compiler-jvm"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.080",
       "pin_vector": {
         "ProtoTap": "0.17.4",
@@ -251,7 +254,7 @@
         "group_path": "io/spine/tools",
         "artifact": "validation-java"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.469",
       "pin_vector": {
         "ProtoTap": "0.17.4",
@@ -287,7 +290,7 @@
         "group_path": "io/spine/tools",
         "artifact": "core-jvm-gradle-plugin"
       },
-      "state": "parked",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.099",
       "pin_vector": {
         "ProtoTap": "0.17.4",
@@ -300,7 +303,10 @@
         "validation": "2.0.0-SNAPSHOT.469"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "f992efd399ed1434c432100dce21ad4362807ba0",
+        "at": "2026-10-21T16:38:48Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -318,7 +324,7 @@
         "group_path": "io/spine",
         "artifact": "spine-base-types"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.227",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.462",
@@ -328,7 +334,10 @@
         "validation": "2.0.0-SNAPSHOT.469"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "c92ef3af0a25f55a98c4bd156221c6ba50537add",
+        "at": "2026-10-21T16:39:18Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -345,7 +354,7 @@
         "group_path": "io/spine",
         "artifact": "spine-change"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.209",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.462",
@@ -354,7 +363,10 @@
         "validation": "2.0.0-SNAPSHOT.469"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "1a0ede3d66ec34b7c26ad2c1992327cef18ae2cd",
+        "at": "2026-10-21T16:39:55Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -375,7 +387,7 @@
         "group_path": "io/spine",
         "artifact": "spine-time"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.252",
       "pin_vector": {
         "ProtoTap": "0.17.4",
@@ -388,7 +400,10 @@
         "validation": "2.0.0-SNAPSHOT.469"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "23d8a493b585db7f8e09324c9f162e3f1e2992af",
+        "at": "2026-10-21T16:41:51Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -406,7 +421,7 @@
         "group_path": "io/spine",
         "artifact": "spine-money"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.13",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.462",
@@ -416,7 +431,10 @@
         "validation": "2.0.0-SNAPSHOT.469"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "88b1d0dcbee9f31a0e53180b539e7b1ffb657ef2",
+        "at": "2026-10-21T16:42:19Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -439,7 +457,7 @@
         "group_path": "io/spine",
         "artifact": "spine-core"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.577",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.462",
@@ -454,7 +472,10 @@
         "validation": "2.0.0-SNAPSHOT.469"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "bd49bb92e90ca6764fa2668320ba527ae2ffc5c4",
+        "at": "2026-10-21T16:48:46Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -471,7 +492,7 @@
         "group_path": "io/spine",
         "artifact": "spine-rdbms"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.131",
       "pin_vector": {
         "compiler": "2.0.0-SNAPSHOT.080",
@@ -480,7 +501,10 @@
         "validation": "2.0.0-SNAPSHOT.469"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "97f3ac4b0e7be0d957b198bf1b20d40a35210c22",
+        "at": "2026-10-21T16:50:25Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -501,7 +525,7 @@
         "group_path": "io/spine/gcloud",
         "artifact": "spine-datastore"
       },
-      "state": "bumped",
+      "state": "pr-ready",
       "target_version": "2.0.0-SNAPSHOT.241",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.462",
@@ -514,7 +538,10 @@
         "validation": "2.0.0-SNAPSHOT.469"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "256093ac3921b3044617172e1a9b068d6a6b728d",
+        "at": "2026-10-21T16:52:47Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -534,7 +561,7 @@
         "group_path": "io/spine/delivery",
         "artifact": "spine-delivery-server"
       },
-      "state": "bumped",
+      "state": "published-local",
       "target_version": "0.24.1",
       "pin_vector": {
         "compiler": "2.0.0-SNAPSHOT.080",
@@ -546,7 +573,10 @@
         "validation": "2.0.0-SNAPSHOT.469"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "26ef46fe4400fc678b21dce152739d9ab28a9335",
+        "at": "2026-10-21T17:04:50Z"
+      },
       "pr": null,
       "parked": null
     },
