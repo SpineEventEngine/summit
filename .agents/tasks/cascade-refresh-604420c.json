@@ -299,10 +299,10 @@
         "tool-base": "2.0.0-SNAPSHOT.428",
         "validation": "2.0.0-SNAPSHOT.469"
       },
-      "adapt_rounds": 1,
+      "adapt_rounds": 0,
       "built": null,
       "pr": null,
-      "parked": "CoreJvmPluginIgTest: applying the published plugin by ID in plugins{} with Compiler .080 on the buildscript classpath fails on Gradle's embedded-Kotlin pin (org.jetbrains:annotations strictly 13.0); worked with Compiler .074"
+      "parked": null
     },
     "base-types": {
       "upstreams": [
