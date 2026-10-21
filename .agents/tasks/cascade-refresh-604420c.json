@@ -87,7 +87,7 @@
         "artifact": "spine-logging"
       },
       "state": "published-remote",
-      "target_version": "2.0.0-SNAPSHOT.427",
+      "target_version": "2.0.0-SNAPSHOT.428",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.462",
         "reflect": "2.0.0-SNAPSHOT.203"
@@ -98,8 +98,8 @@
         "at": "2026-10-21T15:55:46Z"
       },
       "pr": {
-        "url": "https://github.com/SpineEventEngine/logging/pull/152",
-        "head": "ecacc07a6bd1130faa5b5302f6deecd0469d9760"
+        "url": "https://github.com/SpineEventEngine/logging/pull/153",
+        "head": "9f75c7f2c5e304ea358c4304caf4d495ac20f81a"
       },
       "parked": null
     },
@@ -198,19 +198,16 @@
         "group_path": "io/spine/tools",
         "artifact": "prototap-gradle-plugin"
       },
-      "state": "pr-ready",
+      "state": "pr-open",
       "target_version": "0.17.4",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.462",
-        "logging": "2.0.0-SNAPSHOT.427",
+        "logging": "2.0.0-SNAPSHOT.428",
         "testlib": "2.0.0-SNAPSHOT.216",
         "tool-base": "2.0.0-SNAPSHOT.428"
       },
       "adapt_rounds": 0,
-      "built": {
-        "head": "08b843a3068eedaf80ba7912c1d2b529df7a45ac",
-        "at": "2026-10-21T16:00:23Z"
-      },
+      "built": null,
       "pr": {
         "url": "https://github.com/SpineEventEngine/ProtoTap/pull/24",
         "head": "08b843a3068eedaf80ba7912c1d2b529df7a45ac"
@@ -237,16 +234,13 @@
       "pin_vector": {
         "ProtoTap": "0.17.4",
         "base-libraries": "2.0.0-SNAPSHOT.462",
-        "logging": "2.0.0-SNAPSHOT.427",
+        "logging": "2.0.0-SNAPSHOT.428",
         "reflect": "2.0.0-SNAPSHOT.203",
         "testlib": "2.0.0-SNAPSHOT.216",
         "tool-base": "2.0.0-SNAPSHOT.428"
       },
       "adapt_rounds": 0,
-      "built": {
-        "head": "d2ae7b61ae233b7f647df249fb51b2355bb13f36",
-        "at": "2026-10-21T16:07:22Z"
-      },
+      "built": null,
       "pr": null,
       "parked": null
     },
@@ -272,16 +266,13 @@
         "ProtoTap": "0.17.4",
         "base-libraries": "2.0.0-SNAPSHOT.462",
         "compiler": "2.0.0-SNAPSHOT.080",
-        "logging": "2.0.0-SNAPSHOT.427",
+        "logging": "2.0.0-SNAPSHOT.428",
         "reflect": "2.0.0-SNAPSHOT.203",
         "testlib": "2.0.0-SNAPSHOT.216",
         "tool-base": "2.0.0-SNAPSHOT.428"
       },
       "adapt_rounds": 0,
-      "built": {
-        "head": "d126ad45889823e8a71eb0378eef0af441cf1f72",
-        "at": "2026-10-21T16:10:01Z"
-      },
+      "built": null,
       "pr": null,
       "parked": null
     },
@@ -308,17 +299,14 @@
         "ProtoTap": "0.17.4",
         "base-libraries": "2.0.0-SNAPSHOT.462",
         "compiler": "2.0.0-SNAPSHOT.080",
-        "logging": "2.0.0-SNAPSHOT.427",
+        "logging": "2.0.0-SNAPSHOT.428",
         "reflect": "2.0.0-SNAPSHOT.203",
         "testlib": "2.0.0-SNAPSHOT.216",
         "tool-base": "2.0.0-SNAPSHOT.428",
         "validation": "2.0.0-SNAPSHOT.469"
       },
       "adapt_rounds": 0,
-      "built": {
-        "head": "f992efd399ed1434c432100dce21ad4362807ba0",
-        "at": "2026-10-21T16:38:48Z"
-      },
+      "built": null,
       "pr": null,
       "parked": null
     },
@@ -406,16 +394,13 @@
         "base-libraries": "2.0.0-SNAPSHOT.462",
         "compiler": "2.0.0-SNAPSHOT.080",
         "core-jvm-compiler": "2.0.0-SNAPSHOT.099",
-        "logging": "2.0.0-SNAPSHOT.427",
+        "logging": "2.0.0-SNAPSHOT.428",
         "testlib": "2.0.0-SNAPSHOT.216",
         "tool-base": "2.0.0-SNAPSHOT.428",
         "validation": "2.0.0-SNAPSHOT.469"
       },
       "adapt_rounds": 0,
-      "built": {
-        "head": "23d8a493b585db7f8e09324c9f162e3f1e2992af",
-        "at": "2026-10-21T16:41:51Z"
-      },
+      "built": null,
       "pr": null,
       "parked": null
     },
@@ -477,17 +462,14 @@
         "change": "2.0.0-SNAPSHOT.209",
         "compiler": "2.0.0-SNAPSHOT.080",
         "core-jvm-compiler": "2.0.0-SNAPSHOT.099",
-        "logging": "2.0.0-SNAPSHOT.427",
+        "logging": "2.0.0-SNAPSHOT.428",
         "reflect": "2.0.0-SNAPSHOT.203",
         "testlib": "2.0.0-SNAPSHOT.216",
         "time": "2.0.0-SNAPSHOT.252",
         "validation": "2.0.0-SNAPSHOT.469"
       },
       "adapt_rounds": 0,
-      "built": {
-        "head": "bd49bb92e90ca6764fa2668320ba527ae2ffc5c4",
-        "at": "2026-10-21T16:48:46Z"
-      },
+      "built": null,
       "pr": null,
       "parked": null
     },
@@ -545,15 +527,12 @@
         "compiler": "2.0.0-SNAPSHOT.080",
         "core-jvm": "2.0.0-SNAPSHOT.577",
         "core-jvm-compiler": "2.0.0-SNAPSHOT.099",
-        "logging": "2.0.0-SNAPSHOT.427",
+        "logging": "2.0.0-SNAPSHOT.428",
         "testlib": "2.0.0-SNAPSHOT.216",
         "validation": "2.0.0-SNAPSHOT.469"
       },
       "adapt_rounds": 0,
-      "built": {
-        "head": "256093ac3921b3044617172e1a9b068d6a6b728d",
-        "at": "2026-10-21T16:52:47Z"
-      },
+      "built": null,
       "pr": null,
       "parked": null
     },
@@ -579,16 +558,13 @@
         "compiler": "2.0.0-SNAPSHOT.080",
         "core-jvm": "2.0.0-SNAPSHOT.577",
         "core-jvm-compiler": "2.0.0-SNAPSHOT.099",
-        "logging": "2.0.0-SNAPSHOT.427",
+        "logging": "2.0.0-SNAPSHOT.428",
         "testlib": "2.0.0-SNAPSHOT.216",
         "time": "2.0.0-SNAPSHOT.252",
         "validation": "2.0.0-SNAPSHOT.469"
       },
       "adapt_rounds": 0,
-      "built": {
-        "head": "26ef46fe4400fc678b21dce152739d9ab28a9335",
-        "at": "2026-10-21T17:04:50Z"
-      },
+      "built": null,
       "pr": null,
       "parked": null
     },
