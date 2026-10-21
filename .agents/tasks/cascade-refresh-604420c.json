@@ -167,7 +167,7 @@
         "group_path": "io/spine/tools",
         "artifact": "jvm-tools"
       },
-      "state": "pr-ready",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.428",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.462",
@@ -211,7 +211,10 @@
         "head": "08b843a3068eedaf80ba7912c1d2b529df7a45ac",
         "at": "2026-10-21T16:00:23Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/ProtoTap/pull/24",
+        "head": "08b843a3068eedaf80ba7912c1d2b529df7a45ac"
+      },
       "parked": null
     },
     "compiler": {
