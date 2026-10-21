@@ -198,7 +198,7 @@
         "group_path": "io/spine/tools",
         "artifact": "prototap-gradle-plugin"
       },
-      "state": "pr-open",
+      "state": "published-remote",
       "target_version": "0.17.4",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.462",
@@ -207,7 +207,10 @@
         "tool-base": "2.0.0-SNAPSHOT.428"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "c1a526d3e9d6e97b633b779b0f019e9ba223d3d2",
+        "at": "2026-10-21T19:42:33Z"
+      },
       "pr": {
         "url": "https://github.com/SpineEventEngine/ProtoTap/pull/24",
         "head": "08b843a3068eedaf80ba7912c1d2b529df7a45ac"
@@ -240,8 +243,14 @@
         "tool-base": "2.0.0-SNAPSHOT.428"
       },
       "adapt_rounds": 0,
-      "built": null,
-      "pr": null,
+      "built": {
+        "head": "b3c6d2929617ef92b5547b6ba5c5aad8ac5f342a",
+        "at": "2026-10-21T19:48:38Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/compiler/pull/96",
+        "head": "b3c6d2929617ef92b5547b6ba5c5aad8ac5f342a"
+      },
       "parked": null
     },
     "validation": {
@@ -272,7 +281,10 @@
         "tool-base": "2.0.0-SNAPSHOT.428"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "450ba7c993c1f9d75b080843653ea0db5b4409fa",
+        "at": "2026-10-21T19:50:50Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -293,7 +305,7 @@
         "group_path": "io/spine/tools",
         "artifact": "core-jvm-gradle-plugin"
       },
-      "state": "pr-ready",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.099",
       "pin_vector": {
         "ProtoTap": "0.17.4",
@@ -306,7 +318,10 @@
         "validation": "2.0.0-SNAPSHOT.469"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "54ceff1984e1c1fbcdc41e4d21111df5b86009cd",
+        "at": "2026-10-21T19:55:46Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -387,7 +402,7 @@
         "group_path": "io/spine",
         "artifact": "spine-time"
       },
-      "state": "pr-ready",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.252",
       "pin_vector": {
         "ProtoTap": "0.17.4",
@@ -400,7 +415,10 @@
         "validation": "2.0.0-SNAPSHOT.469"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "571f412341962c1a24869db001f200bee2a48a42",
+        "at": "2026-10-21T19:57:26Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -454,7 +472,7 @@
         "group_path": "io/spine",
         "artifact": "spine-core"
       },
-      "state": "pr-ready",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.577",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.462",
@@ -469,7 +487,10 @@
         "validation": "2.0.0-SNAPSHOT.469"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "cf277daf8649bfa1d1af3982afcca15de64d9e4c",
+        "at": "2026-10-21T20:07:09Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -519,7 +540,7 @@
         "group_path": "io/spine/gcloud",
         "artifact": "spine-datastore"
       },
-      "state": "pr-ready",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.241",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.462",
@@ -532,7 +553,10 @@
         "validation": "2.0.0-SNAPSHOT.469"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "2b051dd0181fd70317525171d7aade2d3e3a27c3",
+        "at": "2026-10-21T20:09:29Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -552,7 +576,7 @@
         "group_path": "io/spine/delivery",
         "artifact": "spine-delivery-server"
       },
-      "state": "pr-ready",
+      "state": "published-local",
       "target_version": "0.24.1",
       "pin_vector": {
         "compiler": "2.0.0-SNAPSHOT.080",
@@ -564,7 +588,10 @@
         "validation": "2.0.0-SNAPSHOT.469"
       },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "5d24d3e68b751857b220b68357b69de0063a954d",
+        "at": "2026-10-21T20:20:49Z"
+      },
       "pr": null,
       "parked": null
     },
