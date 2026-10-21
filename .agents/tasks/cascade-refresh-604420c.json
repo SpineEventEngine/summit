@@ -39,8 +39,8 @@
         "group_path": "io/spine",
         "artifact": "spine-base"
       },
-      "state": "pending",
-      "target_version": null,
+      "state": "bumped",
+      "target_version": "2.0.0-SNAPSHOT.462",
       "pin_vector": {},
       "adapt_rounds": 0,
       "built": null,
@@ -55,8 +55,8 @@
         "group_path": "io/spine",
         "artifact": "spine-reflect"
       },
-      "state": "pending",
-      "target_version": null,
+      "state": "bumped",
+      "target_version": "2.0.0-SNAPSHOT.203",
       "pin_vector": {},
       "adapt_rounds": 0,
       "built": null,
@@ -74,9 +74,12 @@
         "group_path": "io/spine",
         "artifact": "spine-logging"
       },
-      "state": "pending",
-      "target_version": null,
-      "pin_vector": {},
+      "state": "bumped",
+      "target_version": "2.0.0-SNAPSHOT.427",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.462",
+        "reflect": "2.0.0-SNAPSHOT.203"
+      },
       "adapt_rounds": 0,
       "built": null,
       "pr": null,
@@ -92,9 +95,11 @@
         "group_path": "io/spine/tools",
         "artifact": "base-testlib"
       },
-      "state": "pending",
-      "target_version": null,
-      "pin_vector": {},
+      "state": "bumped",
+      "target_version": "2.0.0-SNAPSHOT.216",
+      "pin_vector": {
+        "logging": "2.0.0-SNAPSHOT.427"
+      },
       "adapt_rounds": 0,
       "built": null,
       "pr": null,
@@ -110,9 +115,11 @@
         "group_path": "io/spine/tools",
         "artifact": "dokka-extensions"
       },
-      "state": "pending",
-      "target_version": null,
-      "pin_vector": {},
+      "state": "bumped",
+      "target_version": "2.0.0-SNAPSHOT.12",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.462"
+      },
       "adapt_rounds": 0,
       "built": null,
       "pr": null,
@@ -130,9 +137,13 @@
         "group_path": "io/spine/tools",
         "artifact": "jvm-tools"
       },
-      "state": "pending",
-      "target_version": null,
-      "pin_vector": {},
+      "state": "bumped",
+      "target_version": "2.0.0-SNAPSHOT.428",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.462",
+        "logging": "2.0.0-SNAPSHOT.427",
+        "testlib": "2.0.0-SNAPSHOT.216"
+      },
       "adapt_rounds": 0,
       "built": null,
       "pr": null,
@@ -151,9 +162,14 @@
         "group_path": "io/spine/tools",
         "artifact": "prototap-gradle-plugin"
       },
-      "state": "pending",
-      "target_version": null,
-      "pin_vector": {},
+      "state": "bumped",
+      "target_version": "0.17.4",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.462",
+        "logging": "2.0.0-SNAPSHOT.427",
+        "testlib": "2.0.0-SNAPSHOT.216",
+        "tool-base": "2.0.0-SNAPSHOT.428"
+      },
       "adapt_rounds": 0,
       "built": null,
       "pr": null,
@@ -174,9 +190,16 @@
         "group_path": "io/spine/tools",
         "artifact": "compiler-jvm"
       },
-      "state": "pending",
-      "target_version": null,
-      "pin_vector": {},
+      "state": "bumped",
+      "target_version": "2.0.0-SNAPSHOT.080",
+      "pin_vector": {
+        "ProtoTap": "0.17.4",
+        "base-libraries": "2.0.0-SNAPSHOT.462",
+        "logging": "2.0.0-SNAPSHOT.427",
+        "reflect": "2.0.0-SNAPSHOT.203",
+        "testlib": "2.0.0-SNAPSHOT.216",
+        "tool-base": "2.0.0-SNAPSHOT.428"
+      },
       "adapt_rounds": 0,
       "built": null,
       "pr": null,
@@ -198,9 +221,17 @@
         "group_path": "io/spine/tools",
         "artifact": "validation-java"
       },
-      "state": "pending",
-      "target_version": null,
-      "pin_vector": {},
+      "state": "bumped",
+      "target_version": "2.0.0-SNAPSHOT.469",
+      "pin_vector": {
+        "ProtoTap": "0.17.4",
+        "base-libraries": "2.0.0-SNAPSHOT.462",
+        "compiler": "2.0.0-SNAPSHOT.080",
+        "logging": "2.0.0-SNAPSHOT.427",
+        "reflect": "2.0.0-SNAPSHOT.203",
+        "testlib": "2.0.0-SNAPSHOT.216",
+        "tool-base": "2.0.0-SNAPSHOT.428"
+      },
       "adapt_rounds": 0,
       "built": null,
       "pr": null,
@@ -223,9 +254,18 @@
         "group_path": "io/spine/tools",
         "artifact": "core-jvm-gradle-plugin"
       },
-      "state": "pending",
-      "target_version": null,
-      "pin_vector": {},
+      "state": "bumped",
+      "target_version": "2.0.0-SNAPSHOT.099",
+      "pin_vector": {
+        "ProtoTap": "0.17.4",
+        "base-libraries": "2.0.0-SNAPSHOT.462",
+        "compiler": "2.0.0-SNAPSHOT.080",
+        "logging": "2.0.0-SNAPSHOT.427",
+        "reflect": "2.0.0-SNAPSHOT.203",
+        "testlib": "2.0.0-SNAPSHOT.216",
+        "tool-base": "2.0.0-SNAPSHOT.428",
+        "validation": "2.0.0-SNAPSHOT.469"
+      },
       "adapt_rounds": 0,
       "built": null,
       "pr": null,
@@ -245,9 +285,15 @@
         "group_path": "io/spine",
         "artifact": "spine-base-types"
       },
-      "state": "pending",
-      "target_version": null,
-      "pin_vector": {},
+      "state": "bumped",
+      "target_version": "2.0.0-SNAPSHOT.227",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.462",
+        "compiler": "2.0.0-SNAPSHOT.080",
+        "core-jvm-compiler": "2.0.0-SNAPSHOT.099",
+        "testlib": "2.0.0-SNAPSHOT.216",
+        "validation": "2.0.0-SNAPSHOT.469"
+      },
       "adapt_rounds": 0,
       "built": null,
       "pr": null,
@@ -266,9 +312,14 @@
         "group_path": "io/spine",
         "artifact": "spine-change"
       },
-      "state": "pending",
-      "target_version": null,
-      "pin_vector": {},
+      "state": "bumped",
+      "target_version": "2.0.0-SNAPSHOT.209",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.462",
+        "compiler": "2.0.0-SNAPSHOT.080",
+        "core-jvm-compiler": "2.0.0-SNAPSHOT.099",
+        "validation": "2.0.0-SNAPSHOT.469"
+      },
       "adapt_rounds": 0,
       "built": null,
       "pr": null,
@@ -291,9 +342,18 @@
         "group_path": "io/spine",
         "artifact": "spine-time"
       },
-      "state": "pending",
-      "target_version": null,
-      "pin_vector": {},
+      "state": "bumped",
+      "target_version": "2.0.0-SNAPSHOT.252",
+      "pin_vector": {
+        "ProtoTap": "0.17.4",
+        "base-libraries": "2.0.0-SNAPSHOT.462",
+        "compiler": "2.0.0-SNAPSHOT.080",
+        "core-jvm-compiler": "2.0.0-SNAPSHOT.099",
+        "logging": "2.0.0-SNAPSHOT.427",
+        "testlib": "2.0.0-SNAPSHOT.216",
+        "tool-base": "2.0.0-SNAPSHOT.428",
+        "validation": "2.0.0-SNAPSHOT.469"
+      },
       "adapt_rounds": 0,
       "built": null,
       "pr": null,
@@ -313,9 +373,15 @@
         "group_path": "io/spine",
         "artifact": "spine-money"
       },
-      "state": "pending",
-      "target_version": null,
-      "pin_vector": {},
+      "state": "bumped",
+      "target_version": "2.0.0-SNAPSHOT.13",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.462",
+        "compiler": "2.0.0-SNAPSHOT.080",
+        "core-jvm-compiler": "2.0.0-SNAPSHOT.099",
+        "testlib": "2.0.0-SNAPSHOT.216",
+        "validation": "2.0.0-SNAPSHOT.469"
+      },
       "adapt_rounds": 0,
       "built": null,
       "pr": null,
@@ -340,9 +406,20 @@
         "group_path": "io/spine",
         "artifact": "spine-core"
       },
-      "state": "pending",
-      "target_version": null,
-      "pin_vector": {},
+      "state": "bumped",
+      "target_version": "2.0.0-SNAPSHOT.577",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.462",
+        "base-types": "2.0.0-SNAPSHOT.227",
+        "change": "2.0.0-SNAPSHOT.209",
+        "compiler": "2.0.0-SNAPSHOT.080",
+        "core-jvm-compiler": "2.0.0-SNAPSHOT.099",
+        "logging": "2.0.0-SNAPSHOT.427",
+        "reflect": "2.0.0-SNAPSHOT.203",
+        "testlib": "2.0.0-SNAPSHOT.216",
+        "time": "2.0.0-SNAPSHOT.252",
+        "validation": "2.0.0-SNAPSHOT.469"
+      },
       "adapt_rounds": 0,
       "built": null,
       "pr": null,
@@ -361,9 +438,14 @@
         "group_path": "io/spine",
         "artifact": "spine-rdbms"
       },
-      "state": "pending",
-      "target_version": null,
-      "pin_vector": {},
+      "state": "bumped",
+      "target_version": "2.0.0-SNAPSHOT.131",
+      "pin_vector": {
+        "compiler": "2.0.0-SNAPSHOT.080",
+        "core-jvm": "2.0.0-SNAPSHOT.577",
+        "core-jvm-compiler": "2.0.0-SNAPSHOT.099",
+        "validation": "2.0.0-SNAPSHOT.469"
+      },
       "adapt_rounds": 0,
       "built": null,
       "pr": null,
@@ -386,9 +468,18 @@
         "group_path": "io/spine/gcloud",
         "artifact": "spine-datastore"
       },
-      "state": "pending",
-      "target_version": null,
-      "pin_vector": {},
+      "state": "bumped",
+      "target_version": "2.0.0-SNAPSHOT.241",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.462",
+        "base-types": "2.0.0-SNAPSHOT.227",
+        "compiler": "2.0.0-SNAPSHOT.080",
+        "core-jvm": "2.0.0-SNAPSHOT.577",
+        "core-jvm-compiler": "2.0.0-SNAPSHOT.099",
+        "logging": "2.0.0-SNAPSHOT.427",
+        "testlib": "2.0.0-SNAPSHOT.216",
+        "validation": "2.0.0-SNAPSHOT.469"
+      },
       "adapt_rounds": 0,
       "built": null,
       "pr": null,
@@ -410,9 +501,17 @@
         "group_path": "io/spine/delivery",
         "artifact": "spine-delivery-server"
       },
-      "state": "pending",
-      "target_version": null,
-      "pin_vector": {},
+      "state": "bumped",
+      "target_version": "0.24.1",
+      "pin_vector": {
+        "compiler": "2.0.0-SNAPSHOT.080",
+        "core-jvm": "2.0.0-SNAPSHOT.577",
+        "core-jvm-compiler": "2.0.0-SNAPSHOT.099",
+        "logging": "2.0.0-SNAPSHOT.427",
+        "testlib": "2.0.0-SNAPSHOT.216",
+        "time": "2.0.0-SNAPSHOT.252",
+        "validation": "2.0.0-SNAPSHOT.469"
+      },
       "adapt_rounds": 0,
       "built": null,
       "pr": null,
@@ -428,13 +527,13 @@
         "group_path": "",
         "artifact": ""
       },
-      "state": "pending",
+      "state": "parked",
       "target_version": null,
       "pin_vector": {},
       "adapt_rounds": 0,
       "built": null,
       "pr": null,
-      "parked": null
+      "parked": "verify-only: SDK versions arrive as CI environment variables substituted into settings.gradle.kts.template, so there are no file pins to apply, no version to bump, and no artifact to publish"
     }
   },
   "excluded": {},

@@ -35,3 +35,4 @@ Machine state: [`cascade-refresh-604420c.json`](cascade-refresh-604420c.json). P
 ## Log
 
 - 2026-10-21 — wave planned.
+- 2026-10-21 — **parked** `BuildSpeed`: verify-only: SDK versions arrive as CI environment variables substituted into settings.gradle.kts.template, so there are no file pins to apply, no version to bump, and no artifact to publish
