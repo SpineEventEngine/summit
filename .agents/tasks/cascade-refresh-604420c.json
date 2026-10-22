@@ -308,7 +308,7 @@
         "group_path": "io/spine/tools",
         "artifact": "core-jvm-gradle-plugin"
       },
-      "state": "pr-ready",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.099",
       "pin_vector": {
         "ProtoTap": "0.17.4",
@@ -359,7 +359,10 @@
         "head": "e3078e44252217f0591e2dc538179389ac57b3da",
         "at": "2026-10-22T14:23:35Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/base-types/pull/57",
+        "head": "e3078e44252217f0591e2dc538179389ac57b3da"
+      },
       "parked": null
     },
     "change": {
