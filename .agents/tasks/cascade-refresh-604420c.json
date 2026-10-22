@@ -431,7 +431,10 @@
         "head": "b2993f29f31f068e4cf8667c2a0701eedf667a5f",
         "at": "2026-10-22T14:25:39Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/time/pull/201",
+        "head": "b2993f29f31f068e4cf8667c2a0701eedf667a5f"
+      },
       "parked": null
     },
     "money": {
