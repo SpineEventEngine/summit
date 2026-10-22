@@ -345,7 +345,7 @@
         "group_path": "io/spine",
         "artifact": "spine-base-types"
       },
-      "state": "pr-ready",
+      "state": "pr-open",
       "target_version": "2.0.0-SNAPSHOT.227",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.462",
@@ -391,7 +391,10 @@
         "head": "bc59e6ed9ee2b39459472e6882fc09d35212fce6",
         "at": "2026-10-22T14:24:06Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/change/pull/10",
+        "head": "bc59e6ed9ee2b39459472e6882fc09d35212fce6"
+      },
       "parked": null
     },
     "time": {
