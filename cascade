@@ -318,17 +318,34 @@ registry_has() { # <repo> <version>
 # With no recorded PR, no merge commit, or no run (a seed published by hand, a
 # repo without the workflow), the verdict is `ok` and the registry stays the
 # only evidence, as before.
+iso_epoch() { # <ISO-8601 UTC time> -> seconds since the epoch (BSD or GNU `date`)
+    date -j -u -f '%Y-%m-%dT%H:%M:%SZ' "$1" +%s 2>/dev/null || date -u -d "$1" +%s
+}
+
 publish_verdict() { # <wave> <repo>
-    local url sha run
+    local url sha merged run
     url="$(mget "$1" --arg r "$2" '.repos[$r].pr.url // empty')"
     [ -n "$url" ] || { echo ok; return; }
-    sha="$(gh pr view "$url" --json mergeCommit --jq '.mergeCommit.oid // empty' 2>/dev/null || true)"
+    read -r sha merged <<EOF
+$(gh pr view "$url" --json mergeCommit,mergedAt \
+    --jq '"\(.mergeCommit.oid // "") \(.mergedAt // "")"' 2>/dev/null || true)
+EOF
     [ -n "$sha" ] || { echo ok; return; }
     run="$(gh run list -R "$ORG/$2" --workflow publish.yml --commit "$sha" --limit 1 \
              --json status,conclusion,url \
              --jq '.[0] // empty | "\(.status) \(if (.conclusion // "") == "" then "none" else .conclusion end) \(.url)"' \
              2>/dev/null || true)"
-    [ -n "$run" ] || { echo ok; return; }
+    if [ -z "$run" ]; then
+        # GitHub can drop the push event of a merge, and then no workflow starts for the
+        # merge commit at all (time `.252`). Publish runs start within seconds of a merge, so
+        # ten minutes on, the publication never happened.
+        if [ -n "$merged" ] && [ $(( $(date +%s) - $(iso_epoch "$merged") )) -gt 600 ]; then
+            echo "failed https://github.com/$ORG/$2/commit/$sha (no publish run started)"
+        else
+            echo ok
+        fi
+        return
+    fi
     set -- $run
     case "$1 $2" in
         "completed success") echo "ok $3" ;;
