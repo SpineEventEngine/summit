@@ -356,6 +356,14 @@ wave_pr_merged() { # <wave> <repo>
     fi
 }
 
+# The open PR from the wave branch, or nothing. Unlike `gh pr view <branch>`, it
+# ignores a merged PR from the same branch name, which a repository re-shipped
+# after a failed publish already has.
+open_pr_url() { # <repo> <branch>
+    gh pr list -R "$ORG/$1" --head "$2" --state open --json url --jq '.[0].url // empty' \
+        2>/dev/null || true
+}
+
 # File.kt -> repo (reverse of repo_pin_file); empty when not a repo pin file.
 pin_file_repo() { # <File.kt>
     local r
@@ -1181,9 +1189,15 @@ derive_state() { # <wave> <repo> -> prints state
     s_status="$(sed -n 's/^status=//p' "$gitdir/pre-pr.ok" 2>/dev/null || true)"
     { [ "$s_status" = PASS ] && [ "$s_head" = "$head" ]; } || { echo published-local; return; }
 
-    # pr-open / merged.
-    local prstate
-    prstate="$(gh pr view "$branch" -R "$ORG/$repo" --json state --jq .state 2>/dev/null || true)"
+    # pr-open / merged. A PR merged from another head is the previous ship of
+    # the reused wave branch (a new version after a failed publish): the
+    # current head has no PR yet.
+    local prstate prhead
+    read -r prstate prhead <<EOF
+$(gh pr view "$branch" -R "$ORG/$repo" --json state,headRefOid \
+    --jq '"\(.state) \(.headRefOid)"' 2>/dev/null || true)
+EOF
+    [ "$prstate" = MERGED ] && [ "$prhead" != "$head" ] && prstate=""
     case "$prstate" in
         MERGED) ;;
         OPEN)   echo pr-open; return ;;
@@ -1348,7 +1362,9 @@ cmd_prep() {
     # nothing to pull; skipping keeps it a wave participant instead of a hard error.
     if [ ! -x ./config/pull ]; then
         note "$repo does not consume \`config\` — no pull step"
-    elif ! git log --format=%s "origin/$BASE..HEAD" | grep -q '^Update shared agent tooling'; then
+    # A here-string, not a pipe: `grep -q` exits at the first match, and under
+    # `pipefail` the SIGPIPE `git log` may then take reads as "not pulled yet".
+    elif ! grep -q '^Update shared agent tooling' <<<"$(git log --format=%s "origin/$BASE..HEAD")"; then
         [ -z "$(git status --porcelain)" ] \
             || die "working tree not clean before ./config/pull at $repo — commit or stash first"
         ./config/pull
@@ -1587,9 +1603,10 @@ EOF
     fi
 
     git checkout -- docs/dependencies/ 2>/dev/null || true
-    if gh pr view "$branch" -R "$ORG/$repo" --json url >/dev/null 2>&1; then
+    local url; url="$(open_pr_url "$repo" "$branch")"
+    if [ -n "$url" ]; then
         git push -q origin "$branch"
-        note "PR already open: $(gh pr view "$branch" -R "$ORG/$repo" --json url --jq .url)"
+        note "PR already open: $url"
     else
         git push -u origin "$branch"
         # A draft: the organization's ruleset requests a Copilot review for every
@@ -1598,9 +1615,11 @@ EOF
         gh pr create --draft --base "$BASE" --head "$branch" \
             --title "$(pr_title)" \
             --body-file "$SUMMIT/docs/rollout/rebuild-pr-body.md"
+        url="$(open_pr_url "$repo" "$branch")"
     fi
+    [ -n "$url" ] || die "no open PR from '$branch' in $ORG/$repo after ship"
     mset "$wave" '.repos[$r].pr = {url: $u, head: $h}' --arg r "$repo" \
-        --arg u "$(gh pr view "$branch" -R "$ORG/$repo" --json url --jq .url)" --arg h "$head"
+        --arg u "$url" --arg h "$head"
     checkpoint_state "$wave" || true
 }
 
@@ -1619,6 +1638,18 @@ pr_title() {
 cmd_refresh() {
     local repo="${1:?usage: cascade refresh <repo>}" wave
     wave="$(active_wave)"
+    # After a failed publish the wave branch has merged: start the repository
+    # over from the base branch, so prep pulls `config` again and bumps past the
+    # partly published version.
+    if [ "$(derive_state "$wave" "$repo")" = publish-failed ]; then
+        local dir="$SUMMIT/$repo" branch
+        branch="$(mget "$wave" .branch)"
+        git -C "$dir" fetch --quiet origin "$BASE"
+        git -C "$dir" checkout -q "$BASE"
+        git -C "$dir" pull --ff-only --quiet origin "$BASE"
+        git -C "$dir" branch -d "$branch"   # refuses a branch the base lacks
+        mset "$wave" '.repos[$r].pr = null | .repos[$r].target_version = null' --arg r "$repo"
+    fi
     # Clear the recorded pins so prep re-reads the upstreams' current versions,
     # then invalidate the build record (the branch will gain commits).
     mset "$wave" '.repos[$r].pin_vector = {} | .repos[$r].built = null' --arg r "$repo"

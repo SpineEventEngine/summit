@@ -115,7 +115,9 @@ and execute what it prints, in order:
 - `FIX-PUBLISH:<repo>` → the repo's `publish.yml` run failed after its PR
   merged. A run that fails midway may already have uploaded some modules, so
   the registry's marker artifact proves nothing; `./cascade status` links the
-  run. Fix the build, publish a new version, and re-pin each downstream repo
+  run. Fix the cause (often in `config`), then run `./cascade refresh <repo>`:
+  it branches again from the base branch, pulls `config`, and bumps to a new
+  version. Build, pre-pr, and ship it as usual, and re-pin each downstream repo
   with `./cascade refresh <downstream>`. Downstream repos wait meanwhile.
 - `REBUMP:<repo>` → the registry serves the repo's wave version, but the repo's
   wave PR has not merged: the base branch took the same version first, so the
