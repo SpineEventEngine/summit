@@ -113,8 +113,8 @@ and execute what it prints, in order:
   checks pass, mark it ready (`gh pr ready <url>`), which requests that review
   then, and enable auto-merge.
 - `FIX-PUBLISH:<repo>` → the repo's `publish.yml` run failed after its PR
-  merged, or never started: GitHub can drop a merge's push event, and ten
-  minutes without a run counts as a failure. A run that fails midway may already have uploaded some modules, so
+  merged, or never started: GitHub can delay or drop a merge's push event, and
+  an hour without a run counts as a failure. A run that fails midway may already have uploaded some modules, so
   the registry's marker artifact proves nothing; `./cascade status` links the
   run. Fix the cause (often in `config`), then run `./cascade refresh <repo>`:
   it branches again from the base branch, pulls `config`, and bumps to a new

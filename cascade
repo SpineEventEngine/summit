@@ -336,10 +336,10 @@ EOF
              --jq '.[0] // empty | "\(.status) \(if (.conclusion // "") == "" then "none" else .conclusion end) \(.url)"' \
              2>/dev/null || true)"
     if [ -z "$run" ]; then
-        # GitHub can drop the push event of a merge, and then no workflow starts for the
-        # merge commit at all (time `.252`). Publish runs start within seconds of a merge, so
-        # ten minutes on, the publication never happened.
-        if [ -n "$merged" ] && [ $(( $(date +%s) - $(iso_epoch "$merged") )) -gt 600 ]; then
+        # GitHub can delay the push event of a merge, or drop it, and then no workflow starts
+        # for the merge commit. The time `.252` run started 17 minutes late, during an
+        # incident; an hour without a run means the publication never happened.
+        if [ -n "$merged" ] && [ $(( $(date +%s) - $(iso_epoch "$merged") )) -gt 3600 ]; then
             echo "failed https://github.com/$ORG/$2/commit/$sha (no publish run started)"
         else
             echo ok
