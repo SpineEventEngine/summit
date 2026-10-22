@@ -414,7 +414,7 @@
         "group_path": "io/spine",
         "artifact": "spine-time"
       },
-      "state": "pr-ready",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.253",
       "pin_vector": {
         "ProtoTap": "0.17.4",
@@ -509,7 +509,10 @@
         "head": "ee9be9d3fa7a1bccea910243e3becc8da2099f32",
         "at": "2026-10-22T18:59:00Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/core-jvm/pull/1697",
+        "head": "ee9be9d3fa7a1bccea910243e3becc8da2099f32"
+      },
       "parked": null
     },
     "jdbc-storage": {
