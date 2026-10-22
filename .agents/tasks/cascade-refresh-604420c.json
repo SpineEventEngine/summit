@@ -465,7 +465,10 @@
         "head": "88e65d7661352fe9ab7ae284230f511ff98a28ab",
         "at": "2026-10-22T14:26:01Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/money/pull/33",
+        "head": "88e65d7661352fe9ab7ae284230f511ff98a28ab"
+      },
       "parked": null
     },
     "core-jvm": {
