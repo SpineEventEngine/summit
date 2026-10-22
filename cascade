@@ -896,6 +896,12 @@ active_wave() {
     basename "$m" .json
 }
 
+# A manifest that lists no repos reads as a finished wave, so `next` would say CLOSE.
+require_intact() { # <wave>
+    [ "$(mget "$1" '(.repos // {}) | length > 0' 2>/dev/null)" = true ] \
+        || die "the manifest of '$1' lists no repos — restore it: git checkout -- $(manifest_path "$1")"
+}
+
 # mget <wave> [jq-args...] <program> — the program is always the LAST argument.
 mget() {
     local wave="$1"; shift
@@ -907,8 +913,15 @@ mget() {
 }
 mset() { # <wave> <jq-program> [--arg k v ...]
     local wave="$1" prog="$2"; shift 2
-    local p tmp; p="$(manifest_path "$wave")"; tmp="$p.tmp"
-    jq "$@" "$prog" "$p" > "$tmp" && mv "$tmp" "$p"
+    local p tmp; p="$(manifest_path "$wave")"
+    # A private temp file: with a shared one, concurrent runs (the driver and a manual
+    # call) truncated each other's output and moved an empty manifest into place.
+    tmp="$(mktemp "$p.XXXXXX")"
+    if jq "$@" "$prog" "$p" > "$tmp" && [ -s "$tmp" ]; then
+        mv "$tmp" "$p"
+    else
+        rm -f "$tmp"; die "could not update $p"
+    fi
 }
 
 wave_repos() { mget "$1" '.repos | keys[]'; }
@@ -1277,6 +1290,7 @@ cmd_status() {
 cmd_next() {
     local wave json=0
     wave="$(active_wave)"
+    require_intact "$wave"
     [ "${1:-}" = "--json" ] && json=1
     cmd_status "$wave" >/dev/null    # refresh derived states first
 
@@ -1732,6 +1746,7 @@ cmd_await() {
 cmd_close() {
     local wave ship=0
     wave="$(active_wave)"
+    require_intact "$wave"
     [ "${1:-}" = "--ship" ] && ship=1
     local cfg="$SUMMIT/config" vbranch repo tv pf c cur cur_re
     vbranch="$(mget "$wave" .wave)-vector"
