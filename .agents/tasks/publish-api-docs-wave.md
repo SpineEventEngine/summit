@@ -84,6 +84,12 @@ into a skill.
 via `gh search code`. The line numbers come from those branches, so re-grep
 them before editing.
 
+**Repository names.** `delivery` is the GitHub repository
+`SpineEventEngine/delivery`, formerly `delivery-server`; the old name redirects.
+`summit`'s `master` still names the submodule `delivery-server`, and summit#5
+renames it to `delivery` (`1fdd7cf`). Where a checkout still says
+`delivery-server`, it is the same repository and takes the same edit.
+
 ### Config-owned: the pull updates them, no hand edit
 
 In all 18 repositories these files are byte-identical to `config@604420c`:
@@ -355,3 +361,6 @@ confined to the repository's own build logic.
   in step 2, the stale task name in Group C, and the reference to
   `FIX-PUBLISH`, which `master` does not define yet; dropped the repeated
   `File` column from the tables.
+- 2026-10-22. A review asked to rename `delivery` to `delivery-server`, the name
+  on `summit`'s `master`. Kept `delivery`, the current GitHub name, which
+  summit#5 adopts, and added a note that maps the two names.
