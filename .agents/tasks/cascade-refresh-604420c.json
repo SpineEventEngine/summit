@@ -490,7 +490,7 @@
         "group_path": "io/spine",
         "artifact": "spine-core"
       },
-      "state": "pr-ready",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.577",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.462",
@@ -506,8 +506,8 @@
       },
       "adapt_rounds": 0,
       "built": {
-        "head": "ee9be9d3fa7a1bccea910243e3becc8da2099f32",
-        "at": "2026-10-22T18:59:00Z"
+        "head": "8e7ff830d518fa74e67ece6ccb53cee6ccd8af38",
+        "at": "2026-10-22T20:24:42Z"
       },
       "pr": {
         "url": "https://github.com/SpineEventEngine/core-jvm/pull/1697",
@@ -538,10 +538,13 @@
       },
       "adapt_rounds": 0,
       "built": {
-        "head": "cb74cdf074e4b6e4bbffd483a9349b217636028d",
-        "at": "2026-10-22T14:34:08Z"
+        "head": "0e1e71f937700f9c49946517de7e817d48d0a604",
+        "at": "2026-10-22T20:25:52Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/jdbc-storage/pull/186",
+        "head": "0e1e71f937700f9c49946517de7e817d48d0a604"
+      },
       "parked": null
     },
     "gcloud-jvm": {
@@ -575,8 +578,8 @@
       },
       "adapt_rounds": 0,
       "built": {
-        "head": "f8fbbe9d7d84e04bc3af1063a11400bb62796537",
-        "at": "2026-10-22T14:36:09Z"
+        "head": "ddb61bfe239c56f0bd8d5fabf869104ce19dfff9",
+        "at": "2026-10-22T20:28:03Z"
       },
       "pr": null,
       "parked": null
@@ -610,8 +613,8 @@
       },
       "adapt_rounds": 0,
       "built": {
-        "head": "a672c6955d146c9f1ef2496166bf9f01428c3da0",
-        "at": "2026-10-22T19:10:50Z"
+        "head": "75bb56c07fe6c354816a9762ee504d1c31f7e535",
+        "at": "2026-10-22T20:48:29Z"
       },
       "pr": null,
       "parked": null
