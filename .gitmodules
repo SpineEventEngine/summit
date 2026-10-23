@@ -58,9 +58,9 @@
 [submodule "agents"]
 	path = agents
 	url = https://github.com/SpineEventEngine/agents.git
-[submodule "delivery-server"]
-	path = delivery-server
-	url = https://github.com/SpineEventEngine/delivery-server.git
+[submodule "delivery"]
+	path = delivery
+	url = https://github.com/SpineEventEngine/delivery.git
 [submodule "BuildSpeed"]
 	path = BuildSpeed
 	url = https://github.com/SpineEventEngine/BuildSpeed.git

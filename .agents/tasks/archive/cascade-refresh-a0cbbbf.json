@@ -1,0 +1,621 @@
+{
+  "schema": 1,
+  "wave": "cascade-refresh-a0cbbbf",
+  "kind": "refresh",
+  "created": "2026-10-15T19:00:56Z",
+  "base": "master",
+  "config_sha": "a0cbbbfe66c12475224563439fb6deb3da71ba58",
+  "seed": null,
+  "target": null,
+  "branch": "cascade-refresh-a0cbbbf",
+  "halted": null,
+  "order": [
+    "base-libraries",
+    "reflect",
+    "logging",
+    "testlib",
+    "dokka-tools",
+    "tool-base",
+    "ProtoTap",
+    "compiler",
+    "validation",
+    "core-jvm-compiler",
+    "base-types",
+    "change",
+    "time",
+    "money",
+    "core-jvm",
+    "jdbc-storage",
+    "gcloud-jvm",
+    "delivery",
+    "BuildSpeed"
+  ],
+  "repos": {
+    "base-libraries": {
+      "upstreams": [],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-base"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.461",
+      "pin_vector": {},
+      "adapt_rounds": 1,
+      "built": {
+        "head": "1634e4c5eb47649831b0666717ec81610f77c9f6",
+        "at": "2026-10-15T19:09:34Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/base-libraries/pull/967",
+        "head": "1634e4c5eb47649831b0666717ec81610f77c9f6"
+      },
+      "parked": null
+    },
+    "reflect": {
+      "upstreams": [],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-reflect"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.202",
+      "pin_vector": {},
+      "adapt_rounds": 0,
+      "built": {
+        "head": "23d55db7a207c0df47ae5abf584d7cd2a89e75e8",
+        "at": "2026-10-15T19:10:08Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/reflect/pull/15",
+        "head": "23d55db7a207c0df47ae5abf584d7cd2a89e75e8"
+      },
+      "parked": null
+    },
+    "logging": {
+      "upstreams": [
+        "base-libraries",
+        "reflect"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-logging"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.426",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.461",
+        "reflect": "2.0.0-SNAPSHOT.202"
+      },
+      "adapt_rounds": 0,
+      "built": {
+        "head": "79766b3c73d9c11ed13b1081a084d87bc21b12a7",
+        "at": "2026-10-15T19:11:03Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/logging/pull/151",
+        "head": "79766b3c73d9c11ed13b1081a084d87bc21b12a7"
+      },
+      "parked": null
+    },
+    "testlib": {
+      "upstreams": [
+        "logging"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine/tools",
+        "artifact": "base-testlib"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.215",
+      "pin_vector": {
+        "logging": "2.0.0-SNAPSHOT.426"
+      },
+      "adapt_rounds": 0,
+      "built": {
+        "head": "835b21d4587c265b49abb0f63ae4552f75175215",
+        "at": "2026-10-15T19:11:35Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/testlib/pull/15",
+        "head": "835b21d4587c265b49abb0f63ae4552f75175215"
+      },
+      "parked": null
+    },
+    "dokka-tools": {
+      "upstreams": [
+        "base-libraries"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine/tools",
+        "artifact": "dokka-extensions"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.11",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.461"
+      },
+      "adapt_rounds": 0,
+      "built": {
+        "head": "880762b8ff3472c17e02d3441c5d239d30da8825",
+        "at": "2026-10-15T19:12:18Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/dokka-tools/pull/12",
+        "head": "880762b8ff3472c17e02d3441c5d239d30da8825"
+      },
+      "parked": null
+    },
+    "tool-base": {
+      "upstreams": [
+        "base-libraries",
+        "logging",
+        "testlib"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine/tools",
+        "artifact": "jvm-tools"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.426",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.461",
+        "logging": "2.0.0-SNAPSHOT.426",
+        "testlib": "2.0.0-SNAPSHOT.215"
+      },
+      "adapt_rounds": 0,
+      "built": {
+        "head": "b1071b8b25e87619031f011350887bd949c0875a",
+        "at": "2026-10-15T19:14:48Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/tool-base/pull/195",
+        "head": "b1071b8b25e87619031f011350887bd949c0875a"
+      },
+      "parked": null
+    },
+    "ProtoTap": {
+      "upstreams": [
+        "base-libraries",
+        "logging",
+        "testlib",
+        "tool-base"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine/tools",
+        "artifact": "prototap-gradle-plugin"
+      },
+      "state": "published-remote",
+      "target_version": "0.17.3",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.461",
+        "logging": "2.0.0-SNAPSHOT.426",
+        "testlib": "2.0.0-SNAPSHOT.215",
+        "tool-base": "2.0.0-SNAPSHOT.426"
+      },
+      "adapt_rounds": 1,
+      "built": {
+        "head": "91eaaaad39c33ec1b0e6c61dcaf7a036a261c01d",
+        "at": "2026-10-15T19:21:02Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/ProtoTap/pull/23",
+        "head": "91eaaaad39c33ec1b0e6c61dcaf7a036a261c01d"
+      },
+      "parked": null
+    },
+    "compiler": {
+      "upstreams": [
+        "ProtoTap",
+        "base-libraries",
+        "logging",
+        "reflect",
+        "testlib",
+        "tool-base"
+      ],
+      "class": "library",
+      "version_property": "compilerVersion",
+      "probe": {
+        "group_path": "io/spine/tools",
+        "artifact": "compiler-jvm"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.074",
+      "pin_vector": {
+        "ProtoTap": "0.17.3",
+        "base-libraries": "2.0.0-SNAPSHOT.461",
+        "logging": "2.0.0-SNAPSHOT.426",
+        "reflect": "2.0.0-SNAPSHOT.202",
+        "testlib": "2.0.0-SNAPSHOT.215",
+        "tool-base": "2.0.0-SNAPSHOT.426"
+      },
+      "adapt_rounds": 1,
+      "built": {
+        "head": "0ebf947332a4521f15c5c232223529cf2f8fb805",
+        "at": "2026-10-16T16:42:26Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/compiler/pull/92",
+        "head": "0ec7e51fc6f0cc8f6a83faee53672a16722021d2"
+      },
+      "parked": null
+    },
+    "validation": {
+      "upstreams": [
+        "ProtoTap",
+        "base-libraries",
+        "compiler",
+        "logging",
+        "reflect",
+        "testlib",
+        "tool-base"
+      ],
+      "class": "library",
+      "version_property": "validationVersion",
+      "probe": {
+        "group_path": "io/spine/tools",
+        "artifact": "validation-java"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.465",
+      "pin_vector": {
+        "ProtoTap": "0.17.3",
+        "base-libraries": "2.0.0-SNAPSHOT.461",
+        "compiler": "2.0.0-SNAPSHOT.074",
+        "logging": "2.0.0-SNAPSHOT.426",
+        "reflect": "2.0.0-SNAPSHOT.202",
+        "testlib": "2.0.0-SNAPSHOT.215",
+        "tool-base": "2.0.0-SNAPSHOT.426"
+      },
+      "adapt_rounds": 0,
+      "built": {
+        "head": "5f3f2ef48bece50a1511b036b50dc65381d12e04",
+        "at": "2026-10-17T01:47:54Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/validation/pull/332",
+        "head": "5f3f2ef48bece50a1511b036b50dc65381d12e04"
+      },
+      "parked": null
+    },
+    "core-jvm-compiler": {
+      "upstreams": [
+        "ProtoTap",
+        "base-libraries",
+        "compiler",
+        "logging",
+        "reflect",
+        "testlib",
+        "tool-base",
+        "validation"
+      ],
+      "class": "library",
+      "version_property": "coreJvmCompilerVersion",
+      "probe": {
+        "group_path": "io/spine/tools",
+        "artifact": "core-jvm-gradle-plugin"
+      },
+      "state": "pr-open",
+      "target_version": "2.0.0-SNAPSHOT.098",
+      "pin_vector": {
+        "ProtoTap": "0.17.3",
+        "base-libraries": "2.0.0-SNAPSHOT.461",
+        "compiler": "2.0.0-SNAPSHOT.074",
+        "logging": "2.0.0-SNAPSHOT.426",
+        "reflect": "2.0.0-SNAPSHOT.202",
+        "testlib": "2.0.0-SNAPSHOT.215",
+        "tool-base": "2.0.0-SNAPSHOT.426",
+        "validation": "2.0.0-SNAPSHOT.465"
+      },
+      "adapt_rounds": 1,
+      "built": {
+        "head": "50bbdfdc7b2f34d324495baff3b9ce02a1c2a310",
+        "at": "2026-10-16T23:04:25Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/core-jvm-compiler/pull/119",
+        "head": "50bbdfdc7b2f34d324495baff3b9ce02a1c2a310"
+      },
+      "parked": null
+    },
+    "base-types": {
+      "upstreams": [
+        "base-libraries",
+        "compiler",
+        "core-jvm-compiler",
+        "testlib",
+        "validation"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-base-types"
+      },
+      "state": "pr-ready",
+      "target_version": "2.0.0-SNAPSHOT.227",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.461",
+        "compiler": "2.0.0-SNAPSHOT.074",
+        "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
+        "testlib": "2.0.0-SNAPSHOT.215",
+        "validation": "2.0.0-SNAPSHOT.465"
+      },
+      "adapt_rounds": 1,
+      "built": {
+        "head": "8cfdadcb777933dd664588e1747a1a40dac388dd",
+        "at": "2026-10-19T17:59:49Z"
+      },
+      "pr": null,
+      "parked": null
+    },
+    "change": {
+      "upstreams": [
+        "base-libraries",
+        "compiler",
+        "core-jvm-compiler",
+        "validation"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-change"
+      },
+      "state": "pr-ready",
+      "target_version": "2.0.0-SNAPSHOT.209",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.461",
+        "compiler": "2.0.0-SNAPSHOT.074",
+        "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
+        "validation": "2.0.0-SNAPSHOT.465"
+      },
+      "adapt_rounds": 2,
+      "built": {
+        "head": "6f74f8b6afbb88088cd04b5d003df2048d90d086",
+        "at": "2026-10-16T22:37:21Z"
+      },
+      "pr": null,
+      "parked": null
+    },
+    "time": {
+      "upstreams": [
+        "ProtoTap",
+        "base-libraries",
+        "compiler",
+        "core-jvm-compiler",
+        "logging",
+        "testlib",
+        "tool-base",
+        "validation"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-time"
+      },
+      "state": "pr-ready",
+      "target_version": "2.0.0-SNAPSHOT.252",
+      "pin_vector": {
+        "ProtoTap": "0.17.3",
+        "base-libraries": "2.0.0-SNAPSHOT.461",
+        "compiler": "2.0.0-SNAPSHOT.074",
+        "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
+        "logging": "2.0.0-SNAPSHOT.426",
+        "testlib": "2.0.0-SNAPSHOT.215",
+        "tool-base": "2.0.0-SNAPSHOT.426",
+        "validation": "2.0.0-SNAPSHOT.465"
+      },
+      "adapt_rounds": 2,
+      "built": {
+        "head": "d73aa1d78248b05880419143bddb3d83d116364c",
+        "at": "2026-10-16T22:38:44Z"
+      },
+      "pr": null,
+      "parked": null
+    },
+    "money": {
+      "upstreams": [
+        "base-libraries",
+        "compiler",
+        "core-jvm-compiler",
+        "testlib",
+        "validation"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-money"
+      },
+      "state": "pr-ready",
+      "target_version": "2.0.0-SNAPSHOT.13",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.461",
+        "compiler": "2.0.0-SNAPSHOT.074",
+        "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
+        "testlib": "2.0.0-SNAPSHOT.215",
+        "validation": "2.0.0-SNAPSHOT.465"
+      },
+      "adapt_rounds": 1,
+      "built": {
+        "head": "d435a853f42a6aead6ed6733017d8a3f57690603",
+        "at": "2026-10-16T22:39:04Z"
+      },
+      "pr": null,
+      "parked": null
+    },
+    "core-jvm": {
+      "upstreams": [
+        "base-libraries",
+        "base-types",
+        "change",
+        "core-jvm-compiler",
+        "logging",
+        "reflect",
+        "testlib",
+        "time",
+        "validation"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-core"
+      },
+      "state": "pr-ready",
+      "target_version": "2.0.0-SNAPSHOT.572",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.461",
+        "base-types": "2.0.0-SNAPSHOT.227",
+        "change": "2.0.0-SNAPSHOT.209",
+        "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
+        "logging": "2.0.0-SNAPSHOT.426",
+        "reflect": "2.0.0-SNAPSHOT.202",
+        "testlib": "2.0.0-SNAPSHOT.215",
+        "time": "2.0.0-SNAPSHOT.252",
+        "validation": "2.0.0-SNAPSHOT.465"
+      },
+      "adapt_rounds": 2,
+      "built": {
+        "head": "1e156115678edf65328bae253816bc60eed84e36",
+        "at": "2026-10-19T18:05:12Z"
+      },
+      "pr": null,
+      "parked": null
+    },
+    "jdbc-storage": {
+      "upstreams": [
+        "core-jvm",
+        "core-jvm-compiler",
+        "validation"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-rdbms"
+      },
+      "state": "pr-ready",
+      "target_version": "2.0.0-SNAPSHOT.131",
+      "pin_vector": {
+        "core-jvm": "2.0.0-SNAPSHOT.572",
+        "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
+        "validation": "2.0.0-SNAPSHOT.465"
+      },
+      "adapt_rounds": 1,
+      "built": {
+        "head": "ccfb397ddda4df12acaf275ab019c0cb9e16c9d6",
+        "at": "2026-10-16T22:46:46Z"
+      },
+      "pr": null,
+      "parked": null
+    },
+    "gcloud-jvm": {
+      "upstreams": [
+        "base-libraries",
+        "base-types",
+        "compiler",
+        "core-jvm",
+        "core-jvm-compiler",
+        "logging",
+        "testlib",
+        "validation"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine/gcloud",
+        "artifact": "spine-datastore"
+      },
+      "state": "pr-ready",
+      "target_version": "2.0.0-SNAPSHOT.241",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.461",
+        "base-types": "2.0.0-SNAPSHOT.227",
+        "compiler": "2.0.0-SNAPSHOT.074",
+        "core-jvm": "2.0.0-SNAPSHOT.572",
+        "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
+        "logging": "2.0.0-SNAPSHOT.426",
+        "testlib": "2.0.0-SNAPSHOT.215",
+        "validation": "2.0.0-SNAPSHOT.465"
+      },
+      "adapt_rounds": 1,
+      "built": {
+        "head": "cbe4787e7e482cb2916b742cfa5064b99d82b26b",
+        "at": "2026-10-19T18:07:22Z"
+      },
+      "pr": null,
+      "parked": null
+    },
+    "delivery": {
+      "upstreams": [
+        "compiler",
+        "core-jvm",
+        "core-jvm-compiler",
+        "logging",
+        "testlib",
+        "time",
+        "validation"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine/delivery",
+        "artifact": "spine-delivery-server"
+      },
+      "state": "pr-ready",
+      "target_version": "0.24.1",
+      "pin_vector": {
+        "compiler": "2.0.0-SNAPSHOT.074",
+        "core-jvm": "2.0.0-SNAPSHOT.572",
+        "core-jvm-compiler": "2.0.0-SNAPSHOT.098",
+        "logging": "2.0.0-SNAPSHOT.426",
+        "testlib": "2.0.0-SNAPSHOT.215",
+        "time": "2.0.0-SNAPSHOT.252",
+        "validation": "2.0.0-SNAPSHOT.465"
+      },
+      "adapt_rounds": 1,
+      "built": {
+        "head": "799a899d46648b5d5db6bfb0ef54ae9932440ded",
+        "at": "2026-10-16T23:00:09Z"
+      },
+      "pr": null,
+      "parked": null
+    },
+    "BuildSpeed": {
+      "upstreams": [
+        "core-jvm-compiler"
+      ],
+      "class": "verify-only",
+      "version_property": "",
+      "probe": {
+        "group_path": "",
+        "artifact": ""
+      },
+      "state": "parked",
+      "target_version": null,
+      "pin_vector": {},
+      "adapt_rounds": 0,
+      "built": null,
+      "pr": null,
+      "parked": "verify-only: SDK versions arrive as CI environment variables substituted into settings.gradle.kts.template, so there are no file pins to apply, no version to bump, and no artifact to publish"
+    }
+  },
+  "excluded": {},
+  "closing_pr": null
+}

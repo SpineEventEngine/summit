@@ -64,11 +64,11 @@ does against the SDK repositories above.
 
 ### Storage & runtime
 
-| Submodule                            | Role                                                         |
-|--------------------------------------|--------------------------------------------------------------|
-| [`jdbc-storage`][jdbc-storage]       | Support for storage in JDBC-compliant databases              |
-| [`gcloud-jvm`][gcloud-jvm]           | Support for Spine-based Kotlin and Java apps on Google Cloud |
-| [`delivery-server`][delivery-server] | gRPC services providing sharded message delivery             |
+| Submodule                      | Role                                                         |
+|--------------------------------|--------------------------------------------------------------|
+| [`jdbc-storage`][jdbc-storage] | Support for storage in JDBC-compliant databases              |
+| [`gcloud-jvm`][gcloud-jvm]     | Support for Spine-based Kotlin and Java apps on Google Cloud |
+| [`delivery`][delivery]         | gRPC services providing sharded message delivery             |
 
 ### Benchmarks & documentation
 
@@ -128,6 +128,6 @@ available skills are described in [`AGENTS.md`](AGENTS.md).
 [core-jvm]: https://github.com/SpineEventEngine/core-jvm
 [jdbc-storage]: https://github.com/SpineEventEngine/jdbc-storage
 [gcloud-jvm]: https://github.com/SpineEventEngine/gcloud-jvm
-[delivery-server]: https://github.com/SpineEventEngine/delivery-server
+[delivery]: https://github.com/SpineEventEngine/delivery
 [BuildSpeed]: https://github.com/SpineEventEngine/BuildSpeed
 [documentation]: https://github.com/SpineEventEngine/documentation

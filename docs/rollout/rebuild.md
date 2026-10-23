@@ -34,7 +34,7 @@ Wave kinds:
   set it to the JDK 17 path directly, or use your distribution's alternatives
   mechanism.
 - `gh auth status` shows a token with `repo` + `workflow` scope, plus
-  `read:packages` — `delivery-server` publishes to GitHub Packages, and
+  `read:packages` — `delivery` publishes to GitHub Packages, and
   `ship` and `close` cannot verify its artifacts without that scope.
 - Builds run **strictly sequentially** — never start a second Gradle build while
   a wave build runs. Maven Central consumption blocks (HTTP 429) are machine-wide
@@ -99,17 +99,41 @@ and execute what it prints, in order:
   repo — three adapt→rebuild rounds, then auto-park). Exit 5 = throttling halt.
 - `PREPR:<repo>` → run the `pre-pr` skill inside the repo (writes the sentinel).
 - `SHIP:<repo>` → `./cascade ship <repo>` — sentinel gate, upstream-published
-  gate, floor gate (every version the repo pins — forward upstreams *and*
-  published floors — proven in the registry, derived from the pin files by
-  content, since floors never appear in the manifest), drift gate, push, PR.
-  Exit 4 means an upstream is not published yet: wait, don't force.
+  gate (the upstream has not re-bumped since this repo pinned it, the registry
+  serves its version *and* the upstream's wave PR for it has merged, and its
+  `publish.yml` run for the merge commit succeeded), floor gate (every version
+  the repo pins — forward upstreams *and* published floors — proven in the
+  registry, derived from the pin files by content, since floors never appear in
+  the manifest), drift gate, push, PR. Exit 4 means an upstream is not
+  published yet: wait, don't force. Exit 3 from the upstream gate (the upstream
+  re-bumped, collided with the base branch, or failed to publish) means
+  re-pinning with `./cascade refresh <repo>` once the upstream is fixed.
+  The PR opens as a draft, because the organization's ruleset requests a
+  Copilot review for every PR opened as ready, before CI has run. Once all its
+  checks pass, mark it ready (`gh pr ready <url>`), which requests that review
+  then, and enable auto-merge.
+- `FIX-PUBLISH:<repo>` → the repo's `publish.yml` run failed after its PR
+  merged, or never started: GitHub can delay or drop a merge's push event, and
+  an hour without a run counts as a failure. A run that fails midway may already have uploaded some modules, so
+  the registry's marker artifact proves nothing; `./cascade status` links the
+  run. Fix the cause (often in `config`), then run `./cascade refresh <repo>`:
+  it branches again from the base branch, pulls `config`, and bumps to a new
+  version. Build, pre-pr, and ship it as usual, and re-pin each downstream repo
+  with `./cascade refresh <downstream>`. Downstream repos wait meanwhile.
+- `REBUMP:<repo>` → the registry serves the repo's wave version, but the repo's
+  wave PR has not merged: the base branch took the same version first, so the
+  registry holds the base branch's build, not the wave's. Merge the base branch
+  into the wave branch, resolving a `version.gradle.kts` conflict by the
+  `bump-version` Conflict Rule, then run `./cascade refresh <repo>` to re-bump
+  past the base branch's version. Rebuild the repo, and re-pin each downstream
+  repo with `./cascade refresh <downstream>`. Downstream repos wait meanwhile.
 - `WAIT-*` only → `./cascade await` (background it) — exits the moment the
   action set changes; then run `next` again.
 - `CLOSE` → `./cascade close` — stages the final vector in `config` (floors
   included, now provably published), exit 3 → `pre-pr` in config →
   `./cascade close --ship` opens the closing PR.
 
-Humans do exactly: review/merge PRs, resolve parks (`./cascade resume`), and
+Humans do exactly: review/merge PRs, resolve parks (`./cascade resume`), fix failed publishes, and
 acknowledge throttle halts. Everything else is the loop.
 
 ## 3. Drift

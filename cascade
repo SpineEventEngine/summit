@@ -102,7 +102,7 @@ write_pin_constant() { # <file> <name> <old> <new>
 repos_all() {
     echo "base-libraries reflect logging testlib dokka-tools tool-base \
 ProtoTap compiler validation core-jvm-compiler base-types change time money \
-core-jvm jdbc-storage gcloud-jvm delivery-server BuildSpeed"
+core-jvm jdbc-storage gcloud-jvm delivery BuildSpeed"
 }
 
 # Position of a repo in the canonical order (1-based; 0 = unknown).
@@ -150,6 +150,25 @@ obj_to_repo() {
     esac
 }
 
+# `config`'s accessor aliases for local objects (`BuildExtensions.kt`) that are
+# dereferenced as `<alias>.member` where the objects are not imported, e.g.
+# `classpath(spineCompiler.pluginLib)` in a `buildscript {}` block.
+# `obj_of_alias` is the inverse.
+alias_of_obj() {
+    case "$1" in
+        Compiler) echo spineCompiler ;;
+        CoreJvmCompiler) echo coreJvmCompiler ;;
+        *) echo "" ;;
+    esac
+}
+
+obj_of_alias() {
+    case "$1" in
+        spineCompiler) echo Compiler ;;
+        coreJvmCompiler) echo CoreJvmCompiler ;;
+    esac
+}
+
 # repo -> pin file (relative to a consumer's buildSrc local/ dir).
 repo_pin_file() {
     case "$1" in
@@ -159,6 +178,7 @@ repo_pin_file() {
         compiler) echo Compiler.kt ;;
         core-jvm) echo CoreJvm.kt ;;
         core-jvm-compiler) echo CoreJvmCompiler.kt ;;
+        dokka-tools) echo DokkaTools.kt ;;
         logging) echo Logging.kt ;;
         ProtoTap) echo ProtoTap.kt ;;
         reflect) echo Reflect.kt ;;
@@ -186,7 +206,7 @@ repo_track_constants() {
 # marker-artifact: one definitely-published artifact used for registry probes.
 # class: library (full pipeline) | verify-only (no version/publishing steps).
 # registry: gcar (public europe-maven.pkg.dev) | github (GitHub Packages —
-# delivery-server is proprietary and publishes only there; probes authenticate
+# `delivery` is proprietary and publishes only there; probes authenticate
 # with `gh auth token`).
 repo_meta() {
     case "$1" in
@@ -207,7 +227,7 @@ repo_meta() {
         core-jvm)          echo "io/spine|spine-core|versionToPublish|library|gcar" ;;
         jdbc-storage)      echo "io/spine|spine-rdbms|versionToPublish|library|gcar" ;;
         gcloud-jvm)        echo "io/spine/gcloud|spine-datastore|versionToPublish|library|gcar" ;;
-        delivery-server)   echo "io/spine/delivery|spine-delivery-server|versionToPublish|library|github" ;;
+        delivery)          echo "io/spine/delivery|spine-delivery-server|versionToPublish|library|github" ;;
         BuildSpeed)        echo "|||verify-only|" ;;
         *) echo "" ;;
     esac
@@ -290,6 +310,76 @@ marker_metadata() { # <repo>
 # Does the repo's registry serve <version> of its marker artifact?
 registry_has() { # <repo> <version>
     marker_metadata "$1" | grep -q "<version>$2</version>"
+}
+
+# The `publish.yml` run for the merge commit of the repo's wave PR, as
+# "<verdict> <run URL>": `ok`, `failed`, or `running`. The marker artifact alone
+# cannot prove a publish completed: a run that fails midway has already uploaded
+# some modules (compiler `.072` reached the registry without `compiler-testlib`).
+# With no recorded PR, no merge commit, or no run (a seed published by hand, a
+# repo without the workflow), the verdict is `ok` and the registry stays the
+# only evidence, as before.
+iso_epoch() { # <ISO-8601 UTC time> -> seconds since the epoch (BSD or GNU `date`)
+    date -j -u -f '%Y-%m-%dT%H:%M:%SZ' "$1" +%s 2>/dev/null || date -u -d "$1" +%s
+}
+
+publish_verdict() { # <wave> <repo>
+    local url sha merged run
+    url="$(mget "$1" --arg r "$2" '.repos[$r].pr.url // empty')"
+    [ -n "$url" ] || { echo ok; return; }
+    read -r sha merged <<EOF
+$(gh pr view "$url" --json mergeCommit,mergedAt \
+    --jq '"\(.mergeCommit.oid // "") \(.mergedAt // "")"' 2>/dev/null || true)
+EOF
+    [ -n "$sha" ] || { echo ok; return; }
+    run="$(gh run list -R "$ORG/$2" --workflow publish.yml --commit "$sha" --limit 1 \
+             --json status,conclusion,url \
+             --jq '.[0] // empty | "\(.status) \(if (.conclusion // "") == "" then "none" else .conclusion end) \(.url)"' \
+             2>/dev/null || true)"
+    if [ -z "$run" ]; then
+        # GitHub can delay the push event of a merge, or drop it, and then no workflow starts
+        # for the merge commit. The time `.252` run started 17 minutes late, during an
+        # incident; an hour without a run means the publication never happened.
+        if [ -n "$merged" ] && [ $(( $(date +%s) - $(iso_epoch "$merged") )) -gt 3600 ]; then
+            echo "failed https://github.com/$ORG/$2/commit/$sha (no publish run started)"
+        else
+            echo ok
+        fi
+        return
+    fi
+    set -- $run
+    case "$1 $2" in
+        "completed success") echo "ok $3" ;;
+        completed\ *)        echo "failed $3" ;;
+        *)                   echo "running $3" ;;
+    esac
+}
+
+# Has the wave's own PR for the repo merged? Without that, a registry serving the
+# wave's target version serves someone else's build: the base branch took the
+# same version first (core-jvm `.571`). A ripple seed given as `repo@version` is
+# published by hand, and when `gh` itself fails the registry is the only
+# evidence; both count as merged.
+wave_pr_merged() { # <wave> <repo>
+    local ref out
+    [ "$2" = "$(mget "$1" '.seed.repo // empty')" ] \
+        && [ -n "$(mget "$1" '.seed.version // empty')" ] && return 0
+    ref="$(mget "$1" --arg r "$2" '.repos[$r].pr.url // empty')"
+    [ -n "$ref" ] || ref="$(mget "$1" .branch)"
+    if out="$(gh pr view "$ref" -R "$ORG/$2" --json state --jq .state 2>&1)"; then
+        [ "$out" = MERGED ]
+    else
+        case "$out" in *"no pull requests found"*) return 1 ;; esac
+        return 0
+    fi
+}
+
+# The open PR from the wave branch, or nothing. Unlike `gh pr view <branch>`, it
+# ignores a merged PR from the same branch name, which a repository re-shipped
+# after a failed publish already has.
+open_pr_url() { # <repo> <branch>
+    gh pr list -R "$ORG/$1" --head "$2" --state open --json url --jq '.[0].url // empty' \
+        2>/dev/null || true
 }
 
 # File.kt -> repo (reverse of repo_pin_file); empty when not a repo pin file.
@@ -392,8 +482,14 @@ derive_scoped() {
         done
         [ -n "$files" ] || continue
         # shellcheck disable=SC2086
-        objs="$(grep -hoE 'io\.spine\.dependency\.local\.[A-Z][A-Za-z]+' $files 2>/dev/null \
-                | sed 's/.*\.//' | sort -u)"
+        objs="$( { grep -hoE 'io\.spine\.dependency\.local\.[A-Z][A-Za-z]+' $files 2>/dev/null \
+                       | sed 's/.*\.//'
+                   # Optional: most repositories reference no alias, and `grep`
+                   # exits 1 on no match, which `pipefail` would propagate.
+                   grep -hoE '(^|[^.A-Za-z])(spineCompiler|coreJvmCompiler)\.[A-Za-z]' $files 2>/dev/null \
+                       | grep -oE 'spineCompiler|coreJvmCompiler' \
+                       | while read -r a; do obj_of_alias "$a"; done || true
+                 } | sort -u)"
         # Block-aware classification: a reference creates an edge only where
         # it is a declared dependency. References inside version-management
         # constructs — force(...), constraints {...}, exclude(...) — create NO
@@ -407,7 +503,7 @@ derive_scoped() {
             up="$(obj_to_repo "$o")"
             [ -n "$up" ] && [ "$up" != "$repo" ] || continue
             # shellcheck disable=SC2086
-            scopes="$(awk -v obj="$o" '
+            scopes="$(awk -v obj="$o" -v alias="$(alias_of_obj "$o")" '
                 function push(tag) { sp++; tags[sp] = tag; depths[sp] = depth }
                 {
                     line = $0
@@ -416,8 +512,10 @@ derive_scoped() {
                     # and the fully-qualified `io.spine.dependency.local.Obj.member`,
                     # which is the house style inside `buildscript {}` where
                     # file-level imports do not apply. The leading guard still
-                    # rejects an unrelated `Something.Obj.member`.
+                    # rejects an unrelated `Something.Obj.member`. A `config`
+                    # accessor alias (`spineCompiler.member`) counts the same way.
                     use = match(line, "(^|[^.A-Za-z])(io\\.spine\\.dependency\\.local\\.)?" obj "\\.[A-Za-z]")
+                    if (!use && alias != "") use = match(line, "(^|[^.A-Za-z])" alias "\\.[A-Za-z]")
                     if (use) {
                         if (line ~ /(^|[^A-Za-z])test[A-Za-z]*\(/)        print "test"
                         else if (line ~ /(^|[^A-Za-z])(api|implementation|compileOnly|compileOnlyApi|runtimeOnly|annotationProcessor|classpath|kapt|ksp)\(/) print "main"
@@ -454,11 +552,16 @@ derive_scoped() {
         #   coreJvmCompiler / io.spine.core-jvm           -> core-jvm-compiler
         #   io.spine.{artifact-meta,descriptor-set-file,
         #             generated-sources}                  -> tool-base
+        # `spineCompiler` and `coreJvmCompiler` (not `prototap`) also appear as
+        # `id(<accessor>.pluginId)`.
         # shellcheck disable=SC2086
         {
             grep -hE '^[[:space:]]*(prototap|spineCompiler|coreJvmCompiler)[[:space:]]*$' $files 2>/dev/null \
                 | sed 's/[[:space:]]//g' | sort -u \
                 | sed 's/^prototap$/ProtoTap/; s/^spineCompiler$/compiler/; s/^coreJvmCompiler$/core-jvm-compiler/'
+            grep -hoE '(^|[^.A-Za-z])id\((spineCompiler|coreJvmCompiler)\.pluginId\)' $files 2>/dev/null \
+                | grep -oE 'spineCompiler|coreJvmCompiler' | sort -u \
+                | sed 's/^spineCompiler$/compiler/; s/^coreJvmCompiler$/core-jvm-compiler/'
             grep -hoE '"io\.spine\.(prototap|compiler|core-jvm|artifact-meta|descriptor-set-file|generated-sources)"' $files 2>/dev/null \
                 | tr -d '"' | sort -u \
                 | sed 's/^io\.spine\.prototap$/ProtoTap/; s/^io\.spine\.compiler$/compiler/; s/^io\.spine\.core-jvm$/core-jvm-compiler/; s/^io\.spine\..*$/tool-base/'
@@ -794,6 +897,12 @@ active_wave() {
     basename "$m" .json
 }
 
+# A manifest that lists no repos reads as a finished wave, so `next` would say CLOSE.
+require_intact() { # <wave>
+    [ "$(mget "$1" '(.repos // {}) | length > 0' 2>/dev/null)" = true ] \
+        || die "the manifest of '$1' lists no repos — restore it: git checkout -- $(manifest_path "$1")"
+}
+
 # mget <wave> [jq-args...] <program> — the program is always the LAST argument.
 mget() {
     local wave="$1"; shift
@@ -805,8 +914,15 @@ mget() {
 }
 mset() { # <wave> <jq-program> [--arg k v ...]
     local wave="$1" prog="$2"; shift 2
-    local p tmp; p="$(manifest_path "$wave")"; tmp="$p.tmp"
-    jq "$@" "$prog" "$p" > "$tmp" && mv "$tmp" "$p"
+    local p tmp; p="$(manifest_path "$wave")"
+    # A private temp file: with a shared one, concurrent runs (the driver and a manual
+    # call) truncated each other's output and moved an empty manifest into place.
+    tmp="$(mktemp "$p.XXXXXX")"
+    if jq "$@" "$prog" "$p" > "$tmp" && [ -s "$tmp" ]; then
+        mv "$tmp" "$p"
+    else
+        rm -f "$tmp"; die "could not update $p"
+    fi
 }
 
 wave_repos() { mget "$1" '.repos | keys[]'; }
@@ -1022,10 +1138,31 @@ derive_state() { # <wave> <repo> -> prints state
     # the registry, this repository is done. Without this the derivation reads a
     # MERGED branch as `pending` -- after the merge `origin/$BASE..$branch` is
     # empty, so the branch looks like it never had work -- and the wave asks to
-    # prep and rebuild a repository it has already shipped.
+    # prep and rebuild a repository it has already shipped. The exception is
+    # `collision`: while the wave's PR for the repository is unmerged, the
+    # registry's copy is the base branch's build of the same version, so the
+    # repository must re-bump.
     local tvp; tvp="$(mget "$wave" --arg r "$repo" '.repos[$r].target_version // empty')"
     if [ -n "$tvp" ] && registry_has "$repo" "$tvp"; then
-        echo published-remote; return
+        wave_pr_merged "$wave" "$repo" || { echo collision; return; }
+        case "$(publish_verdict "$wave" "$repo")" in
+            failed\ *)  echo publish-failed; return ;;
+            running\ *) echo merged; return ;;
+            *)          echo published-remote; return ;;
+        esac
+    fi
+
+    # The wave's PR merged, but the registry does not serve the target yet: the
+    # publish run is pending, or it failed before uploading the marker (validation
+    # `.465` hit HTTP 429 while configuring). Commits pushed to the branch after
+    # the merge must not read as a fresh branch that needs `prep` again.
+    if [ -n "$tvp" ] && [ -n "$(mget "$wave" --arg r "$repo" '.repos[$r].pr.url // empty')" ] \
+       && wave_pr_merged "$wave" "$repo"; then
+        case "$(publish_verdict "$wave" "$repo")" in
+            failed\ *) echo publish-failed ;;
+            *)         echo merged ;;
+        esac
+        return
     fi
 
     local subjects
@@ -1083,18 +1220,29 @@ derive_state() { # <wave> <repo> -> prints state
     s_status="$(sed -n 's/^status=//p' "$gitdir/pre-pr.ok" 2>/dev/null || true)"
     { [ "$s_status" = PASS ] && [ "$s_head" = "$head" ]; } || { echo published-local; return; }
 
-    # pr-open / merged.
-    local prstate
-    prstate="$(gh pr view "$branch" -R "$ORG/$repo" --json state --jq .state 2>/dev/null || true)"
+    # pr-open / merged. A PR merged from another head is the previous ship of
+    # the reused wave branch (a new version after a failed publish): the
+    # current head has no PR yet.
+    local prstate prhead
+    read -r prstate prhead <<EOF
+$(gh pr view "$branch" -R "$ORG/$repo" --json state,headRefOid \
+    --jq '"\(.state) \(.headRefOid)"' 2>/dev/null || true)
+EOF
+    [ "$prstate" = MERGED ] && [ "$prhead" != "$head" ] && prstate=""
     case "$prstate" in
         MERGED) ;;
         OPEN)   echo pr-open; return ;;
         *)      echo pr-ready; return ;;
     esac
 
-    # published-remote (library): registry serves the target.
+    # published-remote (library): registry serves the target and the publish run
+    # completed.
     if [ "$cls" = library ]; then
         local tv; tv="$(mget "$wave" --arg r "$repo" '.repos[$r].target_version')"
+        case "$(publish_verdict "$wave" "$repo")" in
+            failed\ *)  echo publish-failed; return ;;
+            running\ *) echo merged; return ;;
+        esac
         registry_has "$repo" "$tv" || { echo merged; return; }
         echo published-remote; return
     fi
@@ -1122,10 +1270,15 @@ cmd_status() {
             done
         fi
         mset "$wave" '.repos[$r].state = $s' --arg r "$repo" --arg s "$st"
+        local note
+        note="$(mget "$wave" --arg r "$repo" '.repos[$r].parked // ""')"
+        [ "$st" = publish-failed ] && note="publish run failed: $(publish_verdict "$wave" "$repo" | cut -d' ' -f2)"
+        [ "$st" = collision ] \
+            && note="$BASE took this version first — merge $BASE, then: ./cascade refresh $repo"
         printf '%-20s %-17s %-24s %s\n' "$repo" "${blocked:+blocked}${blocked:-$st}" \
             "$(mget "$wave" --arg r "$repo" '.repos[$r].target_version // empty' \
                | grep . || version_of "$repo" "$wbranch" 2>/dev/null | grep . || echo "—")" \
-            "${blocked:-$(mget "$wave" --arg r "$repo" '.repos[$r].parked // ""')}"
+            "${blocked:-$note}"
     done
     [ "$(mget "$wave" '.halted // empty')" != "" ] && warn "WAVE HALTED: $(mget "$wave" .halted)"
     return 0
@@ -1138,6 +1291,7 @@ cmd_status() {
 cmd_next() {
     local wave json=0
     wave="$(active_wave)"
+    require_intact "$wave"
     [ "${1:-}" = "--json" ] && json=1
     cmd_status "$wave" >/dev/null    # refresh derived states first
 
@@ -1186,6 +1340,13 @@ cmd_next() {
                 else actions="$actions WAIT-UPSTREAM:$repo"; fi ;;
             pr-open)  actions="$actions WAIT-REVIEW:$repo" ;;
             merged)   actions="$actions WAIT-PUBLISH:$repo" ;;
+            # The publish run failed after the merge; a human fixes the build
+            # and publishes a new version. Downstream repos keep waiting.
+            publish-failed) actions="$actions FIX-PUBLISH:$repo" ;;
+            # The base branch published the wave's target version first; the
+            # driver merges the base branch and re-bumps. Downstream repos keep
+            # waiting.
+            collision) actions="$actions REBUMP:$repo" ;;
             parked|blocked|published-remote) ;;
         esac
     done
@@ -1220,12 +1381,22 @@ cmd_prep() {
         git switch -q -c "$branch" 2>/dev/null || git switch -q "$branch"
     fi
 
+    # Check `config` out at the commit the branch records: `git pull` moves the
+    # recorded pointer but not the checkout (a false "working tree not clean" error
+    # below), and an uninitialized `config` would be mistaken for a repo that does
+    # not consume it.
+    if git config -f .gitmodules --get submodule.config.path >/dev/null 2>&1; then
+        git submodule update --init --quiet -- config
+    fi
+
     # ./config/pull — commit only what it actually changed. A repo that does not
     # consume `config` (its own hand-written buildSrc, no `config` submodule) has
     # nothing to pull; skipping keeps it a wave participant instead of a hard error.
     if [ ! -x ./config/pull ]; then
         note "$repo does not consume \`config\` — no pull step"
-    elif ! git log --format=%s "origin/$BASE..HEAD" | grep -q '^Update shared agent tooling'; then
+    # A here-string, not a pipe: `grep -q` exits at the first match, and under
+    # `pipefail` the SIGPIPE `git log` may then take reads as "not pulled yet".
+    elif ! grep -q '^Update shared agent tooling' <<<"$(git log --format=%s "origin/$BASE..HEAD")"; then
         [ -z "$(git status --porcelain)" ] \
             || die "working tree not clean before ./config/pull at $repo — commit or stash first"
         ./config/pull
@@ -1407,6 +1578,13 @@ cmd_ship() {
     for up in $(upstreams_of "$wave" "$repo"); do
         pv="$(mget "$wave" --arg r "$repo" --arg u "$up" '.repos[$r].pin_vector[$u] // empty')"
         [ -n "$pv" ] || continue
+        # Re-bump drift the registry cannot reveal: the upstream re-bumped after
+        # this repo was pinned (a collision or a failed publish), but the old
+        # pinned version is still public.
+        local tvu; tvu="$(mget "$wave" --arg r "$up" '.repos[$r].target_version // empty')"
+        if [ -n "$tvu" ] && [ "$tvu" != "$pv" ]; then
+            warn "upstream $up re-bumped ($pv -> $tvu) — run: ./cascade refresh $repo"; exit 3
+        fi
         if ! registry_has "$up" "$pv"; then
             # Drift check: did the upstream move past our pin (re-bump)?
             local upcur; upcur="$(version_of "$up" "$branch" 2>/dev/null || version_of "$up")"
@@ -1415,6 +1593,21 @@ cmd_ship() {
             fi
             warn "waiting: $up $pv not yet in the registry"; exit 4
         fi
+        # A registry copy the wave did not publish is the base branch's build of
+        # that version.
+        wave_pr_merged "$wave" "$up" || {
+            warn "upstream $up $pv: the registry serves $BASE's build, not the wave's"
+            warn "re-bump $up first (REBUMP in ./cascade next), then: ./cascade refresh $repo"
+            exit 3; }
+        # The marker alone may come from a publish that failed midway.
+        local verdict; verdict="$(publish_verdict "$wave" "$up")"
+        case "$verdict" in
+            failed\ *)
+                warn "upstream $up $pv: its publish run failed (${verdict#failed }), so some modules may be missing"
+                warn "fix and re-publish $up, re-pin with ./cascade refresh $repo, then ship again"
+                exit 3 ;;
+            running\ *) warn "waiting: $up $pv publish still running (${verdict#running })"; exit 4 ;;
+        esac
     done
 
     # Floor gate: every version pinned in this repo's own pin files must be
@@ -1442,17 +1635,23 @@ EOF
     fi
 
     git checkout -- docs/dependencies/ 2>/dev/null || true
-    if gh pr view "$branch" -R "$ORG/$repo" --json url >/dev/null 2>&1; then
+    local url; url="$(open_pr_url "$repo" "$branch")"
+    if [ -n "$url" ]; then
         git push -q origin "$branch"
-        note "PR already open: $(gh pr view "$branch" -R "$ORG/$repo" --json url --jq .url)"
+        note "PR already open: $url"
     else
         git push -u origin "$branch"
-        gh pr create --base "$BASE" --head "$branch" \
+        # A draft: the organization's ruleset requests a Copilot review for every
+        # pull request opened as ready, before CI has run. The driver marks the
+        # draft ready once all its checks pass, which requests that review then.
+        gh pr create --draft --base "$BASE" --head "$branch" \
             --title "$(pr_title)" \
             --body-file "$SUMMIT/docs/rollout/rebuild-pr-body.md"
+        url="$(open_pr_url "$repo" "$branch")"
     fi
+    [ -n "$url" ] || die "no open PR from '$branch' in $ORG/$repo after ship"
     mset "$wave" '.repos[$r].pr = {url: $u, head: $h}' --arg r "$repo" \
-        --arg u "$(gh pr view "$branch" -R "$ORG/$repo" --json url --jq .url)" --arg h "$head"
+        --arg u "$url" --arg h "$head"
     checkpoint_state "$wave" || true
 }
 
@@ -1471,6 +1670,18 @@ pr_title() {
 cmd_refresh() {
     local repo="${1:?usage: cascade refresh <repo>}" wave
     wave="$(active_wave)"
+    # After a failed publish the wave branch has merged: start the repository
+    # over from the base branch, so prep pulls `config` again and bumps past the
+    # partly published version.
+    if [ "$(derive_state "$wave" "$repo")" = publish-failed ]; then
+        local dir="$SUMMIT/$repo" branch
+        branch="$(mget "$wave" .branch)"
+        git -C "$dir" fetch --quiet origin "$BASE"
+        git -C "$dir" checkout -q "$BASE"
+        git -C "$dir" pull --ff-only --quiet origin "$BASE"
+        git -C "$dir" branch -d "$branch"   # refuses a branch the base lacks
+        mset "$wave" '.repos[$r].pr = null | .repos[$r].target_version = null' --arg r "$repo"
+    fi
     # Clear the recorded pins so prep re-reads the upstreams' current versions,
     # then invalidate the build record (the branch will gain commits).
     mset "$wave" '.repos[$r].pin_vector = {} | .repos[$r].built = null' --arg r "$repo"
@@ -1536,6 +1747,7 @@ cmd_await() {
 cmd_close() {
     local wave ship=0
     wave="$(active_wave)"
+    require_intact "$wave"
     [ "${1:-}" = "--ship" ] && ship=1
     local cfg="$SUMMIT/config" vbranch repo tv pf c cur cur_re
     vbranch="$(mget "$wave" .wave)-vector"
@@ -1596,7 +1808,9 @@ cmd_close() {
         { [ "$s_status" = PASS ] && [ "$s_head" = "$chead" ]; } \
             || { warn "no PASS pre-pr sentinel for HEAD in config — run the pre-pr skill there, then: ./cascade close --ship"; exit 3; }
         git push -u origin "$vbranch"
-        gh pr create -R "$ORG/config" --base "$BASE" --head "$vbranch" \
+        # A draft, as in `ship`: the ruleset requests a Copilot review for every PR
+        # opened as ready. Mark it ready once all its checks pass.
+        gh pr create --draft -R "$ORG/config" --base "$BASE" --head "$vbranch" \
             --title "Record the \`$wave\` version vector" \
             --body "Advances \`io.spine.dependency.local\` pins to the versions published by wave \`$wave\`. All versions verified present in the registry before this PR was opened."
         mset "$wave" '.closing_pr = $u' --arg u "$(gh pr view "$vbranch" -R "$ORG/config" --json url --jq .url)"

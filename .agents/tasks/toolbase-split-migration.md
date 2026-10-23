@@ -84,7 +84,7 @@ migrating: `core-java-1x` (2023-06-29), `model-tools` (2022-10-04).
 nothing from the artifact. The fix is to drop the entry, or replace it with the
 specific modules if the forced version still matters:
 
-- [ ] `base-types` · `bootstrap` · `change` · `core-jvm` · `delivery-server`
+- [ ] `base-types` · `bootstrap` · `change` · `core-jvm` · `delivery`
 - [ ] `dokka-tools` · `gcloud-jvm` · `jdbc-storage` · `logging` · `model-compiler`
 - [ ] `reflect` · `time` · `validation` · `web`
 

@@ -58,7 +58,7 @@ consumed at runtime.
 15. `core-jvm`
 16. `jdbc-storage`
 17. `gcloud-jvm`
-18. `delivery-server`
+18. `delivery`
 19. `BuildSpeed`
 
 ## Documentation tooling
@@ -93,7 +93,7 @@ flowchart BT
     core-jvm --> base-types
     core-jvm --> change
     validation --> compiler
-    delivery-server --> core-jvm
+    delivery --> core-jvm
     gcloud-jvm --> core-jvm
     jdbc-storage --> core-jvm
     BuildSpeed --> core-jvm-compiler
@@ -125,12 +125,12 @@ flowchart BT
     time --> logging
     ProtoTap --> testlib
     base-types --> testlib
-    delivery-server --> testlib
+    delivery --> testlib
     gcloud-jvm --> testlib
     money --> testlib
     time --> testlib
     validation --> testlib
-    delivery-server --> time
+    delivery --> time
 ```
 
 </details>
@@ -191,7 +191,7 @@ of the literal in the repository's `version.gradle.kts`.
 | `core-jvm` | library | gcar : `io.spine:spine-core` | `versionToPublish` |
 | `jdbc-storage` | library | gcar : `io.spine:spine-rdbms` | `versionToPublish` |
 | `gcloud-jvm` | library | gcar : `io.spine.gcloud:spine-datastore` | `versionToPublish` |
-| `delivery-server` | library | github : `io.spine.delivery:spine-delivery-server` | `versionToPublish` |
+| `delivery` | library | github : `io.spine.delivery:spine-delivery-server` | `versionToPublish` |
 | `BuildSpeed` | verify-only | — | — |
 
 `documentation` is not on the graph: it is the documentation area of the
@@ -255,6 +255,7 @@ compiler validation
 core-jvm base-libraries
 core-jvm base-types
 core-jvm change
+core-jvm compiler
 core-jvm core-jvm-compiler
 core-jvm logging
 core-jvm reflect
@@ -271,13 +272,13 @@ core-jvm-compiler testlib
 core-jvm-compiler time
 core-jvm-compiler tool-base
 core-jvm-compiler validation
-delivery-server compiler
-delivery-server core-jvm
-delivery-server core-jvm-compiler
-delivery-server logging
-delivery-server testlib
-delivery-server time
-delivery-server validation
+delivery compiler
+delivery core-jvm
+delivery core-jvm-compiler
+delivery logging
+delivery testlib
+delivery time
+delivery validation
 dokka-tools base-libraries
 gcloud-jvm base-libraries
 gcloud-jvm base-types
@@ -287,6 +288,7 @@ gcloud-jvm core-jvm-compiler
 gcloud-jvm logging
 gcloud-jvm testlib
 gcloud-jvm validation
+jdbc-storage compiler
 jdbc-storage core-jvm
 jdbc-storage core-jvm-compiler
 jdbc-storage validation
