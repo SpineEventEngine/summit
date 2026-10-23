@@ -1808,7 +1808,9 @@ cmd_close() {
         { [ "$s_status" = PASS ] && [ "$s_head" = "$chead" ]; } \
             || { warn "no PASS pre-pr sentinel for HEAD in config — run the pre-pr skill there, then: ./cascade close --ship"; exit 3; }
         git push -u origin "$vbranch"
-        gh pr create -R "$ORG/config" --base "$BASE" --head "$vbranch" \
+        # A draft, as in `ship`: the ruleset requests a Copilot review for every PR
+        # opened as ready. Mark it ready once all its checks pass.
+        gh pr create --draft -R "$ORG/config" --base "$BASE" --head "$vbranch" \
             --title "Record the \`$wave\` version vector" \
             --body "Advances \`io.spine.dependency.local\` pins to the versions published by wave \`$wave\`. All versions verified present in the registry before this PR was opened."
         mset "$wave" '.closing_pr = $u' --arg u "$(gh pr view "$vbranch" -R "$ORG/config" --json url --jq .url)"
