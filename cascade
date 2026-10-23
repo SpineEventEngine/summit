@@ -178,6 +178,7 @@ repo_pin_file() {
         compiler) echo Compiler.kt ;;
         core-jvm) echo CoreJvm.kt ;;
         core-jvm-compiler) echo CoreJvmCompiler.kt ;;
+        dokka-tools) echo DokkaTools.kt ;;
         logging) echo Logging.kt ;;
         ProtoTap) echo ProtoTap.kt ;;
         reflect) echo Reflect.kt ;;
