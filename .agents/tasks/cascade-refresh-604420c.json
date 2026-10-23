@@ -528,7 +528,7 @@
         "group_path": "io/spine",
         "artifact": "spine-rdbms"
       },
-      "state": "pr-ready",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.131",
       "pin_vector": {
         "compiler": "2.0.0-SNAPSHOT.081",
@@ -564,7 +564,7 @@
         "group_path": "io/spine/gcloud",
         "artifact": "spine-datastore"
       },
-      "state": "pr-ready",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.241",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.462",
@@ -603,7 +603,7 @@
         "group_path": "io/spine/delivery",
         "artifact": "spine-delivery-server"
       },
-      "state": "pr-ready",
+      "state": "published-remote",
       "target_version": "0.24.1",
       "pin_vector": {
         "compiler": "2.0.0-SNAPSHOT.081",
@@ -645,5 +645,5 @@
     }
   },
   "excluded": {},
-  "closing_pr": null
+  "closing_pr": "https://github.com/SpineEventEngine/config/pull/818"
 }
