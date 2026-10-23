@@ -581,7 +581,10 @@
         "head": "ddb61bfe239c56f0bd8d5fabf869104ce19dfff9",
         "at": "2026-10-22T20:28:03Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/gcloud-jvm/pull/210",
+        "head": "ddb61bfe239c56f0bd8d5fabf869104ce19dfff9"
+      },
       "parked": null
     },
     "delivery": {
