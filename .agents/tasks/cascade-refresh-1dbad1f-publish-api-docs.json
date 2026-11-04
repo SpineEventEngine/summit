@@ -197,7 +197,10 @@
         "head": "d0169c87c7ab186957859fa805b7728e92bb8502",
         "at": "2026-11-04T20:21:17Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/change/pull/11",
+        "head": "d0169c87c7ab186957859fa805b7728e92bb8502"
+      },
       "parked": null
     }
   },
