@@ -47,7 +47,10 @@
         "head": "15f98b5c61bfdc9310f204b5c129329452d34cb4",
         "at": "2026-11-04T20:16:42Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/base-libraries/pull/969",
+        "head": "15f98b5c61bfdc9310f204b5c129329452d34cb4"
+      },
       "parked": null
     },
     "reflect": {
