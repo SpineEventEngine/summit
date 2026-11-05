@@ -166,7 +166,7 @@
         "group_path": "io/spine",
         "artifact": "spine-base-types"
       },
-      "state": "published-local",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.228",
       "pin_vector": {
         "base-libraries": "2.0.0-SNAPSHOT.463",
@@ -224,5 +224,5 @@
     "delivery": "excluded by --exclude",
     "BuildSpeed": "excluded by --exclude"
   },
-  "closing_pr": null
+  "closing_pr": "https://github.com/SpineEventEngine/config/pull/836"
 }
