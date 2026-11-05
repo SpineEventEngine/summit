@@ -2,7 +2,7 @@
 slug: publish-api-docs-wave
 branch: publish-api-docs-wave
 owner: claude
-status: draft
+status: in-progress
 started: 2026-10-21
 ---
 
@@ -54,20 +54,23 @@ into a skill.
   snapshots, so `gh-pages` stops changing until each one's next release; until
   now, every merge pushed its snapshot's docs.
 
-## Status (2026-11-04)
+## Status (2026-11-05)
 
-Checked on each repository's `master`.
+**Done: all 18 repositories.** The last seven took the change in the scoped wave
+`cascade-refresh-1dbad1f-publish-api-docs`; see the Log. Only step 4a, the first
+release version's docs run, is still open.
 
-**Done: 11 repositories.** `tool-base`, `ProtoTap`, `compiler`, `validation`,
-`core-jvm-compiler`, `time`, `money`, `core-jvm`, `jdbc-storage`, `gcloud-jvm`,
-and `delivery` already pull a `config` with the split. Most got it in the
-`cascade-refresh-604420c` wave, whose `./config/pull` took the latest `config`
-`master` after 2026-10-22; the others in their own PRs. Each has
+**Before the wave: 11 repositories.** `tool-base`, `ProtoTap`, `compiler`,
+`validation`, `core-jvm-compiler`, `time`, `money`, `core-jvm`, `jdbc-storage`,
+`gcloud-jvm`, and `delivery` already pull a `config` with the split. Most got it
+in the `cascade-refresh-604420c` wave, whose `./config/pull` took the latest
+`config` `master` after 2026-10-22; the others in their own PRs. Each has
 `PublishApiDocs.kt` and `publish-api-docs.yml`, no reference to the old names,
 and no `publish` dependency on the docs. Every `publish-api-docs.yml` run so far
 is green; all of them ran on snapshot versions, so they skipped the docs.
 
-**Remaining: 7 repositories,** still on a `config` from before config#815.
+**The wave: 7 repositories,** on a `config` from before config#815 as of
+2026-11-04.
 
 | Repository       | `config` pin | What the pull changes in the repository's own files     |
 |------------------|--------------|---------------------------------------------------------|
@@ -116,19 +119,23 @@ to let the next routine `refresh` wave
 wanted sooner, plan a `refresh` wave scoped to the seven: one `--exclude` for
 each other repository, and `--slug-suffix publish-api-docs`.
 
+The user chose the scoped wave on 2026-11-04; it ran as
+`cascade-refresh-1dbad1f-publish-api-docs`.
+
 ### Gates
 
 - [x] G1. The `config` change is merged: config#815 as `58cd2d4a31`, and the
       script rewrite, config#817, as `c5d6e5b2a5`, both on 2026-10-22.
 - [x] G2. The names are final.
 - [x] G3. Wave `cascade-refresh-604420c` is closed and archived.
-- [ ] G4. The user says go, and chooses the next routine wave or a scoped one.
+- [x] G4. The user says go, and chooses the next routine wave or a scoped one:
+      a scoped wave, on 2026-11-04.
 
 ### Steps
 
-- [ ] 1. Run `./cascade plan --kind refresh`, scoped or not, and review the
+- [x] 1. Run `./cascade plan --kind refresh`, scoped or not, and review the
       order.
-- [ ] 2. In each of the seven, after `PREP:<repo>`:
+- [x] 2. In each of the seven, after `PREP:<repo>`:
     1. **Pull output.** The rewrite prints "Rewrote `<file>` for
          `publishApiDocs`" for each file it changes, and reports any use of the
          old API it cannot rewrite. Fix a reported use by hand, in a commit of
@@ -143,10 +150,10 @@ each other repository, and `--slug-suffix publish-api-docs`.
            the `publishApiDocs` task of each published module that is
            documented. On a snapshot version it lists no `copyJavadocDocs` or
            `copyHtmlDocs`, because snapshots push no docs to `gh-pages`.
-- [ ] 3. Commit and PR rules: `cascade` makes its own `PREP` and `BUILD` commits.
+- [x] 3. Commit and PR rules: `cascade` makes its own `PREP` and `BUILD` commits.
       A hand fix and `SHIP` (push plus draft PR) happen only at the user's
       explicit request (`AGENTS.md`). Post each PR link as it is opened.
-- [ ] 4. After each merge, watch two runs: the repository's first `Publish` run,
+- [x] 4. After each merge, watch two runs: the repository's first `Publish` run,
       which must no longer touch the docs, and its first `publish-api-docs.yml`
       run, which must end green. On a snapshot version, that docs run decrypts
       the deploy key and then logs, for each documented module, that the docs
@@ -161,6 +168,8 @@ each other repository, and `--slug-suffix publish-api-docs`.
 - [ ] 5. Run `CLOSE` as usual. Then delete this file together with the wave's
       state pair. If step 4a is still open at that point, move it into the
       task file of the next release first.
+      `CLOSE` ran (config#836, merged 2026-11-05). No release task file exists
+      yet, so this file stays, holding step 4a, until one does.
 
 ## Log
 
@@ -210,3 +219,20 @@ each other repository, and `--slug-suffix publish-api-docs`.
   of the rewrite shows no hand edit for them. Replaced the inventory with that
   status, and the hand-edit steps with checks of the pull's output. Tightened
   the context; G1–G3 are done.
+- 2026-11-04. The user chose a scoped wave,
+  `cascade-refresh-1dbad1f-publish-api-docs`, run from the main `summit`
+  checkout; G4 is done.
+- 2026-11-05. The wave is closed. Its PRs: base-libraries#969 (`.463`),
+  reflect#17 (`.204`), logging#154 (`.429`), dokka-tools#14 (`.13`),
+  change#11 (`.210`), testlib#17 (`.217`), and base-types#58 (`.228`), all
+  `2.0.0-SNAPSHOT`; `CLOSE` landed as config#836. The rewrite reported nothing
+  and no old name remains. Two hand fixes, both outside the docs:
+  `base-libraries` and `testlib` force `Reflect.lib` on the buildscript
+  classpath, because `protobuf-setup-plugins` pulls an older `spine-reflect`;
+  `base-libraries`' `base` module makes `kspKotlin` and `kspTestKotlin` depend
+  on `generateProto` and `generateTestProto`. Every first `Publish` run is
+  green and no longer touches the docs. Every first docs run is green except
+  `base-libraries`', which failed before Gradle, at the runner's "Add swap
+  space" step (`pierotofy/set-swap-space` on the zram image
+  `ubuntu24/20261101.114`). Its re-run on 2026-11-05 (run 41925743501,
+  attempt 2) is green.
