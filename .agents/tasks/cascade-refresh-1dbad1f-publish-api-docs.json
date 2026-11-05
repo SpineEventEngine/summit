@@ -113,7 +113,7 @@
         "group_path": "io/spine/tools",
         "artifact": "base-testlib"
       },
-      "state": "published-local",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.217",
       "pin_vector": {
         "logging": "2.0.0-SNAPSHOT.429"
@@ -177,7 +177,10 @@
         "head": "a843bcbb2d971398985d8e839e03d856e27d71a4",
         "at": "2026-11-04T20:20:46Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/base-types/pull/58",
+        "head": "a843bcbb2d971398985d8e839e03d856e27d71a4"
+      },
       "parked": null
     },
     "change": {
