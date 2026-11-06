@@ -1,0 +1,228 @@
+{
+  "schema": 1,
+  "wave": "cascade-refresh-1dbad1f-publish-api-docs",
+  "kind": "refresh",
+  "created": "2026-11-04T20:09:08Z",
+  "base": "master",
+  "config_sha": "1dbad1fe1e97740d84ef6b7fbd9047d0d866546d",
+  "seed": null,
+  "target": null,
+  "branch": "cascade-refresh-1dbad1f-publish-api-docs",
+  "halted": null,
+  "order": [
+    "base-libraries",
+    "reflect",
+    "logging",
+    "testlib",
+    "dokka-tools",
+    "tool-base",
+    "ProtoTap",
+    "compiler",
+    "validation",
+    "core-jvm-compiler",
+    "base-types",
+    "change",
+    "time",
+    "money",
+    "core-jvm",
+    "jdbc-storage",
+    "gcloud-jvm",
+    "delivery",
+    "BuildSpeed"
+  ],
+  "repos": {
+    "base-libraries": {
+      "upstreams": [],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-base"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.463",
+      "pin_vector": {},
+      "adapt_rounds": 1,
+      "built": {
+        "head": "15f98b5c61bfdc9310f204b5c129329452d34cb4",
+        "at": "2026-11-04T20:16:42Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/base-libraries/pull/969",
+        "head": "15f98b5c61bfdc9310f204b5c129329452d34cb4"
+      },
+      "parked": null
+    },
+    "reflect": {
+      "upstreams": [],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-reflect"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.204",
+      "pin_vector": {},
+      "adapt_rounds": 0,
+      "built": {
+        "head": "bfe4ea5787a9885b09e13e4fa7e9ce364434e536",
+        "at": "2026-11-04T20:16:57Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/reflect/pull/17",
+        "head": "bfe4ea5787a9885b09e13e4fa7e9ce364434e536"
+      },
+      "parked": null
+    },
+    "logging": {
+      "upstreams": [
+        "base-libraries",
+        "reflect"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-logging"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.429",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.463",
+        "reflect": "2.0.0-SNAPSHOT.204"
+      },
+      "adapt_rounds": 0,
+      "built": {
+        "head": "b468aa539a4da2ce50e4717986b4cd4e3966aa28",
+        "at": "2026-11-04T20:18:04Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/logging/pull/154",
+        "head": "b468aa539a4da2ce50e4717986b4cd4e3966aa28"
+      },
+      "parked": null
+    },
+    "testlib": {
+      "upstreams": [
+        "logging"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine/tools",
+        "artifact": "base-testlib"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.217",
+      "pin_vector": {
+        "logging": "2.0.0-SNAPSHOT.429"
+      },
+      "adapt_rounds": 1,
+      "built": {
+        "head": "cd2933772c3ebdb16b25565fdd33fee8c0a97cfa",
+        "at": "2026-11-04T20:19:33Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/testlib/pull/17",
+        "head": "cd2933772c3ebdb16b25565fdd33fee8c0a97cfa"
+      },
+      "parked": null
+    },
+    "dokka-tools": {
+      "upstreams": [
+        "base-libraries"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine/tools",
+        "artifact": "dokka-extensions"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.13",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.463"
+      },
+      "adapt_rounds": 0,
+      "built": {
+        "head": "ef3cbcbb1dfe3ca6d4fdd22b049e9de221c056b4",
+        "at": "2026-11-04T20:20:10Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/dokka-tools/pull/14",
+        "head": "ef3cbcbb1dfe3ca6d4fdd22b049e9de221c056b4"
+      },
+      "parked": null
+    },
+    "base-types": {
+      "upstreams": [
+        "base-libraries",
+        "testlib"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-base-types"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.228",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.463",
+        "testlib": "2.0.0-SNAPSHOT.217"
+      },
+      "adapt_rounds": 0,
+      "built": {
+        "head": "a843bcbb2d971398985d8e839e03d856e27d71a4",
+        "at": "2026-11-04T20:20:46Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/base-types/pull/58",
+        "head": "a843bcbb2d971398985d8e839e03d856e27d71a4"
+      },
+      "parked": null
+    },
+    "change": {
+      "upstreams": [
+        "base-libraries"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-change"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.210",
+      "pin_vector": {
+        "base-libraries": "2.0.0-SNAPSHOT.463"
+      },
+      "adapt_rounds": 0,
+      "built": {
+        "head": "d0169c87c7ab186957859fa805b7728e92bb8502",
+        "at": "2026-11-04T20:21:17Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/change/pull/11",
+        "head": "d0169c87c7ab186957859fa805b7728e92bb8502"
+      },
+      "parked": null
+    }
+  },
+  "excluded": {
+    "tool-base": "excluded by --exclude",
+    "ProtoTap": "excluded by --exclude",
+    "compiler": "excluded by --exclude",
+    "validation": "excluded by --exclude",
+    "core-jvm-compiler": "excluded by --exclude",
+    "time": "excluded by --exclude",
+    "money": "excluded by --exclude",
+    "core-jvm": "excluded by --exclude",
+    "jdbc-storage": "excluded by --exclude",
+    "gcloud-jvm": "excluded by --exclude",
+    "delivery": "excluded by --exclude",
+    "BuildSpeed": "excluded by --exclude"
+  },
+  "closing_pr": "https://github.com/SpineEventEngine/config/pull/836"
+}
