@@ -87,7 +87,7 @@
         "group_path": "io/spine/tools",
         "artifact": "core-jvm-gradle-plugin"
       },
-      "state": "published-local",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.107",
       "pin_vector": {
         "compiler": "2.0.0-SNAPSHOT.085",
@@ -116,5 +116,5 @@
     "delivery": "excluded by --exclude",
     "gcloud-jvm": "excluded by --exclude"
   },
-  "closing_pr": null
+  "closing_pr": "https://github.com/SpineEventEngine/config/pull/847"
 }
