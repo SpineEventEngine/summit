@@ -60,7 +60,7 @@
         "group_path": "io/spine/tools",
         "artifact": "validation-java"
       },
-      "state": "bumped",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.472",
       "pin_vector": {
         "compiler": "2.0.0-SNAPSHOT.085"
@@ -95,10 +95,13 @@
       },
       "adapt_rounds": 0,
       "built": {
-        "head": "ba21ce52344f717d84e072d108fa8a3902921530",
-        "at": "2026-11-24T19:09:12Z"
+        "head": "d302534baf46d581d06dc6adc2bea4465e654f3c",
+        "at": "2026-11-24T19:23:31Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/core-jvm-compiler/pull/130",
+        "head": "d302534baf46d581d06dc6adc2bea4465e654f3c"
+      },
       "parked": null
     }
   },
