@@ -60,19 +60,19 @@
         "group_path": "io/spine/tools",
         "artifact": "validation-java"
       },
-      "state": "published-local",
+      "state": "pr-open",
       "target_version": "2.0.0-SNAPSHOT.471",
       "pin_vector": {
         "compiler": "2.0.0-SNAPSHOT.084"
       },
       "adapt_rounds": 2,
       "built": {
-        "head": "ae1b97dc60e135ecfaaa58eecf002d1674277762",
-        "at": "2026-11-24T13:48:59Z"
+        "head": "d76c3edbb6da9477f05c9017ed56a62e4a4baf7f",
+        "at": "2026-11-24T14:06:57Z"
       },
       "pr": {
         "url": "https://github.com/SpineEventEngine/validation/pull/342",
-        "head": "ae1b97dc60e135ecfaaa58eecf002d1674277762"
+        "head": "d76c3edbb6da9477f05c9017ed56a62e4a4baf7f"
       },
       "parked": null
     },
@@ -87,14 +87,17 @@
         "group_path": "io/spine/tools",
         "artifact": "core-jvm-gradle-plugin"
       },
-      "state": "bumped",
+      "state": "published-local",
       "target_version": "2.0.0-SNAPSHOT.106",
       "pin_vector": {
         "compiler": "2.0.0-SNAPSHOT.084",
         "validation": "2.0.0-SNAPSHOT.471"
       },
       "adapt_rounds": 1,
-      "built": null,
+      "built": {
+        "head": "2f4d80e963e653f52b8bb7e1c14551f4988ee99d",
+        "at": "2026-11-24T13:52:46Z"
+      },
       "pr": null,
       "parked": null
     },
@@ -111,10 +114,17 @@
         "artifact": "spine-core"
       },
       "state": "pending",
-      "target_version": null,
-      "pin_vector": {},
+      "target_version": "2.0.0-SNAPSHOT.771",
+      "pin_vector": {
+        "compiler": "2.0.0-SNAPSHOT.084",
+        "core-jvm-compiler": "2.0.0-SNAPSHOT.106",
+        "validation": "2.0.0-SNAPSHOT.471"
+      },
       "adapt_rounds": 0,
-      "built": null,
+      "built": {
+        "head": "d8964c4af7ab6cf57c614ee565ae406bc5273f1f",
+        "at": "2026-11-24T14:06:21Z"
+      },
       "pr": null,
       "parked": null
     }
