@@ -1132,6 +1132,15 @@ derive_state() { # <wave> <repo> -> prints state
     local parked; parked="$(mget "$wave" --arg r "$repo" '.repos[$r].parked // empty')"
     [ -n "$parked" ] && { echo parked; return; }
 
+    # A ripple seed given as `repo@version` is published by hand and has no wave
+    # branch, so the check below would read it as `pending`, and `next` would prep
+    # (and bump) it a second time.
+    local seedv; seedv="$(mget "$wave" '.seed.version // empty')"
+    if [ -n "$seedv" ] && [ "$repo" = "$(mget "$wave" '.seed.repo // empty')" ]; then
+        if registry_has "$repo" "$seedv"; then echo published-remote; else echo merged; fi
+        return
+    fi
+
     git -C "$dir" rev-parse --verify -q "$branch" >/dev/null 2>&1 || { echo pending; return; }
 
     # Terminal state, checked first: once the wave's target version is served by
