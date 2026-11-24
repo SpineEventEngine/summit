@@ -67,12 +67,12 @@
       },
       "adapt_rounds": 2,
       "built": {
-        "head": "d76c3edbb6da9477f05c9017ed56a62e4a4baf7f",
-        "at": "2026-11-24T14:06:57Z"
+        "head": "87029bda0fb6f1b66edec64dcfa65345adb1be67",
+        "at": "2026-11-24T14:16:51Z"
       },
       "pr": {
         "url": "https://github.com/SpineEventEngine/validation/pull/342",
-        "head": "d76c3edbb6da9477f05c9017ed56a62e4a4baf7f"
+        "head": "87029bda0fb6f1b66edec64dcfa65345adb1be67"
       },
       "parked": null
     },
