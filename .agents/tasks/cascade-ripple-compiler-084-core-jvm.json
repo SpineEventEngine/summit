@@ -87,7 +87,7 @@
         "group_path": "io/spine/tools",
         "artifact": "core-jvm-gradle-plugin"
       },
-      "state": "published-local",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.106",
       "pin_vector": {
         "compiler": "2.0.0-SNAPSHOT.084",
@@ -117,7 +117,7 @@
         "artifact": "spine-core"
       },
       "state": "published-local",
-      "target_version": "2.0.0-SNAPSHOT.771",
+      "target_version": "2.0.0-SNAPSHOT.781",
       "pin_vector": {
         "compiler": "2.0.0-SNAPSHOT.084",
         "core-jvm-compiler": "2.0.0-SNAPSHOT.106",
@@ -125,10 +125,13 @@
       },
       "adapt_rounds": 0,
       "built": {
-        "head": "d8964c4af7ab6cf57c614ee565ae406bc5273f1f",
-        "at": "2026-11-24T14:06:21Z"
+        "head": "f7a78b23827919944766d2b1e890eec158b735f3",
+        "at": "2026-11-24T16:57:14Z"
       },
-      "pr": null,
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/core-jvm/pull/1736",
+        "head": "f7a78b23827919944766d2b1e890eec158b735f3"
+      },
       "parked": null
     }
   },
