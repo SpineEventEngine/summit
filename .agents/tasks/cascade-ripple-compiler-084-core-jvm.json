@@ -116,7 +116,7 @@
         "group_path": "io/spine",
         "artifact": "spine-core"
       },
-      "state": "published-local",
+      "state": "published-remote",
       "target_version": "2.0.0-SNAPSHOT.781",
       "pin_vector": {
         "compiler": "2.0.0-SNAPSHOT.084",
@@ -145,5 +145,5 @@
     "delivery": "excluded by --exclude",
     "gcloud-jvm": "excluded by --exclude"
   },
-  "closing_pr": null
+  "closing_pr": "https://github.com/SpineEventEngine/config/pull/846"
 }
