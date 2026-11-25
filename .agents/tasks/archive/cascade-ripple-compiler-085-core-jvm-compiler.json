@@ -1,0 +1,120 @@
+{
+  "schema": 1,
+  "wave": "cascade-ripple-compiler-085-core-jvm-compiler",
+  "kind": "ripple",
+  "created": "2026-11-24T18:57:59Z",
+  "base": "master",
+  "config_sha": "97dee91e59d11e61a34bd6d1904077a058e74eb3",
+  "seed": {
+    "repo": "compiler",
+    "version": "2.0.0-SNAPSHOT.085"
+  },
+  "target": null,
+  "branch": "cascade-ripple-compiler-085-core-jvm-compiler",
+  "halted": null,
+  "order": [
+    "base-libraries",
+    "reflect",
+    "logging",
+    "testlib",
+    "dokka-tools",
+    "tool-base",
+    "ProtoTap",
+    "compiler",
+    "validation",
+    "core-jvm-compiler",
+    "base-types",
+    "change",
+    "time",
+    "money",
+    "core-jvm",
+    "jdbc-storage",
+    "gcloud-jvm",
+    "delivery",
+    "BuildSpeed"
+  ],
+  "repos": {
+    "compiler": {
+      "upstreams": [],
+      "class": "library",
+      "version_property": "compilerVersion",
+      "probe": {
+        "group_path": "io/spine/tools",
+        "artifact": "compiler-jvm"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.085",
+      "pin_vector": {},
+      "adapt_rounds": 0,
+      "built": null,
+      "pr": null,
+      "parked": null
+    },
+    "validation": {
+      "upstreams": [
+        "compiler"
+      ],
+      "class": "library",
+      "version_property": "validationVersion",
+      "probe": {
+        "group_path": "io/spine/tools",
+        "artifact": "validation-java"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.472",
+      "pin_vector": {
+        "compiler": "2.0.0-SNAPSHOT.085"
+      },
+      "adapt_rounds": 0,
+      "built": {
+        "head": "a54fd1c502a22d9b544eee0319a280ef32cbcf54",
+        "at": "2026-11-24T19:10:08Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/validation/pull/343",
+        "head": "a54fd1c502a22d9b544eee0319a280ef32cbcf54"
+      },
+      "parked": null
+    },
+    "core-jvm-compiler": {
+      "upstreams": [
+        "compiler",
+        "validation"
+      ],
+      "class": "library",
+      "version_property": "coreJvmCompilerVersion",
+      "probe": {
+        "group_path": "io/spine/tools",
+        "artifact": "core-jvm-gradle-plugin"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.107",
+      "pin_vector": {
+        "compiler": "2.0.0-SNAPSHOT.085",
+        "validation": "2.0.0-SNAPSHOT.472"
+      },
+      "adapt_rounds": 0,
+      "built": {
+        "head": "d302534baf46d581d06dc6adc2bea4465e654f3c",
+        "at": "2026-11-24T19:23:31Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/core-jvm-compiler/pull/130",
+        "head": "d302534baf46d581d06dc6adc2bea4465e654f3c"
+      },
+      "parked": null
+    }
+  },
+  "excluded": {
+    "BuildSpeed": "excluded by --exclude",
+    "money": "excluded by --exclude",
+    "base-types": "excluded by --exclude",
+    "change": "excluded by --exclude",
+    "core-jvm": "excluded by --exclude",
+    "time": "excluded by --exclude",
+    "jdbc-storage": "excluded by --exclude",
+    "delivery": "excluded by --exclude",
+    "gcloud-jvm": "excluded by --exclude"
+  },
+  "closing_pr": "https://github.com/SpineEventEngine/config/pull/847"
+}

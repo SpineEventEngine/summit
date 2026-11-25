@@ -1,0 +1,149 @@
+{
+  "schema": 1,
+  "wave": "cascade-ripple-compiler-084-core-jvm",
+  "kind": "ripple",
+  "created": "2026-11-24T13:29:11Z",
+  "base": "master",
+  "config_sha": "fab073c0399c8b49d56fce7b816583379664d940",
+  "seed": {
+    "repo": "compiler",
+    "version": "2.0.0-SNAPSHOT.084"
+  },
+  "target": null,
+  "branch": "cascade-ripple-compiler-084-core-jvm",
+  "halted": null,
+  "order": [
+    "base-libraries",
+    "reflect",
+    "logging",
+    "testlib",
+    "dokka-tools",
+    "tool-base",
+    "ProtoTap",
+    "compiler",
+    "validation",
+    "core-jvm-compiler",
+    "base-types",
+    "change",
+    "time",
+    "money",
+    "core-jvm",
+    "jdbc-storage",
+    "gcloud-jvm",
+    "delivery",
+    "BuildSpeed"
+  ],
+  "repos": {
+    "compiler": {
+      "upstreams": [],
+      "class": "library",
+      "version_property": "compilerVersion",
+      "probe": {
+        "group_path": "io/spine/tools",
+        "artifact": "compiler-jvm"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.084",
+      "pin_vector": {},
+      "adapt_rounds": 0,
+      "built": null,
+      "pr": null,
+      "parked": null
+    },
+    "validation": {
+      "upstreams": [
+        "compiler"
+      ],
+      "class": "library",
+      "version_property": "validationVersion",
+      "probe": {
+        "group_path": "io/spine/tools",
+        "artifact": "validation-java"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.471",
+      "pin_vector": {
+        "compiler": "2.0.0-SNAPSHOT.084"
+      },
+      "adapt_rounds": 2,
+      "built": {
+        "head": "87029bda0fb6f1b66edec64dcfa65345adb1be67",
+        "at": "2026-11-24T14:16:51Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/validation/pull/342",
+        "head": "87029bda0fb6f1b66edec64dcfa65345adb1be67"
+      },
+      "parked": null
+    },
+    "core-jvm-compiler": {
+      "upstreams": [
+        "compiler",
+        "validation"
+      ],
+      "class": "library",
+      "version_property": "coreJvmCompilerVersion",
+      "probe": {
+        "group_path": "io/spine/tools",
+        "artifact": "core-jvm-gradle-plugin"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.106",
+      "pin_vector": {
+        "compiler": "2.0.0-SNAPSHOT.084",
+        "validation": "2.0.0-SNAPSHOT.471"
+      },
+      "adapt_rounds": 1,
+      "built": {
+        "head": "bd6af5db7d1f4a88fc514e21313d6435645f57d8",
+        "at": "2026-11-24T15:53:30Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/core-jvm-compiler/pull/129",
+        "head": "bd6af5db7d1f4a88fc514e21313d6435645f57d8"
+      },
+      "parked": null
+    },
+    "core-jvm": {
+      "upstreams": [
+        "compiler",
+        "core-jvm-compiler",
+        "validation"
+      ],
+      "class": "library",
+      "version_property": "versionToPublish",
+      "probe": {
+        "group_path": "io/spine",
+        "artifact": "spine-core"
+      },
+      "state": "published-remote",
+      "target_version": "2.0.0-SNAPSHOT.781",
+      "pin_vector": {
+        "compiler": "2.0.0-SNAPSHOT.084",
+        "core-jvm-compiler": "2.0.0-SNAPSHOT.106",
+        "validation": "2.0.0-SNAPSHOT.471"
+      },
+      "adapt_rounds": 0,
+      "built": {
+        "head": "f7a78b23827919944766d2b1e890eec158b735f3",
+        "at": "2026-11-24T16:57:14Z"
+      },
+      "pr": {
+        "url": "https://github.com/SpineEventEngine/core-jvm/pull/1736",
+        "head": "f7a78b23827919944766d2b1e890eec158b735f3"
+      },
+      "parked": null
+    }
+  },
+  "excluded": {
+    "BuildSpeed": "excluded by --exclude",
+    "money": "excluded by --exclude",
+    "base-types": "excluded by --exclude",
+    "change": "excluded by --exclude",
+    "time": "excluded by --exclude",
+    "jdbc-storage": "excluded by --exclude",
+    "delivery": "excluded by --exclude",
+    "gcloud-jvm": "excluded by --exclude"
+  },
+  "closing_pr": "https://github.com/SpineEventEngine/config/pull/846"
+}
